@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">p2pLib</string>
+    <string name="accessibility_service_description">Automate ussd responces </string>
+</resources>
