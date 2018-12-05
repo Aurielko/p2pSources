@@ -8,7 +8,6 @@ import android.os.Build;
 import android.support.v4.app.ActivityCompat;
 import android.telephony.SmsManager;
 
-import com.example.p2plib2.Constants;
 import com.example.p2plib2.Logger;
 import com.example.p2plib2.PayLib;
 import com.example.p2plib2.ussd.USSDController;
@@ -25,7 +24,7 @@ public class MTS {
     private String number;
     private String sum;
     private Boolean sendWithSaveOutput;
-    public Boolean sendWithSaveInput;
+    private Boolean sendWithSaveInput;
     private Context cnt;
 
     public MTS(String number, String sum, Boolean sendWithSaveOutput, Boolean sendWithSaveInput, Context cnt) {
@@ -80,7 +79,7 @@ public class MTS {
     //ussd_mts_target,ussd_mts, sum, operDestination, act);
     public void sendUssd(String ussd_mts, final String number, final String sum, final String destOper, Activity act) {
         Logger.lg("Flagok " + flagok);
-        if (flagok = true) {
+        if (flagok == true) {
             final USSDController ussdController = USSDController.getInstance(act);
             ussdController.cleanCallbackMessage();
             HashMap map = new HashMap<>();
@@ -304,7 +303,7 @@ public class MTS {
 
                 @Override
                 public void over(String message) {
-                    PayLib.flagok = false;
+                    flagok = false;
                     result = message;
                     // message has the response string data from USSD
                     // response no have input text, NOT SEND ANY DATA

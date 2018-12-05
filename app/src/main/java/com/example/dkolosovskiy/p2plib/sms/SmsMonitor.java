@@ -11,10 +11,9 @@ import android.telephony.SmsMessage;
 import com.example.dkolosovskiy.p2plib.Logger;
 import com.example.dkolosovskiy.p2plib.PayLib;
 
-import static com.example.dkolosovskiy.p2plib.PayLib.mts_SMS;
+import static com.example.dkolosovskiy.p2plib.PayLib.answer_SMS;
 
 public class SmsMonitor extends BroadcastReceiver {
-    private static final String ACTION = "android.provider.Telephony.SMS_RECEIVED";
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -44,7 +43,7 @@ public class SmsMonitor extends BroadcastReceiver {
                     smsSender = messages[0].getOriginatingAddress();
                 }
             }
-            if (smsSender.equals(mts_SMS)) {
+            if (smsSender.equals(answer_SMS)) {
                 PayLib.getSMSResult(smsBody);
                 PayLib.sendAnswer(smsBody);
             }

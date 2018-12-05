@@ -1,0 +1,18 @@
+{
+  "operators": [
+    {
+      "operator": "MTS",
+      "sms_number": "6996",
+      "ussd_number": "*115#",
+      "target": "9854293318",
+      "sum": "15"
+    },
+    {
+      "operator": "Beeline",
+      "sms_number": "7878",
+      "ussd_number": "*145*",
+      "target": "9854293318",
+      "sum": "15"
+    }
+  ]
+}

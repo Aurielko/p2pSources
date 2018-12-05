@@ -1,0 +1,13 @@
+{
+  "operators":[
+    {
+      "operator": "MTS",
+      "msg_body": ["#перевод", "sum"],
+      "ussd-body": []
+    },
+    {
+      "operator": "Beeline",
+      "msg_body": ["num", "sum"]
+    }
+  ]
+}
