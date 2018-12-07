@@ -23,12 +23,7 @@ public class SmsService extends Service {
     private void processSms(Intent intent) {
         String smsBody = intent.getExtras().getString("sms_body");
         String operName = PayLib.getOperName();
-        switch (operName) {
-            case "MTS":
-                Logger.lg("answer mts");
-                PayLib.sendAnswer(smsBody);
-                break;
-        }
+        Logger.lg(" smsBody  " + smsBody );
+        PayLib.sendAnswer(smsBody);
     }
-
 }

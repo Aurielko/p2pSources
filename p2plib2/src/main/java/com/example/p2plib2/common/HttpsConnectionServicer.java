@@ -1,7 +1,5 @@
-package com.example.p2plib2.common;
+package  com.example.p2plib2.common;
 
-
-import android.util.Base64;
 
 import java.io.IOException;
 import java.net.URL;

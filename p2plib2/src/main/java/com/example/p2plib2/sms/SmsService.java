@@ -1,4 +1,4 @@
-package com.example.p2plib2.sms;
+package  com.example.p2plib2.sms;
 
 import android.app.Service;
 import android.content.Intent;
@@ -6,6 +6,7 @@ import android.os.IBinder;
 
 import com.example.p2plib2.Logger;
 import com.example.p2plib2.PayLib;
+
 
 public class SmsService extends Service {
 
@@ -24,12 +25,7 @@ public class SmsService extends Service {
     private void processSms(Intent intent) {
         String smsBody = intent.getExtras().getString("sms_body");
         String operName = PayLib.getOperName();
-        switch (operName) {
-            case "MTS":
-                Logger.lg("answer mts");
-                PayLib.sendAnswer(smsBody);
-                break;
-        }
+        Logger.lg(" smsBody  " + smsBody );
+        PayLib.sendAnswer(smsBody);
     }
-
 }

@@ -1,0 +1,287 @@
+-- Merging decision tree log ---
+manifest
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:2:1-80:12
+INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:2:1-80:12
+INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:2:1-80:12
+INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:2:1-80:12
+MERGED from [com.android.support:appcompat-v7:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\appcompat-v7-28.0.0.aar\1875b4aec80a8c3112b2dc6e3365d2cd\AndroidManifest.xml:17:1-22:12
+MERGED from [com.rmtheis:tess-two:5.4.1] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\tess-two-5.4.1.aar\61935e3719e9a446d6b7533cf70cf55f\AndroidManifest.xml:17:1-26:12
+MERGED from [com.android.support.constraint:constraint-layout:1.1.3] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\constraint-layout-1.1.3.aar\711d1df8b6eb288c7b6e6aa03c6d21eb\AndroidManifest.xml:2:1-11:12
+MERGED from [com.android.support:support-fragment:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\support-fragment-28.0.0.aar\14616292feb6906b18fcdeef4ad12cfd\AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:animated-vector-drawable:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\animated-vector-drawable-28.0.0.aar\313675363d4e1cef1e3dc4c513e5582c\AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:support-core-ui:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\support-core-ui-28.0.0.aar\426af43f5f34015892ceaa72c3ecf769\AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:support-core-utils:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\support-core-utils-28.0.0.aar\3e8fe365a678f08e2f52957a92601a39\AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:support-vector-drawable:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\support-vector-drawable-28.0.0.aar\929aa193999fb8b11de288a2745e45bb\AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:loader:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\loader-28.0.0.aar\323cf0b3f9f262e68093474f5d4c6171\AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:viewpager:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\viewpager-28.0.0.aar\5883e45322ef71dcccc44e3f0510629e\AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:coordinatorlayout:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\coordinatorlayout-28.0.0.aar\deae1c179b965d73f9eb5603d068c582\AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:drawerlayout:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\drawerlayout-28.0.0.aar\174fa06872ebf9118fd8447a11151826\AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:slidingpanelayout:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\slidingpanelayout-28.0.0.aar\d13200c6bf75878f6db877a12d27c1db\AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:customview:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\customview-28.0.0.aar\bb0ace9648a92c3d89f7eed2b54a8516\AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:swiperefreshlayout:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\swiperefreshlayout-28.0.0.aar\5d93f6ab035155c5a2d324fc06d324fb\AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:asynclayoutinflater:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\asynclayoutinflater-28.0.0.aar\cda07349c64253f2f6167b71af43e9a6\AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:support-compat:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\support-compat-28.0.0.aar\c4596f528d55b0584e860764718918f4\AndroidManifest.xml:17:1-24:12
+MERGED from [com.android.support:versionedparcelable:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\versionedparcelable-28.0.0.aar\aa500f94b5986a7c8d8a31880758ba9c\AndroidManifest.xml:17:1-25:12
+MERGED from [com.android.support:cursoradapter:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\cursoradapter-28.0.0.aar\529bcd097172d5a10f4775b3df9bf4b7\AndroidManifest.xml:17:1-22:12
+MERGED from [android.arch.lifecycle:runtime:1.1.1] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\runtime-1.1.1.aar\10a8acd654cb181140b1a95a3243610b\AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:documentfile:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\documentfile-28.0.0.aar\4244b285ae279a7c65f513705a01a010\AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:localbroadcastmanager:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\localbroadcastmanager-28.0.0.aar\bbf8a172c051c162a2cb22383de33fcd\AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:print:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\print-28.0.0.aar\df4b3c659778479a1adec90a316554ac\AndroidManifest.xml:17:1-22:12
+MERGED from [android.arch.lifecycle:viewmodel:1.1.1] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\viewmodel-1.1.1.aar\f170e9ab8c4cbcd3b09974f04862d064\AndroidManifest.xml:17:1-22:12
+MERGED from [android.arch.lifecycle:livedata:1.1.1] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\livedata-1.1.1.aar\da4dacbbb8802d53ac53a59fcedba0a6\AndroidManifest.xml:17:1-22:12
+MERGED from [android.arch.lifecycle:livedata-core:1.1.1] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\livedata-core-1.1.1.aar\852c441aa077049b3d0fb26a390b5bd8\AndroidManifest.xml:17:1-22:12
+MERGED from [android.arch.core:runtime:1.1.1] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\runtime-1.1.1.aar\cecbb64aa1270980af58dd9c846ae7c1\AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:interpolator:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\interpolator-28.0.0.aar\3b0bc139c0428238a4bf7498e8b12e3a\AndroidManifest.xml:17:1-22:12
+INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:2:1-80:12
+INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:2:1-80:12
+INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:2:1-80:12
+	package
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:4:5-46
+		INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml
+		INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml
+	android:versionName
+		INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:2:1-80:12
+		INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml
+	xmlns:tools
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:3:5-51
+	android:versionCode
+		INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:2:1-80:12
+		INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml
+	xmlns:android
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:2:11-69
+uses-permission#android.permission.CALL_PHONE
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:5:5-68
+	android:name
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:5:22-66
+uses-permission#android.permission.MODIFY_PHONE_STATE
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:6:5-77
+	android:name
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:6:22-74
+uses-permission#android.permission.READ_SMS
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:7:5-67
+	android:name
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:7:22-64
+uses-permission#android.permission.SEND_SMS
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:8:5-67
+	android:name
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:8:22-64
+uses-permission#android.permission.READ_PHONE_STATE
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:9:5-75
+	android:name
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:9:22-72
+uses-permission#android.permission.RECEIVE_SMS
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:10:5-69
+	android:name
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:10:22-67
+uses-permission#android.permission.WRITE_SMS
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:11:5-67
+	android:name
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:11:22-65
+uses-permission#android.permission.READ_EXTERNAL_STORAGE
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:12:5-80
+	android:name
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:12:22-77
+uses-permission#android.permission.WRITE_EXTERNAL_STORAGE
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:13:5-81
+	android:name
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:13:22-78
+uses-permission#android.permission.SYSTEM_ALERT_WINDOW
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:14:5-78
+	android:name
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:14:22-75
+uses-permission#android.permission.CHANGE_NETWORK_STATE
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:15:5-78
+	android:name
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:15:22-76
+uses-permission#android.permission.INTERNET
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:16:5-66
+	android:name
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:16:22-64
+application
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:19:5-78:19
+MERGED from [com.android.support.constraint:constraint-layout:1.1.3] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\constraint-layout-1.1.3.aar\711d1df8b6eb288c7b6e6aa03c6d21eb\AndroidManifest.xml:9:5-20
+MERGED from [com.android.support.constraint:constraint-layout:1.1.3] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\constraint-layout-1.1.3.aar\711d1df8b6eb288c7b6e6aa03c6d21eb\AndroidManifest.xml:9:5-20
+MERGED from [com.android.support:support-compat:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\support-compat-28.0.0.aar\c4596f528d55b0584e860764718918f4\AndroidManifest.xml:22:5-94
+MERGED from [com.android.support:support-compat:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\support-compat-28.0.0.aar\c4596f528d55b0584e860764718918f4\AndroidManifest.xml:22:5-94
+MERGED from [com.android.support:versionedparcelable:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\versionedparcelable-28.0.0.aar\aa500f94b5986a7c8d8a31880758ba9c\AndroidManifest.xml:22:5-23:19
+MERGED from [com.android.support:versionedparcelable:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\versionedparcelable-28.0.0.aar\aa500f94b5986a7c8d8a31880758ba9c\AndroidManifest.xml:22:5-23:19
+	android:appComponentFactory
+		ADDED from [com.android.support:support-compat:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\support-compat-28.0.0.aar\c4596f528d55b0584e860764718918f4\AndroidManifest.xml:22:18-91
+	android:supportsRtl
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:24:9-35
+	android:label
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:22:9-41
+	android:roundIcon
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:23:9-54
+	android:icon
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:21:9-43
+	android:allowBackup
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:20:9-35
+	android:theme
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:25:9-40
+receiver#com.example.dkolosovskiy.p2plib.sms.SmsMonitor
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:26:9-31:20
+	android:permission
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:27:13-66
+	android:name
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:26:19-49
+intent-filter#action:name:android.provider.Telephony.SMS_DELIVER
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:28:13-30:29
+action#android.provider.Telephony.SMS_DELIVER
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:29:17-81
+	android:name
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:29:25-78
+receiver#com.example.dkolosovskiy.p2plib.sms.MmsReceiver
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:34:9-40:20
+	android:permission
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:35:13-71
+	android:name
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:34:19-50
+intent-filter#action:name:android.provider.Telephony.WAP_PUSH_DELIVER+data:mimeType:application/vnd.wap.mms-message
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:36:13-39:29
+action#android.provider.Telephony.WAP_PUSH_DELIVER
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:37:17-86
+	android:name
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:37:25-83
+data
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:38:17-76
+	android:scheme
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:60:23-43
+	android:mimeType
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:38:23-73
+service#com.example.dkolosovskiy.p2plib.ussd.AccessService
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:41:9-50:19
+	android:permission
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:43:13-79
+	android:name
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:42:13-47
+intent-filter#action:name:android.accessibilityservice.AccessibilityService
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:44:13-46:29
+action#android.accessibilityservice.AccessibilityService
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:45:17-92
+	android:name
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:45:25-89
+meta-data#android.accessibilityservice
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:47:13-49:56
+	android:resource
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:49:17-53
+	android:name
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:48:17-60
+activity#com.example.dkolosovskiy.p2plib.PayLib
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:51:9-65:20
+	android:name
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:51:19-41
+intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:52:13-55:29
+action#android.intent.action.MAIN
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:53:17-69
+	android:name
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:53:25-66
+category#android.intent.category.LAUNCHER
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:54:17-77
+	android:name
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:54:27-74
+intent-filter#action:name:android.intent.action.SEND+action:name:android.intent.action.SENDTO+category:name:android.intent.category.BROWSABLE+category:name:android.intent.category.DEFAULT+data:scheme:mms+data:scheme:mmsto+data:scheme:sms+data:scheme:smsto
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:55:29-64:29
+action#android.intent.action.SEND
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:56:17-69
+	android:name
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:56:25-66
+action#android.intent.action.SENDTO
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:57:17-71
+	android:name
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:57:25-68
+category#android.intent.category.DEFAULT
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:58:17-76
+	android:name
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:58:27-73
+category#android.intent.category.BROWSABLE
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:59:17-78
+	android:name
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:59:27-75
+service#com.example.dkolosovskiy.p2plib.sms.SmsService
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:66:9-77:19
+	android:exported
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:68:13-36
+	android:permission
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:67:13-77
+	android:name
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:66:18-48
+intent-filter#action:name:android.intent.action.RESPOND_VIA_MESSAGE+category:name:android.intent.category.DEFAULT+data:scheme:mms+data:scheme:mmsto+data:scheme:sms+data:scheme:smsto
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:69:13-76:29
+action#android.intent.action.RESPOND_VIA_MESSAGE
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:70:17-84
+	android:name
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:70:25-81
+uses-sdk
+INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml
+INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml
+MERGED from [com.android.support:appcompat-v7:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\appcompat-v7-28.0.0.aar\1875b4aec80a8c3112b2dc6e3365d2cd\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:appcompat-v7:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\appcompat-v7-28.0.0.aar\1875b4aec80a8c3112b2dc6e3365d2cd\AndroidManifest.xml:20:5-44
+MERGED from [com.rmtheis:tess-two:5.4.1] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\tess-two-5.4.1.aar\61935e3719e9a446d6b7533cf70cf55f\AndroidManifest.xml:22:5-24:41
+MERGED from [com.rmtheis:tess-two:5.4.1] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\tess-two-5.4.1.aar\61935e3719e9a446d6b7533cf70cf55f\AndroidManifest.xml:22:5-24:41
+MERGED from [com.android.support.constraint:constraint-layout:1.1.3] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\constraint-layout-1.1.3.aar\711d1df8b6eb288c7b6e6aa03c6d21eb\AndroidManifest.xml:5:5-7:41
+MERGED from [com.android.support.constraint:constraint-layout:1.1.3] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\constraint-layout-1.1.3.aar\711d1df8b6eb288c7b6e6aa03c6d21eb\AndroidManifest.xml:5:5-7:41
+MERGED from [com.android.support:support-fragment:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\support-fragment-28.0.0.aar\14616292feb6906b18fcdeef4ad12cfd\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-fragment:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\support-fragment-28.0.0.aar\14616292feb6906b18fcdeef4ad12cfd\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:animated-vector-drawable:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\animated-vector-drawable-28.0.0.aar\313675363d4e1cef1e3dc4c513e5582c\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:animated-vector-drawable:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\animated-vector-drawable-28.0.0.aar\313675363d4e1cef1e3dc4c513e5582c\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-core-ui:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\support-core-ui-28.0.0.aar\426af43f5f34015892ceaa72c3ecf769\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-core-ui:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\support-core-ui-28.0.0.aar\426af43f5f34015892ceaa72c3ecf769\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-core-utils:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\support-core-utils-28.0.0.aar\3e8fe365a678f08e2f52957a92601a39\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-core-utils:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\support-core-utils-28.0.0.aar\3e8fe365a678f08e2f52957a92601a39\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-vector-drawable:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\support-vector-drawable-28.0.0.aar\929aa193999fb8b11de288a2745e45bb\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-vector-drawable:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\support-vector-drawable-28.0.0.aar\929aa193999fb8b11de288a2745e45bb\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:loader:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\loader-28.0.0.aar\323cf0b3f9f262e68093474f5d4c6171\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:loader:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\loader-28.0.0.aar\323cf0b3f9f262e68093474f5d4c6171\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:viewpager:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\viewpager-28.0.0.aar\5883e45322ef71dcccc44e3f0510629e\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:viewpager:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\viewpager-28.0.0.aar\5883e45322ef71dcccc44e3f0510629e\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:coordinatorlayout:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\coordinatorlayout-28.0.0.aar\deae1c179b965d73f9eb5603d068c582\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:coordinatorlayout:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\coordinatorlayout-28.0.0.aar\deae1c179b965d73f9eb5603d068c582\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:drawerlayout:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\drawerlayout-28.0.0.aar\174fa06872ebf9118fd8447a11151826\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:drawerlayout:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\drawerlayout-28.0.0.aar\174fa06872ebf9118fd8447a11151826\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:slidingpanelayout:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\slidingpanelayout-28.0.0.aar\d13200c6bf75878f6db877a12d27c1db\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:slidingpanelayout:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\slidingpanelayout-28.0.0.aar\d13200c6bf75878f6db877a12d27c1db\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:customview:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\customview-28.0.0.aar\bb0ace9648a92c3d89f7eed2b54a8516\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:customview:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\customview-28.0.0.aar\bb0ace9648a92c3d89f7eed2b54a8516\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:swiperefreshlayout:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\swiperefreshlayout-28.0.0.aar\5d93f6ab035155c5a2d324fc06d324fb\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:swiperefreshlayout:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\swiperefreshlayout-28.0.0.aar\5d93f6ab035155c5a2d324fc06d324fb\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:asynclayoutinflater:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\asynclayoutinflater-28.0.0.aar\cda07349c64253f2f6167b71af43e9a6\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:asynclayoutinflater:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\asynclayoutinflater-28.0.0.aar\cda07349c64253f2f6167b71af43e9a6\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-compat:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\support-compat-28.0.0.aar\c4596f528d55b0584e860764718918f4\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-compat:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\support-compat-28.0.0.aar\c4596f528d55b0584e860764718918f4\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:versionedparcelable:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\versionedparcelable-28.0.0.aar\aa500f94b5986a7c8d8a31880758ba9c\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:versionedparcelable:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\versionedparcelable-28.0.0.aar\aa500f94b5986a7c8d8a31880758ba9c\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:cursoradapter:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\cursoradapter-28.0.0.aar\529bcd097172d5a10f4775b3df9bf4b7\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:cursoradapter:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\cursoradapter-28.0.0.aar\529bcd097172d5a10f4775b3df9bf4b7\AndroidManifest.xml:20:5-44
+MERGED from [android.arch.lifecycle:runtime:1.1.1] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\runtime-1.1.1.aar\10a8acd654cb181140b1a95a3243610b\AndroidManifest.xml:20:5-44
+MERGED from [android.arch.lifecycle:runtime:1.1.1] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\runtime-1.1.1.aar\10a8acd654cb181140b1a95a3243610b\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:documentfile:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\documentfile-28.0.0.aar\4244b285ae279a7c65f513705a01a010\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:documentfile:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\documentfile-28.0.0.aar\4244b285ae279a7c65f513705a01a010\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:localbroadcastmanager:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\localbroadcastmanager-28.0.0.aar\bbf8a172c051c162a2cb22383de33fcd\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:localbroadcastmanager:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\localbroadcastmanager-28.0.0.aar\bbf8a172c051c162a2cb22383de33fcd\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:print:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\print-28.0.0.aar\df4b3c659778479a1adec90a316554ac\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:print:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\print-28.0.0.aar\df4b3c659778479a1adec90a316554ac\AndroidManifest.xml:20:5-44
+MERGED from [android.arch.lifecycle:viewmodel:1.1.1] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\viewmodel-1.1.1.aar\f170e9ab8c4cbcd3b09974f04862d064\AndroidManifest.xml:20:5-44
+MERGED from [android.arch.lifecycle:viewmodel:1.1.1] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\viewmodel-1.1.1.aar\f170e9ab8c4cbcd3b09974f04862d064\AndroidManifest.xml:20:5-44
+MERGED from [android.arch.lifecycle:livedata:1.1.1] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\livedata-1.1.1.aar\da4dacbbb8802d53ac53a59fcedba0a6\AndroidManifest.xml:20:5-44
+MERGED from [android.arch.lifecycle:livedata:1.1.1] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\livedata-1.1.1.aar\da4dacbbb8802d53ac53a59fcedba0a6\AndroidManifest.xml:20:5-44
+MERGED from [android.arch.lifecycle:livedata-core:1.1.1] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\livedata-core-1.1.1.aar\852c441aa077049b3d0fb26a390b5bd8\AndroidManifest.xml:20:5-44
+MERGED from [android.arch.lifecycle:livedata-core:1.1.1] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\livedata-core-1.1.1.aar\852c441aa077049b3d0fb26a390b5bd8\AndroidManifest.xml:20:5-44
+MERGED from [android.arch.core:runtime:1.1.1] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\runtime-1.1.1.aar\cecbb64aa1270980af58dd9c846ae7c1\AndroidManifest.xml:20:5-44
+MERGED from [android.arch.core:runtime:1.1.1] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\runtime-1.1.1.aar\cecbb64aa1270980af58dd9c846ae7c1\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:interpolator:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\interpolator-28.0.0.aar\3b0bc139c0428238a4bf7498e8b12e3a\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:interpolator:28.0.0] C:\Users\dkolosovskiy\.gradle\caches\transforms-1\files-1.1\interpolator-28.0.0.aar\3b0bc139c0428238a4bf7498e8b12e3a\AndroidManifest.xml:20:5-44
+INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml
+INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml
+		INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml
+		INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml

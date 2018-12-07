@@ -11,13 +11,15 @@ import android.telephony.SmsMessage;
 import com.example.dkolosovskiy.p2plib.Logger;
 import com.example.dkolosovskiy.p2plib.PayLib;
 
-import static com.example.dkolosovskiy.p2plib.PayLib.answer_SMS;
+import static com.example.dkolosovskiy.p2plib.PayLib.operator;
+
 
 public class SmsMonitor extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Logger.lg("I receive!");
+        Logger.lg("New sms! " + intent.getAction() + " null " + (intent!=null));
+        PayLib.send();
         if (intent.getAction().equals(Telephony.Sms.Intents.SMS_RECEIVED_ACTION)) {
             String smsSender = "";
             String smsBody = "";
@@ -43,10 +45,19 @@ public class SmsMonitor extends BroadcastReceiver {
                     smsSender = messages[0].getOriginatingAddress();
                 }
             }
-            if (smsSender.equals(answer_SMS)) {
+            Logger.lg("sender " + smsSender);
+            if (smsSender.equals(operator.smsNum) || smsSender.toUpperCase().equals(operator.name)) {
                 PayLib.getSMSResult(smsBody);
                 PayLib.sendAnswer(smsBody);
             }
+        } else if (intent.getAction().equals(Telephony.Sms.Intents.SMS_DELIVER_ACTION)){
+            String smsSender = "";
+            String smsBody = "";
+            for (SmsMessage smsMessage : Telephony.Sms.Intents.getMessagesFromIntent(intent)) {
+                smsSender = smsMessage.getDisplayOriginatingAddress();
+                smsBody += smsMessage.getMessageBody();
+            }
+            Logger.lg("smsSender " + smsSender + " smsBody " + smsBody) ;
         }
     }
 }

