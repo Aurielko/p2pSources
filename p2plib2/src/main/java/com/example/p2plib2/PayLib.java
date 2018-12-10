@@ -200,7 +200,7 @@ public class PayLib implements PayInterface {
                     if (iko != 0) {
                         flag++;
                     }
-                    Logger.lg("Delete result " + iko);
+                    Logger.lg("Delete result " + iko  + " " + flag);
                 }
             } while (c.moveToNext());
         }
