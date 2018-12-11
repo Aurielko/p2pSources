@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<Flows>
+<Operator>
+    <prop id="name">Beeline</prop>
+    <prop id="flow">
+        <step>
+            <prop id="inputBody">подтверждения перевода</prop>
+            <prop id="responseBody">[parse]</prop>
+            <prop id="addParam"></prop>
+        </step>
+    </prop>
+</Operator>
+</Flows>
