@@ -121,12 +121,12 @@ MERGED from [com.android.support:versionedparcelable:28.0.0] C:\Users\dkolosovsk
 		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:20:9-35
 	android:theme
 		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:25:9-40
-receiver#com.p2plib.sms.SmsMonitor
+receiver#com.p2plib2.sms.SmsMonitor
 ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:26:9-35:20
 	android:permission
 		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:27:13-66
 	android:name
-		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:26:19-49
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:26:19-60
 intent-filter#action:name:android.provider.Telephony.SMS_DELIVER
 ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:28:13-30:29
 action#android.provider.Telephony.SMS_DELIVER
@@ -143,12 +143,12 @@ action#android.provider.Telephony.SMS_RECEIVED
 ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:33:17-82
 	android:name
 		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:33:25-79
-receiver#com.p2plib.sms.MmsReceiver
+receiver#com.p2plib2.sms.MmsReceiver
 ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:38:9-44:20
 	android:permission
 		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:39:13-71
 	android:name
-		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:38:19-50
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:38:19-61
 intent-filter#action:name:android.provider.Telephony.WAP_PUSH_DELIVER+data:mimeType:application/vnd.wap.mms-message
 ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:40:13-43:29
 action#android.provider.Telephony.WAP_PUSH_DELIVER
@@ -161,12 +161,12 @@ ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\Andro
 		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:65:23-43
 	android:mimeType
 		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:42:23-73
-service#com.p2plib.ussd.AccessService
+service#com.p2plib2.ussd.AccessService
 ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:45:9-54:19
 	android:permission
 		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:47:13-79
 	android:name
-		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:46:13-47
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:46:13-58
 intent-filter#action:name:android.accessibilityservice.AccessibilityService
 ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:48:13-50:29
 action#android.accessibilityservice.AccessibilityService
@@ -179,10 +179,10 @@ ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\Andro
 		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:53:17-53
 	android:name
 		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:52:17-60
-activity#com.p2plib.PayLib
+activity#com.p2plib2.MainActivity
 ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:55:9-70:20
 	android:name
-		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:55:19-41
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:55:19-58
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
 ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:56:13-59:29
 action#android.intent.action.MAIN
@@ -207,14 +207,14 @@ category#android.intent.category.BROWSABLE
 ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:64:17-78
 	android:name
 		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:64:27-75
-service#com.p2plib.sms.SmsService
+service#com.p2plib2.sms.SmsService
 ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:71:9-82:19
 	android:exported
 		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:73:13-36
 	android:permission
 		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:72:13-77
 	android:name
-		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:71:18-48
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:71:18-59
 intent-filter#action:name:android.intent.action.RESPOND_VIA_MESSAGE+category:name:android.intent.category.DEFAULT+data:scheme:mms+data:scheme:mmsto+data:scheme:sms+data:scheme:smsto
 ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:74:13-81:29
 action#android.intent.action.RESPOND_VIA_MESSAGE

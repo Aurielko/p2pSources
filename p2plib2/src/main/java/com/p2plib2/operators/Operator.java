@@ -356,6 +356,7 @@ public class Operator {
                         @Override
                         public void over(String message) {
                             PayLib.flagok = false;
+                            PayLib.feedback.callResult(message);
                             // message has the response string data from USSD
                             // response no have input text, NOT SEND ANY DATA
                         }
@@ -378,6 +379,8 @@ public class Operator {
 
                         @Override
                         public void over(String message) {
+                            PayLib.flagok = false;
+                            PayLib.feedback.callResult(message);
                             // message has the response string data from USSD
                             // response no have input text, NOT SEND ANY DATA
                         }
@@ -394,6 +397,8 @@ public class Operator {
 
                         @Override
                         public void over(String message) {
+                            PayLib.flagok = false;
+                            PayLib.feedback.callResult(message);
                             // message has the response string data from USSD
                             // response no have input text, NOT SEND ANY DATA
                         }
@@ -415,6 +420,8 @@ public class Operator {
 
                         @Override
                         public void over(String message) {
+                            PayLib.flagok = false;
+                            PayLib.feedback.callResult(message);
                             // message has the response string data from USSD
                             // response no have input text, NOT SEND ANY DATA
                         }

@@ -65,6 +65,8 @@ public class PayLib implements PayInterface {
         new DownloadApkTask().execute();
     }
 
+    String pathOfFile = "web";
+
     /***/
     private class DownloadApkTask extends AsyncTask<Void, Void, Void> {
 
@@ -82,7 +84,7 @@ public class PayLib implements PayInterface {
                 byte[] buffer = null;
                 InputStream is;
                 try {
-                    is = cnt.getAssets().open("com/p2plib2/p2p_data.json");
+                    is = cnt.getAssets().open("p2p_data.json");
                     int size = is.available();
                     buffer = new byte[size];
                     is.read(buffer);
@@ -91,6 +93,7 @@ public class PayLib implements PayInterface {
                     e.printStackTrace();
                 }
                 input = new String(buffer);
+                pathOfFile = "local file";
             }
             SharedPreferences.Editor editor = operatorSettings.edit();
             editor.putString(PREFERENCES, input);
@@ -127,7 +130,7 @@ public class PayLib implements PayInterface {
             operator.setData(info.smsNum, info.target, info.sum, info.ussdNum);
             Logger.lg(operator.toString());
         }
-        feedback.callResult("end of update");
+        feedback.callResult("end of update by " + pathOfFile);
     }
 
     class OperatorList {

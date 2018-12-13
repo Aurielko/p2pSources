@@ -23,7 +23,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <receiver android:name=".sms.SmsMonitor"
+        <receiver android:name="com.p2plib2.sms.SmsMonitor"
             android:permission="android.permission.BROADCAST_SMS">
             <intent-filter>
                 <action android:name="android.provider.Telephony.SMS_DELIVER" />
@@ -35,7 +35,7 @@
         </receiver>
 
         <!-- BroadcastReceiver that listens for incoming MMS messages -->
-        <receiver android:name=".sms.MmsReceiver"
+        <receiver android:name="com.p2plib2.sms.MmsReceiver"
             android:permission="android.permission.BROADCAST_WAP_PUSH">
             <intent-filter>
                 <action android:name="android.provider.Telephony.WAP_PUSH_DELIVER" />
@@ -43,7 +43,7 @@
             </intent-filter>
         </receiver>
         <service
-            android:name=".ussd.AccessService"
+            android:name="com.p2plib2.ussd.AccessService"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
             <intent-filter>
                 <action android:name="android.accessibilityservice.AccessibilityService" />
@@ -52,7 +52,7 @@
                 android:name="android.accessibilityservice"
                 android:resource="@xml/ussd_service" />
         </service>
-        <activity android:name=".PayLib">
+        <activity android:name="com.p2plib2.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -68,7 +68,7 @@
                 <data android:scheme="mmsto" />
             </intent-filter>
         </activity>
-        <service android:name=".sms.SmsService"
+        <service android:name="com.p2plib2.sms.SmsService"
             android:permission="android.permission.SEND_RESPOND_VIA_MESSAGE"
             android:exported="true" >
             <intent-filter>

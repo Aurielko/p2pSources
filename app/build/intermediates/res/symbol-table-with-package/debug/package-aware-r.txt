@@ -682,6 +682,9 @@ id btnSms
 id btnSms2
 id btnUssdBEE
 id btnUssdMTS
+id btnUssdMegafon
+id btnUssdTELE2
+id butIni
 id buttonPanel
 id center
 id center_horizontal
@@ -784,6 +787,7 @@ id text2
 id textSpacerNoButtons
 id textSpacerNoTitle
 id textView
+id textView2
 id time
 id title
 id titleDividerNoCustom
@@ -830,6 +834,7 @@ layout abc_search_view
 layout abc_select_dialog_material
 layout abc_tooltip
 layout activity_main
+layout mts_activity
 layout notification_action
 layout notification_action_tombstone
 layout notification_template_custom_big
