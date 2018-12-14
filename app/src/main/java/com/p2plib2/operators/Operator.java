@@ -55,20 +55,20 @@ public class Operator {
         SmsManager smsManager = SmsManager.getDefault();
         this.sendWithSaveOutput = sendWithSaveOutput;
         try {
-        Logger.lg(name + " num " + number + " " + sendWithSaveInput + " " + msgBody);
-        // PendingIntent piSent = PendingIntent.getBroadcast(cnt, 0, new Intent("SMS_SENT"), 0);
-        PayLib.currentMsg = number + "[]" + msgBody;
-        if (sendWithSaveOutput) {
-            smsManager.sendTextMessage(number, null, msgBody, null, null);
-        } else {
-            Logger.lg("Build.VERSION.SDK_INT  " + Build.VERSION.SDK_INT + " " + Build.VERSION_CODES.P );
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                smsManager.sendTextMessageWithoutPersisting(number, null, msgBody, null, null);
-            } else{
+            Logger.lg(name + " num " + number + " " + sendWithSaveInput + " " + msgBody);
+            // PendingIntent piSent = PendingIntent.getBroadcast(cnt, 0, new Intent("SMS_SENT"), 0);
+            PayLib.currentMsg = number + "[]" + msgBody;
+            if (sendWithSaveOutput) {
                 smsManager.sendTextMessage(number, null, msgBody, null, null);
-                PayLib.feedback.callResult("Please, delete sms manually");
+            } else {
+                Logger.lg("Build.VERSION.SDK_INT  " + Build.VERSION.SDK_INT + " " + Build.VERSION_CODES.P);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    smsManager.sendTextMessageWithoutPersisting(number, null, msgBody, null, null);
+                } else {
+                    smsManager.sendTextMessage(number, null, msgBody, null, null);
+                    PayLib.feedback.callResult("Please, delete sms manually");
+                }
             }
-        }
         } catch (Exception e) {
             Logger.lg("Something wrong! " + e.getMessage());
         }
@@ -109,7 +109,7 @@ public class Operator {
     public void sendAnswer(String smsBody, String smsSender) {
         String sms_body = smsBody.toLowerCase();
         Logger.lg("sendAnswer " + sms_body);
-        if (sms_body.contains("отправьте") || sms_body.contains("ответьте")|| sms_body.contains("подтвердите")) {
+        if (sms_body.contains("отправьте") || sms_body.contains("ответьте") || sms_body.contains("подтвердите")) {
             SmsManager smsManager = SmsManager.getDefault();
             String answ = "";
 //            PendingIntent sentPI = PendingIntent.getBroadcast(cnt, 0, new Intent(
@@ -121,7 +121,7 @@ public class Operator {
             }
             if (sms_body.contains("ответьте") || sms_body.contains("на номер")) {
                 smsNum = sms_body.substring(sms_body.indexOf("на номер") + 8).replaceAll("[^0-9]", "");
-            } else if(sms_body.contains("ответном")){
+            } else if (sms_body.contains("ответном")) {
                 smsNum = smsSender;
             }
             Logger.lg("Answer  " + answ + " smsNum " + smsNum);
