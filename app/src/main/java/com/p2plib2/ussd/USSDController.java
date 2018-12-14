@@ -11,10 +11,12 @@ import android.content.pm.ApplicationInfo;
 import android.net.Uri;
 import android.provider.Settings;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.accessibility.AccessibilityManager;
 
 
 import com.p2plib2.Logger;
+import com.p2plib2.operators.Operator;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -98,7 +100,8 @@ public class USSDController implements USSDInterface {
             Logger.lg(ussdPhoneNumber + " ussdPhoneNumber ");
             if (uriPhone != null) {
                 Intent intent = new Intent(Intent.ACTION_CALL, uriPhone);
-                if (simNum != null) {
+                Logger.lg("Operator.simNum" + Operator.simNum);
+                if (Operator.simNum != null) {
                     intent.putExtra("com.android.phone.extra.slot", simNum);
                 }
                 context.startActivity(intent);

@@ -21,6 +21,7 @@ import java.util.HashSet;
 
 import static com.p2plib2.Constants.pBody;
 import static com.p2plib2.PayLib.flagok;
+import static com.p2plib2.operators.Operator.simNum;
 
 
 /**
@@ -93,9 +94,13 @@ public class USSDController implements USSDInterface{
             Logger.lg("controller5 " + ussdPhoneNumber);
             Uri uriPhone = Uri.parse("tel:" + ussdPhoneNumber);
             Logger.lg(ussdPhoneNumber + " ussdPhoneNumber ");
-            if (uriPhone != null)
-                context.startActivity(new Intent(Intent.ACTION_CALL, uriPhone));
-            //  }
+            if (uriPhone != null){
+                Intent intent = new Intent(Intent.ACTION_CALL, uriPhone);
+                if (simNum != null) {
+                    intent.putExtra("com.android.phone.extra.slot", simNum);
+                }
+                context.startActivity(intent);
+             }
         }
     }
 

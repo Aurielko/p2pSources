@@ -12,7 +12,7 @@ public interface PayInterface {
 
     void sendUssd(String operDestination, Activity act);
 
-    void updateData(Activity act, Context cnt, CallSmsResult res, Boolean sendWithSaveOutput, Boolean sendWithSaveInput);
+    void updateData(Activity act, Context cnt, CallSmsResult res);
     void setFilter(HashMap<String, String> filters);
 
     void  simChooser(Context cnt, String operation);

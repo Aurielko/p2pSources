@@ -2,10 +2,13 @@ package com.p2plib2;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -60,10 +63,11 @@ public class PayLib implements PayInterface {
     }
 
     @Override
-    public void updateData(Activity act, Context cnt, CallSmsResult feedback, Boolean sendWithSaveOutput, Boolean sendWithSaveInput) {
+    public void updateData(Activity act, Context cnt, CallSmsResult feedback) {
         this.feedback = feedback;
         this.cnt = cnt;
         this.act = act;
+
         CommonFunctions.permissionCheck(cnt, act);
         USSDController.verifyAccesibilityAccess(act);
         verifyAccesibilityAccess(act);
@@ -71,6 +75,59 @@ public class PayLib implements PayInterface {
         /*Create necessary objects*/
         operName = CommonFunctions.operName(cnt);
         new DownloadApkTask().execute();
+        MyContentObserver contentObserver = new MyContentObserver();
+        ContentResolver contentResolver = cnt.getContentResolver();
+        contentResolver.registerContentObserver(Uri.parse("content://sms"), true, contentObserver);
+    }
+
+    public static String currentMsg = "";
+
+    private class MyContentObserver extends ContentObserver {
+        public MyContentObserver() {
+            super(null);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            super.onChange(selfChange);
+            Uri uriSMSURI = Uri.parse("content://sms/");
+            Cursor cur = cnt.getContentResolver().query(uriSMSURI, null, null, null, null);
+
+            if (cur.moveToNext()) {
+                String message_id = cur.getString(cur.getColumnIndex("_id"));
+                String type = cur.getString(cur.getColumnIndex("type"));
+                String numeroTelephone = cur.getString(cur.getColumnIndex("address")).trim();
+                String status = cur.getString(cur.getColumnIndex("status")).trim();
+                String body =  cur.getString(cur.getColumnIndex("body")).trim();
+                //0: _id
+                //1: thread_id
+                //2: address
+                //3: person
+                //4: date
+                //5: protocol
+                //6: read
+                //7: status
+                //8: type
+                //9: reply_path_present
+                //10: subject
+                //11: body
+                //12: service_center
+                //13: locked
+                Logger.lg("message_id  " + message_id + " " + type + " " + numeroTelephone + " " + status);
+//               number + "[]" + msgBody;
+                if ((status.equals("-1") || status == null) && !currentMsg.equals("")) {
+                    if (currentMsg.substring(0, currentMsg.indexOf("[]")).contains(numeroTelephone) && currentMsg.substring(currentMsg.indexOf("[]")+2).contains(body) ) {
+                        feedback.callResult("Error SMS sending " + status);
+                    }
+                }
+            }
+        }
+
+
+        @Override
+        public boolean deliverSelfNotifications() {
+            return false;
+        }
     }
 
     String pathOfFile = "web";
@@ -130,34 +187,46 @@ public class PayLib implements PayInterface {
     }
 
 
+
+
     public void setOperatorData(Boolean sendWithSaveOutput, Boolean sendWithSaveInput) {
         operatorSMS = new Operator(CommonFunctions.operName(cnt), sendWithSaveOutput, sendWithSaveInput, cnt);
         operatorUssd = new Operator(CommonFunctions.operName(cnt), sendWithSaveOutput, sendWithSaveInput, cnt);
         TelephonyManager telephonyManager = (TelephonyManager) act.getSystemService(Context.TELEPHONY_SERVICE);
+        SmsManager mgr = SmsManager.getDefault();
         if (telephonyManager.getPhoneCount() == 1) {
             OperatorInfo info = operatorInfo.get(getOperName());
             operatorSMS.setData(info.smsNum, info.target, info.sum, info.ussdNum);
             operatorUssd.setData(info.smsNum, info.target, info.sum, info.ussdNum);
         } else {
-            if (operatorInfo.containsKey(operatorSMS.name)) {
-                OperatorInfo info = operatorInfo.get(getOperName());
-                operatorSMS.setData(info.smsNum, info.target, info.sum, info.ussdNum);
-            }
-            if (operatorInfo.containsKey(operatorUssd.name)) {
-                OperatorInfo info2 = operatorInfo.get(getOperName());
-                final SubscriptionManager subscriptionManager = SubscriptionManager.from(cnt);
-                final List<SubscriptionInfo> activeSubscriptionInfoList = subscriptionManager.getActiveSubscriptionInfoList();
-                for (SubscriptionInfo subscriptionInfo : activeSubscriptionInfoList) {
-                    final CharSequence carrierName = subscriptionInfo.getCarrierName();
-                    if (carrierName.toString().contains(operatorUssd.name)) {
-                        operatorUssd.simNum = subscriptionInfo.getSimSlotIndex();
+            final SubscriptionManager subscriptionManager = SubscriptionManager.from(cnt);
+            final List<SubscriptionInfo> activeSubscriptionInfoList = subscriptionManager.getActiveSubscriptionInfoList();
+            Logger.lg("Multy sim");
+            for (SubscriptionInfo subscriptionInfo : activeSubscriptionInfoList) {
+                String carrierName = CommonFunctions.formatOperMame(subscriptionInfo.getCarrierName().toString());
+                Logger.lg(carrierName + " " + subscriptionInfo.getSubscriptionId() + " " + mgr.getSubscriptionId());
+                if(subscriptionInfo.getSubscriptionId()==mgr.getSubscriptionId()){
+                    Logger.lg("==" + (subscriptionInfo.getSubscriptionId()==mgr.getSubscriptionId())+
+                    " " + operatorInfo.containsKey(carrierName) + " " + operatorInfo.keySet() + " " + carrierName);
+                    if (operatorInfo.containsKey(carrierName)) {
+                        OperatorInfo info = operatorInfo.get(carrierName);
+                        operatorSMS.name=carrierName;
+                        operatorSMS.setData(info.smsNum, info.target, info.sum, info.ussdNum);
                     }
                 }
-                operatorUssd.setData(info2.smsNum, info2.target, info2.sum, info2.ussdNum);
+                if (carrierName.contains(operatorUssd.name)) {
+                    operatorUssd.simNum = subscriptionInfo.getSimSlotIndex();
+                    Operator.simNum = subscriptionInfo.getSimSlotIndex();
+                    OperatorInfo info2 = operatorInfo.get(operatorUssd.name);
+                    Logger.lg(info2.smsNum+ " " +  info2.target+ " варпы " +  info2.sum+ " " +  info2.ussdNum + " " + operatorUssd.simNum
+                            + " " +  operatorUssd.name);
+                    operatorUssd.setData(info2.smsNum, info2.target, info2.sum, info2.ussdNum);
+                }
             }
         }
-        feedback.callResult("end of update by " + pathOfFile);
+        feedback.callResult("end of update by " + pathOfFile/*+ ". operatorUssd " + operatorUssd.name + " operator sms " + operatorSMS*/);
     }
+
 
     class OperatorList {
         ArrayList operators;
@@ -204,7 +273,7 @@ public class PayLib implements PayInterface {
     public void sendUssd(String operDestination, Activity act) {
         currentOperation = Operation.Ussd;
         flagok = true;
-        operatorSMS.sendUssd(operDestination, act);
+        operatorUssd.sendUssd(operDestination, act);
     }
 
 
@@ -234,14 +303,14 @@ public class PayLib implements PayInterface {
         builder.setItems(mass, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                if(Operation.Sms.toString().equals(operation)){
+                if (Operation.Sms.toString().equals(operation)) {
                     operatorSMS.simNum = which;
                 }
-                if(Operation.Ussd.toString().equals(operation)){
+                if (Operation.Ussd.toString().equals(operation)) {
                     operatorSMS.simNum = which;
                 }
                 Logger.lg("for operation " + operation + " operatorSMS " + operatorSMS.simNum + " operatorUssd " + operatorUssd.simNum
-                +" name " + mass[operatorSMS.simNum] + " ussd " + mass[operatorUssd.simNum]);
+                        + " name " + mass[operatorSMS.simNum] + " ussd " + mass[operatorUssd.simNum]);
             }
         });
         builder.show();

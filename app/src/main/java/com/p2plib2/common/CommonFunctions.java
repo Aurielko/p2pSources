@@ -47,6 +47,11 @@ public class CommonFunctions {
     public static String operName(Context cnt) {
         telephonyManager = (TelephonyManager) cnt.getSystemService(Context.TELEPHONY_SERVICE);
         String operName = telephonyManager.getNetworkOperatorName().toUpperCase();
+        return formatOperMame(operName);
+    }
+
+    public static String formatOperMame(String oName) {
+        String operName = oName.toUpperCase();
         if(operName.contains("MTS")){
             operName = "MTS";
         }

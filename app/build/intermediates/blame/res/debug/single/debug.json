@@ -24,16 +24,16 @@
         "source": "C:\\Users\\dkolosovskiy\\.gradle\\caches\\transforms-1\\files-1.1\\appcompat-v7-28.0.0.aar\\1875b4aec80a8c3112b2dc6e3365d2cd\\res\\drawable-mdpi-v4\\abc_menu_hardkey_panel_mtrl_mult.9.png"
     },
     {
-        "merged": "C:\\Users\\dkolosovskiy\\AndroidStudioProjects\\p2pLib\\app\\build\\intermediates\\res\\merged\\debug\\layout_abc_list_menu_item_checkbox.xml.flat",
-        "source": "C:\\Users\\dkolosovskiy\\.gradle\\caches\\transforms-1\\files-1.1\\appcompat-v7-28.0.0.aar\\1875b4aec80a8c3112b2dc6e3365d2cd\\res\\layout\\abc_list_menu_item_checkbox.xml"
+        "merged": "C:\\Users\\dkolosovskiy\\AndroidStudioProjects\\p2pLib\\app\\build\\intermediates\\res\\merged\\debug\\drawable-xhdpi-v4_abc_list_focused_holo.9.png.flat",
+        "source": "C:\\Users\\dkolosovskiy\\.gradle\\caches\\transforms-1\\files-1.1\\appcompat-v7-28.0.0.aar\\1875b4aec80a8c3112b2dc6e3365d2cd\\res\\drawable-xhdpi-v4\\abc_list_focused_holo.9.png"
     },
     {
         "merged": "C:\\Users\\dkolosovskiy\\AndroidStudioProjects\\p2pLib\\app\\build\\intermediates\\res\\merged\\debug\\drawable-hdpi-v4_abc_scrubber_control_to_pressed_mtrl_005.png.flat",
         "source": "C:\\Users\\dkolosovskiy\\.gradle\\caches\\transforms-1\\files-1.1\\appcompat-v7-28.0.0.aar\\1875b4aec80a8c3112b2dc6e3365d2cd\\res\\drawable-hdpi-v4\\abc_scrubber_control_to_pressed_mtrl_005.png"
     },
     {
-        "merged": "C:\\Users\\dkolosovskiy\\AndroidStudioProjects\\p2pLib\\app\\build\\intermediates\\res\\merged\\debug\\drawable-xhdpi-v4_abc_list_focused_holo.9.png.flat",
-        "source": "C:\\Users\\dkolosovskiy\\.gradle\\caches\\transforms-1\\files-1.1\\appcompat-v7-28.0.0.aar\\1875b4aec80a8c3112b2dc6e3365d2cd\\res\\drawable-xhdpi-v4\\abc_list_focused_holo.9.png"
+        "merged": "C:\\Users\\dkolosovskiy\\AndroidStudioProjects\\p2pLib\\app\\build\\intermediates\\res\\merged\\debug\\layout_abc_list_menu_item_checkbox.xml.flat",
+        "source": "C:\\Users\\dkolosovskiy\\.gradle\\caches\\transforms-1\\files-1.1\\appcompat-v7-28.0.0.aar\\1875b4aec80a8c3112b2dc6e3365d2cd\\res\\layout\\abc_list_menu_item_checkbox.xml"
     },
     {
         "merged": "C:\\Users\\dkolosovskiy\\AndroidStudioProjects\\p2pLib\\app\\build\\intermediates\\res\\merged\\debug\\drawable-xxhdpi_ic_launcher_background.png.flat",

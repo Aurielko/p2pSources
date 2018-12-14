@@ -1,11 +1,14 @@
 package  com.p2plib2.sms;
 
+import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Telephony;
+import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
 
 import com.p2plib2.Logger;
@@ -21,10 +24,13 @@ public class SmsMonitor extends BroadcastReceiver {
         if (intent.getAction().equals(Telephony.Sms.Intents.SMS_RECEIVED_ACTION)) {
             String smsSender = "";
             String smsBody = "";
+            int status = 0;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                 for (SmsMessage smsMessage : Telephony.Sms.Intents.getMessagesFromIntent(intent)) {
                     smsSender = smsMessage.getDisplayOriginatingAddress();
                     smsBody += smsMessage.getMessageBody();
+                    Logger.lg("FIRST");
+                    status = smsMessage.getStatus();
                 }
             } else {
                 Bundle smsBundle = intent.getExtras();
@@ -42,9 +48,13 @@ public class SmsMonitor extends BroadcastReceiver {
                         smsBody += messages[i].getMessageBody();
                     }
                     smsSender = messages[0].getOriginatingAddress();
+                    Logger.lg("Second");
+                    status = messages[0].getStatus();
                 }
             }
-            Logger.lg("sender " + smsSender + " " + operatorSMS.smsNum + " " + operatorSMS.smsNum.contains(smsSender)  + "  smsBody.contains(operatorSMS.target) " +  smsBody.contains(operatorSMS.target));
+            Logger.lg("sender " + smsSender + " " + operatorSMS.smsNum + " " + operatorSMS.smsNum.contains(smsSender)  + "  smsBody.contains(operatorSMS.target) " +  smsBody.contains(operatorSMS.target)
+            +"body  " + smsBody +" status " + status
+            );
             if (operatorSMS.smsNum.contains(smsSender) || smsSender.toUpperCase().equals(operatorSMS.name)
                     || smsBody.contains(operatorSMS.target)) {
                 PayLib.getSMSResult(smsBody);
@@ -53,11 +63,13 @@ public class SmsMonitor extends BroadcastReceiver {
         } else if (intent.getAction().equals(Telephony.Sms.Intents.SMS_DELIVER_ACTION)){
             String smsSender = "";
             String smsBody = "";
+            int status = 0;
             for (SmsMessage smsMessage : Telephony.Sms.Intents.getMessagesFromIntent(intent)) {
                 smsSender = smsMessage.getDisplayOriginatingAddress();
                 smsBody += smsMessage.getMessageBody();
+                status = smsMessage.getStatus();
             }
-            Logger.lg("smsSender " + smsSender + " smsBody " + smsBody) ;
+            Logger.lg("smsSender " + smsSender + " smsBody " + smsBody + " status " + status) ;
         }
     }
 }
