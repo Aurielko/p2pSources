@@ -53,12 +53,12 @@ public class Operator {
         this.sendWithSaveOutput = sendWithSaveOutput;
         try {
             Logger.lg(name + " num " + number + " " + sendWithSaveInput + " " + msgBody);
-            PendingIntent piSent = PendingIntent.getBroadcast(cnt, 0, new Intent("SMS_SENT"), 0);
+           // PendingIntent piSent = PendingIntent.getBroadcast(cnt, 0, new Intent("SMS_SENT"), 0);
             PayLib.currentMsg = number + "[]" + msgBody;
             if (sendWithSaveOutput) {
-                smsManager.sendTextMessage(number, null, msgBody, piSent, null);
+                smsManager.sendTextMessage(number, null, msgBody, null, null);
             } else {
-                smsManager.sendTextMessageWithoutPersisting(number, null, msgBody, piSent, null);
+                smsManager.sendTextMessageWithoutPersisting(number, null, msgBody, null, null);
 
             }
         } catch (Exception e) {

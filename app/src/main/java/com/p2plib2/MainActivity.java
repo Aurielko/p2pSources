@@ -140,15 +140,15 @@ public class MainActivity extends AppCompatActivity {
         btnSMS.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Logger.lg("SMS button onclick " + " act!=null " + (act != null) + " " + (cnt != null));
-                main.sendSms(true, true, act, cnt);
+                main.sendSms(true,  act, cnt);
             }
         });
         btnSMS2.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Logger.lg("SMS button onclick " + " act!=null " + (act != null) + " " + (cnt != null));
                 flag = true;
+                main.sendSms(false,  act, cnt);
                 main.checkSmsDefaultApp(true, code);
-                //  main.sendSms(false, false, act, cnt);
             }
         });
     }
@@ -163,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
             boolean isDefault = resultCode == Activity.RESULT_OK;
             Logger.lg("isDefault " + isDefault + " " + flag);
             if (isDefault && flag) {
-                main.sendSms(false, false, act, cnt);
+                main.sendSms(false,  act, cnt);
                 main.deleteSMS(new HashMap<String, String>());
                 flag = false;
                 main.checkSmsDefaultApp(true, code);

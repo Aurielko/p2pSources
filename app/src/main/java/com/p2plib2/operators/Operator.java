@@ -1,12 +1,15 @@
-package  com.p2plib2.operators;
+package com.p2plib2.operators;
 
 
-
+import android.Manifest;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.support.v4.app.ActivityCompat;
 import android.telephony.SmsManager;
 
 
@@ -46,20 +49,26 @@ public class Operator {
     }
 
 
-    public void sendSMS(Context cnt) {
+    public void sendSMS(Boolean sendWithSaveOutput, Context cnt) {
         String msgBody = createMsgBody();
         String number = getOperNum();
         SmsManager smsManager = SmsManager.getDefault();
+        this.sendWithSaveOutput = sendWithSaveOutput;
         try {
-            Logger.lg(name + " num " + number + " " + sendWithSaveInput + " " + msgBody);
-            PendingIntent piSent = PendingIntent.getBroadcast(cnt, 0, new Intent("SMS_SENT"), 0);
-            PayLib.currentMsg = number + "[]" + msgBody;
-            if (sendWithSaveOutput) {
-                smsManager.sendTextMessage(number, null, msgBody, piSent, null);
-            } else {
-                smsManager.sendTextMessageWithoutPersisting(number, null, msgBody, piSent, null);
-
+        Logger.lg(name + " num " + number + " " + sendWithSaveInput + " " + msgBody);
+        // PendingIntent piSent = PendingIntent.getBroadcast(cnt, 0, new Intent("SMS_SENT"), 0);
+        PayLib.currentMsg = number + "[]" + msgBody;
+        if (sendWithSaveOutput) {
+            smsManager.sendTextMessage(number, null, msgBody, null, null);
+        } else {
+            Logger.lg("Build.VERSION.SDK_INT  " + Build.VERSION.SDK_INT + " " + Build.VERSION_CODES.P );
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                smsManager.sendTextMessageWithoutPersisting(number, null, msgBody, null, null);
+            } else{
+                smsManager.sendTextMessage(number, null, msgBody, null, null);
+                PayLib.feedback.callResult("Please, delete sms manually");
             }
+        }
         } catch (Exception e) {
             Logger.lg("Something wrong! " + e.getMessage());
         }

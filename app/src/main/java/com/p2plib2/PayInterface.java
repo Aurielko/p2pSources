@@ -8,7 +8,7 @@ import java.util.HashMap;
 public interface PayInterface {
     String getVersion();
 
-    void sendSms(Boolean sendWithSaveOutput, Boolean sendWithSaveInput, Activity act, Context cnt);
+    void sendSms(Boolean sendWithSaveOutput, Activity act, Context cnt);
 
     void sendUssd(String operDestination, Activity act);
 
