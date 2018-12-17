@@ -678,6 +678,7 @@ id barrier
 id beginning
 id blocking
 id bottom
+id btnDelete
 id btnSms
 id btnSms2
 id btnUssdBEE
@@ -833,8 +834,7 @@ layout abc_search_dropdown_item_icons_2line
 layout abc_search_view
 layout abc_select_dialog_material
 layout abc_tooltip
-layout activity_main
-layout mts_activity
+layout activity
 layout notification_action
 layout notification_action_tombstone
 layout notification_template_custom_big

@@ -1,5 +1,5 @@
 #Internal package file, do not edit.
-#Fri Dec 14 19:13:18 MSK 2018
+#Mon Dec 17 18:01:27 MSK 2018
 17.baseType=DIRECTORY
 4.path=lib/x86/liblept.so
 8.set=NATIVE_RESOURCE

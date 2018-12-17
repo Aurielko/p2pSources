@@ -1,4 +1,4 @@
-package  com.p2plib2.ussd;
+package com.p2plib2.ussd;
 
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.annotation.SuppressLint;
@@ -15,28 +15,28 @@ import android.view.accessibility.AccessibilityManager;
 
 
 import com.p2plib2.Logger;
+import com.p2plib2.operators.Operator;
 
 import java.util.HashMap;
 import java.util.HashSet;
 
 import static com.p2plib2.Constants.pBody;
 import static com.p2plib2.PayLib.flagok;
-import static com.p2plib2.operators.Operator.simNum;
+import static com.p2plib2.operators.Operator.simNumSms;
 
 
 /**
- *
  * @author Romell Dominguez
  * @version 1.1.c 27/09/2018
  * @since 1.0.a
  */
-public class USSDController implements USSDInterface{
+public class USSDController implements USSDInterface {
 
     protected static USSDController instance;
 
     protected Activity context;
 
-    protected HashMap<String,HashSet<String>> map;
+    protected HashMap<String, HashSet<String>> map;
 
     protected CallbackInvoke callbackInvoke;
 
@@ -50,6 +50,7 @@ public class USSDController implements USSDInterface{
 
     /**
      * The Sinfleton building method
+     *
      * @param activity An activity that could call
      * @return An instance of USSDController
      */
@@ -66,12 +67,13 @@ public class USSDController implements USSDInterface{
 
     /**
      * Invoke a dial-up calling a ussd number
+     *
      * @param ussdPhoneNumber ussd number
-     * @param map Map of Login and problem messages
-     * @param callbackInvoke a callback object from return answer
+     * @param map             Map of Login and problem messages
+     * @param callbackInvoke  a callback object from return answer
      */
     @SuppressLint("MissingPermission")
-    public void callUSSDInvoke(String ussdPhoneNumber, HashMap<String,HashSet<String>> map, CallbackInvoke callbackInvoke) {
+    public void callUSSDInvoke(String ussdPhoneNumber, HashMap<String, HashSet<String>> map, CallbackInvoke callbackInvoke) {
         Logger.lg("controller " + flagok);
         if (flagok) {
             this.callbackInvoke = callbackInvoke;
@@ -85,27 +87,29 @@ public class USSDController implements USSDInterface{
             if (ussdPhoneNumber.isEmpty()) {
                 callbackInvoke.over("Bad ussd number");
                 return;
-            }   Logger.lg("controller24 " + flagok);
+            }
+            Logger.lg("controller24 " + flagok);
             // if (verifyAccesibilityAccess(context)) {
             String uri = Uri.encode("#");
-            if (uri != null){
+            if (uri != null) {
                 ussdPhoneNumber = ussdPhoneNumber.replace("#", uri);
             }
             Logger.lg("controller5 " + ussdPhoneNumber);
             Uri uriPhone = Uri.parse("tel:" + ussdPhoneNumber);
             Logger.lg(ussdPhoneNumber + " ussdPhoneNumber ");
-            if (uriPhone != null){
+            if (uriPhone != null) {
                 Intent intent = new Intent(Intent.ACTION_CALL, uriPhone);
-                if (simNum != null) {
-                    intent.putExtra("com.android.phone.extra.slot", simNum);
+                Logger.lg("Operator.simNumSms" + Operator.simNumSms);
+                if (Operator.simNumSms != null) {
+                    intent.putExtra("com.android.phone.extra.slot", simNumSms);
                 }
                 context.startActivity(intent);
-             }
+            }
         }
     }
 
 
-    public void  cleanCallbackMessage(){
+    public void cleanCallbackMessage() {
         this.callbackMessage = null;
     }
 
@@ -114,18 +118,19 @@ public class USSDController implements USSDInterface{
         AccessService.send(text);
     }
 
-    public void send(String text, CallbackMessage callbackMessage){
+    public void send(String text, CallbackMessage callbackMessage) {
         this.callbackMessage = callbackMessage;
         ussdInterface.sendData(text);
     }
 
     static boolean flag = false;
+
     public static boolean verifyAccesibilityAccess(Activity act) {
         boolean isEnabled = USSDController.isAccessiblityServicesEnable(act);
         Logger.lg("isEnabled " + isEnabled);
         if (!isEnabled && !flag) {
             openSettingsAccessibility(act);
-            flag=true;
+            flag = true;
         }
         return flag;
     }
@@ -178,7 +183,7 @@ public class USSDController implements USSDInterface{
             String settingValue = Settings.Secure.getString(
                     context.getApplicationContext().getContentResolver(),
                     Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
-            Logger.lg("settingValue  " + settingValue );
+            Logger.lg("settingValue  " + settingValue);
             if (settingValue != null) {
                 TextUtils.SimpleStringSplitter splitter = new TextUtils.SimpleStringSplitter(':');
                 splitter.setString(settingValue);
@@ -195,6 +200,7 @@ public class USSDController implements USSDInterface{
 
     public interface CallbackInvoke {
         void responseInvoke(String message);
+
         void over(String message);
     }
 

