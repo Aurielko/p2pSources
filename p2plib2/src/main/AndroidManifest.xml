@@ -1,2 +1,3 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.p2plib2" />
+    package="com.example.p2plib2" >
+</manifest>

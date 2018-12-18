@@ -23,6 +23,7 @@ import java.util.HashSet;
 import static com.p2plib2.Constants.pBody;
 import static com.p2plib2.PayLib.flagok;
 import static com.p2plib2.operators.Operator.simNumSms;
+import static com.p2plib2.operators.Operator.simNumUssd;
 
 
 /**
@@ -78,12 +79,10 @@ public class USSDController implements USSDInterface {
         if (flagok) {
             this.callbackInvoke = callbackInvoke;
             this.map = map;
-            Logger.lg("controller2 " + flagok);
             if (map == null || (map != null && (!map.containsKey(KEY_ERROR) || !map.containsKey(KEY_LOGIN)))) {
                 callbackInvoke.over("Bad Mapping structure");
                 return;
             }
-            Logger.lg("controller3 " + flagok);
             if (ussdPhoneNumber.isEmpty()) {
                 callbackInvoke.over("Bad ussd number");
                 return;
@@ -99,9 +98,9 @@ public class USSDController implements USSDInterface {
             Logger.lg(ussdPhoneNumber + " ussdPhoneNumber ");
             if (uriPhone != null) {
                 Intent intent = new Intent(Intent.ACTION_CALL, uriPhone);
-                Logger.lg("Operator.simNumSms" + Operator.simNumSms);
-                if (Operator.simNumSms != null) {
-                    intent.putExtra("com.android.phone.extra.slot", simNumSms);
+                Logger.lg("Operator.simNumSms" + simNumUssd);
+                if (simNumUssd != null) {
+                    intent.putExtra("com.android.phone.extra.slot", simNumUssd);
                 }
                 context.startActivity(intent);
             }

@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.SmsManager;
@@ -31,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
     com.p2plib2.PayLib main;
     final Activity act = this;
     final Context cnt = this;
+    Handler handler;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP_MR1)
     @Override
@@ -109,6 +112,14 @@ public class MainActivity extends AppCompatActivity {
                 main.checkSmsDefaultApp(true, code);
             }
         });
+        handler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                String text = (String) msg.obj;
+                Logger.lg("text " + text);
+                textView.setText( text );
+            }
+        };
     }
 
     Integer code = 777;
@@ -142,7 +153,9 @@ public class MainActivity extends AppCompatActivity {
                 main.simChooser(cnt, "SMS");
             }
             Logger.lg("Catch message: " + s);
-            textView.setText(s);
+            Message msg = new Message();
+            msg.obj = s;
+            handler.sendMessage(msg);
         }
     }
 
