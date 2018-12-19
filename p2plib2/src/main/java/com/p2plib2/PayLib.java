@@ -418,6 +418,7 @@ public class PayLib implements PayInterface {
     @Override
     public void operation(String operType, Boolean sendWithSaveOutput,
                           Activity act, Context cnt, String operDestination, String phoneNum) {
+      //  updateData();
         switch (operType) {
             case "sms":
                 if (phoneNum != null) {
@@ -435,6 +436,9 @@ public class PayLib implements PayInterface {
                 break;
         }
     }
+
+//    private void updateData() {
+//    }
 
 
     /**
