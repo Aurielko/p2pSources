@@ -219,7 +219,7 @@ public class Operator {
             mapUssd.put("KEY_ERROR", new HashSet<>(Arrays.asList("problema", "problem", "ошибка", "null")));
             //*145*9031234567*150#
             String str = "";
-            Logger.lg("Send ussd " + name + " dor destination " + destOper);
+
             switch (name) {
                 case "MTS":
                     ussdController.callUSSDInvoke(ussdNum, mapUssd, new USSDController.CallbackInvoke() {

@@ -37,7 +37,6 @@ import static com.p2plib2.ussd.USSDController.verifyAccesibilityAccess;
 
 public class PayLib implements PayInterface {
     private String version = "1.0";
-    private String operDest = "";
     private String defaultSmsApp;
     private String pathOfFile = "web";
     private SharedPreferences operatorSettings;
@@ -45,7 +44,7 @@ public class PayLib implements PayInterface {
     public static Operator operatorUssd;
     private HashMap<String, OperatorInfo> operatorInfo = new HashMap<>();
     private HashMap<String, String> filters = new HashMap<>();
-    public static int simCounter;
+    public static int simCounter = 0;
     public static CallSmsResult feedback;
     public static String operName = "";
     public static Context cnt;
@@ -176,6 +175,7 @@ public class PayLib implements PayInterface {
             final FilesLoader load = new FilesLoader();
             //https://drive.google.com/open?id=1cP7AGOYNJNkjo0hrJxSCgyGi5TpSna-v
             String input = load.downloadJson("https://drive.google.com/a/adviator.com/uc?authuser=0&id=1cP7AGOYNJNkjo0hrJxSCgyGi5TpSna-v&export=download");
+            pathOfFile = "web";
             if (input == null) {
                 byte[] buffer = null;
                 InputStream is;
@@ -349,7 +349,7 @@ public class PayLib implements PayInterface {
         } else {
             /***For sms operator*/
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-                if (mgr.getSubscriptionId()>= 0) {
+                if (mgr.getSubscriptionId() >= 0) {
                     operatorSMS.name = getOperatorBySubId(mgr.getSubscriptionId());
                     if (operatorInfo.containsKey(operatorSMS.name)) {
                         OperatorInfo info = operatorInfo.get(operatorSMS.name);
@@ -358,7 +358,7 @@ public class PayLib implements PayInterface {
                         Logger.lg("Operator sms " + info.smsNum + " " + info.target + " " + info.sum + " " + info.ussdNum + " " + mgr.getSubscriptionId());
                     }
                 } else {
-                    feedback.callResult("Code: P2P-002. Run simChooser with parameter \"SMS\" for choosing simCard for sms requests");
+                    feedback.callResult("Code: P2P-002. Run operatorChooser with parameter \"SMS\" for choosing simCard for sms requests");
                 }
             } else {
                 feedback.callResult("Code P2P-011: current Android version does not support multy sim");
@@ -368,7 +368,7 @@ public class PayLib implements PayInterface {
                 OperatorInfo info = operatorInfo.get(operatorUssd.name);
                 operatorUssd.setData(info.smsNum, info.target, info.sum, info.ussdNum);
                 Operator.simNumUssd = getSimCardNumByName(operatorUssd.name);
-                Logger.lg("Operator ussd "+ operatorUssd.name + " " + info.smsNum + " " + info.target + " " + info.sum + " " + info.ussdNum + " " + Operator.simNumUssd);
+                Logger.lg("Operator ussd " + operatorUssd.name + " " + info.smsNum + " " + info.target + " " + info.sum + " " + info.ussdNum + " " + Operator.simNumUssd);
             }
         }
         feedback.callResult("Code P2P-001: Data has been updated");
@@ -387,15 +387,14 @@ public class PayLib implements PayInterface {
 
     }
 
-    @Override
-    public void sendSms(Boolean sendWithSaveOutput, Activity act, Context cnt) {
+
+    public void sendSms(Boolean sendWithSaveOutput, Context cnt) {
         currentOperation = Operation.SMS;
         operatorSMS.sendWithSaveOutput = sendWithSaveOutput;
         operatorSMS.sendSMS(sendWithSaveOutput, cnt);
     }
 
 
-    @Override
     public void sendUssd(String operDestination, Activity act) {
         currentOperation = Operation.USSD;
         flagok = true;
@@ -412,11 +411,46 @@ public class PayLib implements PayInterface {
         this.filters.putAll(filters);
     }
 
+    /**
+     * sendWithSaveOutput - for sms
+     * operDestination - for ussd
+     */
+    @Override
+    public void operation(String operType, Boolean sendWithSaveOutput,
+                          Activity act, Context cnt, String operDestination, String phoneNum) {
+        switch (operType) {
+            case "sms":
+                if (phoneNum != null) {
+                    operatorSMS.target = phoneNum;
+                }
+                sendSms(sendWithSaveOutput, cnt);
+                break;
+            case "ussd":
+                if (phoneNum != null) {
+                    operatorUssd.target = phoneNum;
+                    Logger.lg("phoneNum " + phoneNum);
+                    operatorUssd.sendWithSaveOutput = sendWithSaveOutput;
+                }
+                sendUssd(operDestination, act);
+                break;
+        }
+    }
+
+
+    /**
+     * param 0 - operator massive, 1 - dialog
+     */
     @SuppressLint("MissingPermission")
     @Override
-    public void simChooser(Context cnt, final String operation) {
+    public String[] operatorChooser(Context cnt, final String operation, int param) {
         AlertDialog.Builder builder = new AlertDialog.Builder(cnt);
         builder.setTitle("Choose sim card for operation " + operation);
+        if (simCounter == 0) {
+            TelephonyManager telephonyManager = (TelephonyManager) act.getSystemService(Context.TELEPHONY_SERVICE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                simCounter = telephonyManager.getPhoneCount();
+            }
+        }
         final String[] mass = new String[simCounter];
         final SubscriptionManager subscriptionManager;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP_MR1) {
@@ -427,25 +461,32 @@ public class PayLib implements PayInterface {
                 final CharSequence carrierName = subscriptionInfo.getCarrierName();
                 final Integer simId = subscriptionInfo.getSimSlotIndex();
                 Logger.lg(carrierName + " sim card " + simId);
-                mass[simId] = carrierName.toString();
-            }
-            builder.setItems(mass, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    if (Operation.SMS.toString().equals(operation)) {
-                        Operator.simNumSms = which;
-                    }
-                    if (Operation.USSD.toString().equals(operation)) {
-                        Operator.simNumUssd = which;
-                    }
-                    updateOperator(which, operation);
-                    Logger.lg("for operation " + operation + " choose sim-card " + which);
+                if (operatorInfo.containsKey(CommonFunctions.formatOperMame(carrierName.toString()))) {
+                    mass[simId] = carrierName.toString();
+                } else {
+                    Logger.lg("This operator is unknown");
                 }
-            });
-            builder.show();
+            }
+            if (param == 1) {
+                builder.setItems(mass, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (Operation.SMS.toString().equals(operation)) {
+                            Operator.simNumSms = which;
+                        }
+                        if (Operation.USSD.toString().equals(operation)) {
+                            Operator.simNumUssd = which;
+                        }
+                        updateOperator(which, operation);
+                        Logger.lg("for operation " + operation + " choose sim-card " + which);
+                    }
+                });
+                builder.show();
+            }
         } else {
             feedback.callResult("Code P2P-011: current Android version does not support multy sim");
         }
+        return mass;
     }
 
     private void updateOperator(int which, String operation) {
@@ -464,13 +505,12 @@ public class PayLib implements PayInterface {
         if (Operation.USSD.toString().equals(operation)) {
             operatorUssd.name = name;
             operatorUssd.setData(info.smsNum, info.target, info.sum, info.ussdNum);
-            Operator.simNumUssd =  getSimCardNumByName(operatorUssd.name);
+            Operator.simNumUssd = getSimCardNumByName(operatorUssd.name);
         }
     }
 
 
     public void checkSmsDefaultApp(boolean deleteFlag, Integer code) {
-
         final String myPackageName = cnt.getPackageName();
         defaultSmsApp = Telephony.Sms.getDefaultSmsPackage(cnt);
         Logger.lg(deleteFlag + " MyPackageName  " + myPackageName + "  defaultSmsApp now " + defaultSmsApp + " " + !defaultSmsApp.equals(myPackageName));

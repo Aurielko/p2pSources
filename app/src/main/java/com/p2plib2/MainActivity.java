@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
     private Button btnUssdBee;
     private Button btnUssdTele2;
     private Button btnUssdMegafon;
-    private Button   btnDelete;
+    private Button btnDelete;
     String operDest;
     private TextView textView;
     com.p2plib2.PayLib main;
@@ -55,12 +55,19 @@ public class MainActivity extends AppCompatActivity {
         btnDelete = findViewById(R.id.btnDelete);
         btnDiactivate();
         textView = findViewById(R.id.textView);
-
+        handler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                String text = (String) msg.obj;
+                Logger.lg("text " + text);
+                textView.setText(text);
+            }
+        };
         Button btnIni = findViewById(R.id.butIni);
         CommonFunctions.permissionCheck(this, this);
         main = new PayLib();
         final CallSmsResult callResult = new CallSmsResult();
-        main.updateData(act, cnt,  callResult);
+        main.updateData(act, cnt, callResult);
         btnIni.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 operDest = "MTS";
@@ -68,42 +75,39 @@ public class MainActivity extends AppCompatActivity {
                 main.updateData(act, cnt, callResult);
             }
         });
-
         btnUssdMTS.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 operDest = "MTS";
-                main.sendUssd(operDest, act);
+                main.operation("ussd", true, act, cnt, operDest, null);
             }
         });
         btnUssdMegafon.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 operDest = "Megafon";
-                main.sendUssd(operDest, act);
-
+                main.operation("ussd", true, act, cnt, operDest, "9689604804");
             }
         });
         btnUssdBee.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 operDest = "Beeline";
-                main.sendUssd(operDest, act);
+                main.operation("ussd", true, act, cnt, operDest, null);
             }
         });
         btnUssdTele2.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 operDest = "Tele2";
-                main.sendUssd(operDest, act);
+                main.operation("ussd", true, act, cnt, operDest, null);
             }
         });
-
         btnSMS.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                main.sendSms(true, act, cnt);
+                Logger.lg("SMS button onclick " + " act!=null " + (act != null) + " " + (cnt != null));
+                main.operation("sms", true, act, cnt, operDest, null);
             }
         });
         btnSMS2.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                flag = true;
-                main.sendSms(false, act, cnt);
+                main.operation("sms", false, act, cnt, operDest, null);
             }
         });
         btnDelete.setOnClickListener(new View.OnClickListener() {
@@ -112,14 +116,7 @@ public class MainActivity extends AppCompatActivity {
                 main.checkSmsDefaultApp(true, code);
             }
         });
-        handler = new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                String text = (String) msg.obj;
-                Logger.lg("text " + text);
-                textView.setText( text );
-            }
-        };
+
     }
 
     Integer code = 777;
@@ -132,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
             boolean isDefault = resultCode == Activity.RESULT_OK;
             Logger.lg("isDefault " + isDefault + " " + flag);
             if (isDefault && flag) {
-                main.sendSms(false, act, cnt);
+                main.operatorChooser(cnt, "SMS", 1);
                 main.deleteSMS(new HashMap<String, String>());
                 flag = false;
                 main.checkSmsDefaultApp(true, code);
@@ -149,13 +146,15 @@ public class MainActivity extends AppCompatActivity {
             if (s.contains("P2P-005")) {
                 main.checkSmsDefaultApp(false, code);
             }
-            if(s.contains("P2P-002")){
-                main.simChooser(cnt, "SMS");
+            if (s.contains("P2P-002")) {
+                main.operatorChooser(cnt, "SMS", 1);
             }
             Logger.lg("Catch message: " + s);
             Message msg = new Message();
             msg.obj = s;
-            handler.sendMessage(msg);
+            if (msg != null && handler != null) {
+                handler.sendMessage(msg);
+            }
         }
     }
 

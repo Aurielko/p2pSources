@@ -8,12 +8,9 @@ import java.util.HashMap;
 public interface PayInterface {
     String getVersion();
 
-    void sendSms(Boolean sendWithSaveOutput, Activity act, Context cnt);
-
-    void sendUssd(String operDestination, Activity act);
-
-    void updateData(Activity act, Context cnt, CallSmsResult res);
+    void operation(String operType, Boolean sendWithSaveOutput, Activity act, Context cnt, String operDestination, String phoneNum);
     void setFilter(HashMap<String, String> filters);
 
-    void  simChooser(Context cnt, String operation);
+    void updateData(Activity act, Context cnt, CallSmsResult res);
+    String[] operatorChooser(Context cnt, String operation, int param);
 }
