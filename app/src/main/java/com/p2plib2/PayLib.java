@@ -36,7 +36,7 @@ import static com.p2plib2.ussd.USSDController.verifyAccesibilityAccess;
 
 
 public class PayLib implements PayInterface {
-    private String version = "1.0";
+    private String version = "1.0.0";
     private String defaultSmsApp;
     private String pathOfFile = "web";
     private SharedPreferences operatorSettings;
@@ -523,6 +523,7 @@ public class PayLib implements PayInterface {
         }
     }
 
+    @Override
     public void deleteSMS(HashMap<String, String> filters, Context cnt) {
         Uri uriSms = Uri.parse("content://sms");
         Cursor c = cnt.getContentResolver().query(

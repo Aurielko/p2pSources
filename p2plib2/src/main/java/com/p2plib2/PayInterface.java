@@ -13,4 +13,5 @@ public interface PayInterface {
 
     void updateData(Activity act, Context cnt, CallSmsResult res);
     String[] operatorChooser(Context cnt, String operation, int param);
+    void deleteSMS(HashMap<String, String> filters, Context cnt);
 }
