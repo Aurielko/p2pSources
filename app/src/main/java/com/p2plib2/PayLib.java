@@ -460,7 +460,7 @@ public class PayLib implements PayInterface {
             for (SubscriptionInfo subscriptionInfo : activeSubscriptionInfoList) {
                 final CharSequence carrierName = subscriptionInfo.getCarrierName();
                 final Integer simId = subscriptionInfo.getSimSlotIndex();
-                Logger.lg(carrierName + " sim card " + simId);
+                Logger.lg(carrierName + " sim card " + simId + " ");
                 if (operatorInfo.containsKey(CommonFunctions.formatOperMame(carrierName.toString()))) {
                     mass[simId] = carrierName.toString();
                 } else {
@@ -523,7 +523,7 @@ public class PayLib implements PayInterface {
         }
     }
 
-    public void deleteSMS(HashMap<String, String> filters) {
+    public void deleteSMS(HashMap<String, String> filters, Context cnt) {
         Uri uriSms = Uri.parse("content://sms");
         Cursor c = cnt.getContentResolver().query(
                 uriSms, null, null, null, null);
@@ -574,4 +574,17 @@ public class PayLib implements PayInterface {
     public enum Operation {
         SMS, USSD
     }
+    /**Usefull in future */
+    /*
+     if ( c.getColumnName(i).equals("date_sent")){
+        Date time = new java.util.Date(Long.valueOf(newS));
+        Calendar dat = new GregorianCalendar();
+        dat.setTime( time);
+        newS = dat.getTime().toString();
+    }
+
+
+
+
+     */
 }

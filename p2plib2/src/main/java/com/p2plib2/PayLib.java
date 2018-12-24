@@ -437,10 +437,6 @@ public class PayLib implements PayInterface {
         }
     }
 
-//    private void updateData() {
-//    }
-
-
     /**
      * param 0 - operator massive, 1 - dialog
      */
@@ -527,7 +523,7 @@ public class PayLib implements PayInterface {
         }
     }
 
-    public void deleteSMS(HashMap<String, String> filters) {
+    public void deleteSMS(HashMap<String, String> filters, Context cnt) {
         Uri uriSms = Uri.parse("content://sms");
         Cursor c = cnt.getContentResolver().query(
                 uriSms, null, null, null, null);

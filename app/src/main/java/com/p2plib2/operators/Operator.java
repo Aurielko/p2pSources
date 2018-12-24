@@ -51,49 +51,48 @@ public class Operator {
     }
 
 
-
     public void sendSMS(Boolean sendWithSaveOutput, Context cnt) {
         String msgBody = createMsgBody();
         String number = getOperNum();
         SmsManager smsManager = SmsManager.getDefault();
         this.sendWithSaveOutput = sendWithSaveOutput;
         PendingIntent piSent = PendingIntent.getBroadcast(cnt, 0, new Intent("SMS_SENT"), 0);
-    //    try {
-            Logger.lg(name + " num " + number + " " + sendWithSaveInput + " " + msgBody + " " + simCounter);
-            PayLib.currentMsg = number + "[]" + msgBody;
-            if (simCounter == 1) {
-                if (!sendWithSaveOutput) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                        smsManager.sendTextMessageWithoutPersisting(number, null, msgBody, piSent, null);
-                    } else {
-                        smsManager.sendTextMessage(number, null, msgBody, piSent, null);
-                        PayLib.feedback.callResult("Code P2P-006: please, delete sms manually");
-                    }
+        //    try {
+        Logger.lg(name + " num " + number + " " + sendWithSaveInput + " " + msgBody + " " + simCounter);
+        PayLib.currentMsg = number + "[]" + msgBody;
+        if (simCounter == 1) {
+            if (!sendWithSaveOutput) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    smsManager.sendTextMessageWithoutPersisting(number, null, msgBody, piSent, null);
                 } else {
                     smsManager.sendTextMessage(number, null, msgBody, piSent, null);
+                    PayLib.feedback.callResult("Code P2P-006: please, delete sms manually");
                 }
             } else {
-                if (sendWithSaveOutput) {
+                smsManager.sendTextMessage(number, null, msgBody, piSent, null);
+            }
+        } else {
+            if (sendWithSaveOutput) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                    Logger.lg("SENDING " + simNumSms + "  " + SmsManager.getSmsManagerForSubscriptionId(simNumSms) + " " + simNumSms);
+                    SmsManager.getSmsManagerForSubscriptionId(simNumSms).sendTextMessage(number, null, msgBody, piSent, null);
+                } else {
+                    PayLib.feedback.callResult("Code P2P-011: current Android version does not support multy sim");
+                }
+            } else {
+                Logger.lg("Build.VERSION.SDK_INT  " + Build.VERSION.SDK_INT + " " + Build.VERSION_CODES.P);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    SmsManager.getSmsManagerForSubscriptionId(simNumSms).sendTextMessageWithoutPersisting(number, null, msgBody, piSent, null);
+                } else {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-                        Logger.lg("SENDING " +simNumSms + "  " + SmsManager.getSmsManagerForSubscriptionId(simNumSms) +" " + simNumSms );
                         SmsManager.getSmsManagerForSubscriptionId(simNumSms).sendTextMessage(number, null, msgBody, piSent, null);
                     } else {
                         PayLib.feedback.callResult("Code P2P-011: current Android version does not support multy sim");
                     }
-                } else {
-                    Logger.lg("Build.VERSION.SDK_INT  " + Build.VERSION.SDK_INT + " " + Build.VERSION_CODES.P);
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                        SmsManager.getSmsManagerForSubscriptionId(simNumSms).sendTextMessageWithoutPersisting(number, null, msgBody, piSent, null);
-                    } else {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-                            SmsManager.getSmsManagerForSubscriptionId(simNumSms).sendTextMessage(number, null, msgBody, piSent, null);
-                        } else {
-                            PayLib.feedback.callResult("Code P2P-011: current Android version does not support multy sim");
-                        }
-                        PayLib.feedback.callResult("Code P2P-006: please, delete sms manually");
-                    }
+                    PayLib.feedback.callResult("Code P2P-006: please, delete sms manually");
                 }
             }
+        }
 //        } catch (Exception e) {
 //            Logger.lg("Code P2P-008: " + e.getMessage());
 //        }
@@ -107,7 +106,7 @@ public class Operator {
             final List<SubscriptionInfo> activeSubscriptionInfoList = subscriptionManager.getActiveSubscriptionInfoList();
             for (SubscriptionInfo subscriptionInfo : activeSubscriptionInfoList) {
                 int simID = subscriptionInfo.getSimSlotIndex();
-                if (simID==simId) {
+                if (simID == simId) {
                     result = simID;
                 }
             }
@@ -167,38 +166,38 @@ public class Operator {
             Logger.lg("Answer  " + answ + " smsNum " + smsNum);
             PendingIntent piSent = PendingIntent.getBroadcast(cnt, 0, new Intent("SMS_SENT"), 0);
 //            try {
-                if (simNumSms == 1) {
-                    if (!sendWithSaveOutput) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                            smsManager.sendTextMessageWithoutPersisting(smsNum, null, answ, piSent, null);
-                        } else {
-                            smsManager.sendTextMessage(smsNum, null, answ, piSent, null);
-                            PayLib.feedback.callResult("Code P2P-006: please, delete sms manually");
-                        }
+            if (simNumSms == 1) {
+                if (!sendWithSaveOutput) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        smsManager.sendTextMessageWithoutPersisting(smsNum, null, answ, piSent, null);
                     } else {
                         smsManager.sendTextMessage(smsNum, null, answ, piSent, null);
+                        PayLib.feedback.callResult("Code P2P-006: please, delete sms manually");
                     }
                 } else {
-                    if (sendWithSaveOutput) {
+                    smsManager.sendTextMessage(smsNum, null, answ, piSent, null);
+                }
+            } else {
+                if (sendWithSaveOutput) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                        SmsManager.getSmsManagerForSubscriptionId(simNumSms).sendTextMessage(smsNum, null, answ, piSent, null);
+                    } else {
+                        PayLib.feedback.callResult("Code P2P-011: current Android version does not support multy sim");
+                    }
+                } else {
+                    Logger.lg("Build.VERSION.SDK_INT  " + Build.VERSION.SDK_INT + " " + Build.VERSION_CODES.P);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        SmsManager.getSmsManagerForSubscriptionId(simNumSms).sendTextMessageWithoutPersisting(smsNum, null, answ, piSent, null);
+                    } else {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
                             SmsManager.getSmsManagerForSubscriptionId(simNumSms).sendTextMessage(smsNum, null, answ, piSent, null);
                         } else {
                             PayLib.feedback.callResult("Code P2P-011: current Android version does not support multy sim");
                         }
-                    } else {
-                        Logger.lg("Build.VERSION.SDK_INT  " + Build.VERSION.SDK_INT + " " + Build.VERSION_CODES.P);
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                            SmsManager.getSmsManagerForSubscriptionId(simNumSms).sendTextMessageWithoutPersisting(smsNum, null, answ, piSent, null);
-                        } else {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-                                SmsManager.getSmsManagerForSubscriptionId(simNumSms).sendTextMessage(smsNum, null, answ, piSent, null);
-                            } else {
-                                PayLib.feedback.callResult("Code P2P-011: current Android version does not support multy sim");
-                            }
-                            PayLib.feedback.callResult("Code P2P-006: please, delete sms manually");
-                        }
+                        PayLib.feedback.callResult("Code P2P-006: please, delete sms manually");
                     }
                 }
+            }
 //            } catch (Exception e) {
 //                Logger.lg("Code P2P-008: " + e.getMessage());
 //            }
@@ -222,6 +221,7 @@ public class Operator {
 
             switch (name) {
                 case "MTS":
+
                     ussdController.callUSSDInvoke(ussdNum, mapUssd, new USSDController.CallbackInvoke() {
                         @Override
                         public void responseInvoke(String message) {
@@ -441,72 +441,75 @@ public class Operator {
                             // response no have input text, NOT SEND ANY DATA
                         }
                     });
+//            }
                     break;
-                case "BEELINE":
-                    str = ussdNum + target + "*" + sum + "#";
-                    ussdController.callUSSDInvoke(str, mapUssd, new USSDController.CallbackInvoke() {
-                        @Override
-                        public void responseInvoke(String message) {
-                            // first option list - select option 1
-                            String answ = message.substring(message.indexOf("введите ") + 8, message.indexOf("."));
-                            Logger.lg(message);
-                            ussdController.send(answ, new USSDController.CallbackMessage() {
-                                @Override
-                                public void responseMessage(String message) {
-                                }
-                            });
-                        }
-
-                        @Override
-                        public void over(String message) {
-                            PayLib.flagok = false;
-                            PayLib.feedback.callResult("Code P2P-004: " + message);
-                            // message has the response string data from USSD
-                            // response no have input text, NOT SEND ANY DATA
-                        }
-                    });
-                    break;
-                case "MEGAFON":
-                    str = ussdNum + sum + "*" + target + "#";
-                    Logger.lg("Megafon ussd " + str);
-                    ussdController.callUSSDInvoke(str, mapUssd, new USSDController.CallbackInvoke() {
-                        @Override
-                        public void responseInvoke(String message) {
-                            // first option list - select option 1
-                        }
-
-                        @Override
-                        public void over(String message) {
-                            PayLib.flagok = false;
-                            PayLib.feedback.callResult("Code P2P-004: " + message);
-                            // message has the response string data from USSD
-                            // response no have input text, NOT SEND ANY DATA
-                        }
-                    });
-                    break;
-                case "TELE":
-                    str = ussdNum + target + "*" + sum + "#";
-                    ussdController.callUSSDInvoke(str, mapUssd, new USSDController.CallbackInvoke() {
-                        @Override
-                        public void responseInvoke(String message) {
-                            // first option list - select option 1
-                            Logger.lg(message);
-                            ussdController.send("1", new USSDController.CallbackMessage() {
-                                @Override
-                                public void responseMessage(String message) {
-                                }
-                            });
-                        }
-
-                        @Override
-                        public void over(String message) {
-                            PayLib.flagok = false;
-                            PayLib.feedback.callResult("Code P2P-004: " + message);
-                            // message has the response string data from USSD
-                            // response no have input text, NOT SEND ANY DATA
-                        }
-                    });
-                    break;
+//                case "BEELINE":
+//                    str = ussdNum + target + "*" + sum + "#";
+//                    ussdController.callUSSDInvoke(str, mapUssd, new USSDController.CallbackInvoke() {
+//                        @Override
+//                        public void responseInvoke(String message) {
+//                            // first option list - select option 1
+//                            String answ = message.substring(message.indexOf("введите ") + 8, message.indexOf("."));
+//                            Logger.lg(message);
+//                            ussdController.send(answ, new USSDController.CallbackMessage() {
+//                                @Override
+//                                public void responseMessage(String message) {
+//                                }
+//                            });
+//                        }
+//
+//                        @Override
+//                        public void over(String message) {
+//                            PayLib.flagok = false;
+//                            PayLib.feedback.callResult("Code P2P-004: " + message);
+//                            // message has the response string data from USSD
+//                            // response no have input text, NOT SEND ANY DATA
+//                        }
+//                    });
+//                    break;
+//                case "MEGAFON":
+//                    str = ussdNum + sum + "*" + target + "#";
+//                    Logger.lg("Megafon ussd " + str);
+//                    ussdController.callUSSDInvoke(str, mapUssd, new USSDController.CallbackInvoke() {
+//                        @Override
+//                        public void responseInvoke(String message) {
+//                            // first option list - select option 1
+//                        }
+//
+//                        @Override
+//                        public void over(String message) {
+//                            PayLib.flagok = false;
+//                            PayLib.feedback.callResult("Code P2P-004: " + message);
+//                            // message has the response string data from USSD
+//                            // response no have input text, NOT SEND ANY DATA
+//                        }
+//                    });
+//                    break;
+//                case "TELE":
+//                    str = ussdNum + target + "*" + sum + "#";
+//                    ussdController.callUSSDInvoke(str, mapUssd, new USSDController.CallbackInvoke() {
+//                        @Override
+//                        public void responseInvoke(String message) {
+//                            // first option list - select option 1
+//                            Logger.lg(message);
+//                            ussdController.send("1", new USSDController.CallbackMessage() {
+//                                @Override
+//                                public void responseMessage(String message) {
+//                                }
+//                            });
+//                        }
+//
+//                        @Override
+//                        public void over(String message) {
+//                            PayLib.flagok = false;
+//                            PayLib.feedback.callResult("Code P2P-004: " + message);
+//                            // message has the response string data from USSD
+//                            // response no have input text, NOT SEND ANY DATA
+//                        }
+//                    });
+//                    break;
+//            }
+//                    }
             }
         }
     }
