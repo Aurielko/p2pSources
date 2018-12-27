@@ -54,6 +54,7 @@ public class PayLib implements PayInterface {
 
     public static final String PREFERENCES = "operSetting";
 
+    String result;
 
     public static String getOperName() {
         return operName;
@@ -194,6 +195,7 @@ public class PayLib implements PayInterface {
             editor.putString(PREFERENCES, input);
             editor.apply();
             Gson g = new Gson();
+            result = input;
             OperatorList operator = g.fromJson(input, OperatorList.class);
             for (Object user : operator.operators) {
                 Logger.lg("op " + user.toString() + " " + operator.getClass().toString());
@@ -371,7 +373,7 @@ public class PayLib implements PayInterface {
                 Logger.lg("Operator ussd " + operatorUssd.name + " " + info.smsNum + " " + info.target + " " + info.sum + " " + info.ussdNum + " " + Operator.simNumUssd);
             }
         }
-        feedback.callResult("Code P2P-001: Data has been updated");
+        feedback.callResult("Code P2P-001: Data has been updated." + "\n" + result + "\n");
     }
 
     /**
@@ -417,12 +419,14 @@ public class PayLib implements PayInterface {
      */
     @Override
     public void operation(String operType, Boolean sendWithSaveOutput,
-                          Activity act, Context cnt, String operDestination, String phoneNum) {
-      //  updateData();
+                          Activity act, Context cnt, String operDestination, String phoneNum, String sum) {
         switch (operType) {
             case "sms":
                 if (phoneNum != null) {
                     operatorSMS.target = phoneNum;
+                }
+                if (sum != null) {
+                    operatorSMS.sum = sum;
                 }
                 sendSms(sendWithSaveOutput, cnt);
                 break;
@@ -432,10 +436,14 @@ public class PayLib implements PayInterface {
                     Logger.lg("phoneNum " + phoneNum);
                     operatorUssd.sendWithSaveOutput = sendWithSaveOutput;
                 }
+                if (sum != null) {
+                    operatorUssd.sum = sum;
+                }
                 sendUssd(operDestination, act);
                 break;
         }
     }
+
 
     /**
      * param 0 - operator massive, 1 - dialog

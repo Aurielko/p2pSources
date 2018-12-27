@@ -136,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     num = null;
                 }
-                main.operation("ussd", true, act, cnt, operDest, num);
+                main.operation("ussd", true, act, cnt, operDest, num, null);
                 dialog.dismiss();
                 dialog.cancel();
             }
@@ -155,14 +155,14 @@ public class MainActivity extends AppCompatActivity {
                 Logger.lg("SMS button onclick " + " act!=null " + (act != null) + " " + (cnt != null));
                 number = null;
                 main.updateData(act, cnt, smsResult);
-                main.operation("sms", true, act, cnt, operDest, number);
+                main.operation("sms", true, act, cnt, operDest, number, null);
             }
         });
         btnSMS2.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 number = null;
                 main.updateData(act, cnt, smsResult);
-                main.operation("sms", false, act, cnt, operDest, number);
+                main.operation("sms", false, act, cnt, operDest, number, null);
             }
         });
         /**Button for delete*/
@@ -226,14 +226,14 @@ public class MainActivity extends AppCompatActivity {
                 curOperation = "sms";
                 sendWithSaveOutput = false;
                 main.updateData(act, cnt, smsResult);
-                main.operation("sms", false, act, cnt, operDest, number);
+                main.operation("sms", false, act, cnt, operDest, number, null);
             }
         });
         btnSMSNewSave.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 curOperation = "sms";
                 main.updateData(act, cnt, smsResult);
-                main.operation("sms", false, act, cnt, operDest, number);
+                main.operation("sms", false, act, cnt, operDest, number, null);
             }
         });
         btnUssdNew.setOnClickListener(new View.OnClickListener() {

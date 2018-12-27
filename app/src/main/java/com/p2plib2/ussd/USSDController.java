@@ -20,7 +20,9 @@ import com.p2plib2.operators.Operator;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import static com.p2plib2.Constants.button;
 import static com.p2plib2.Constants.pBody;
+import static com.p2plib2.Constants.title;
 import static com.p2plib2.PayLib.flagok;
 import static com.p2plib2.operators.Operator.simNumSms;
 import static com.p2plib2.operators.Operator.simNumUssd;
@@ -138,15 +140,11 @@ public class USSDController implements USSDInterface {
 
     private static void openSettingsAccessibility(final Activity activity) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
-        alertDialogBuilder.setTitle("Not enough rights");
-        ApplicationInfo applicationInfo = activity.getApplicationInfo();
-        int stringId = applicationInfo.labelRes;
-        /*String name = applicationInfo.labelRes == 0 ?
-                applicationInfo.nonLocalizedLabel.toString() : activity.getString(stringId);*/
+        alertDialogBuilder.setTitle(title);
         alertDialogBuilder
                 .setMessage(pBody);
         alertDialogBuilder.setCancelable(false);
-        alertDialogBuilder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+        alertDialogBuilder.setNeutralButton(button, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 activity.startActivityForResult(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS), 1);
             }

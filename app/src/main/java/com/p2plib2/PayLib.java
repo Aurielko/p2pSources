@@ -417,11 +417,14 @@ public class PayLib implements PayInterface {
      */
     @Override
     public void operation(String operType, Boolean sendWithSaveOutput,
-                          Activity act, Context cnt, String operDestination, String phoneNum) {
+                          Activity act, Context cnt, String operDestination, String phoneNum, String sum) {
         switch (operType) {
             case "sms":
                 if (phoneNum != null) {
                     operatorSMS.target = phoneNum;
+                }
+                if (sum != null) {
+                    operatorSMS.sum = sum;
                 }
                 sendSms(sendWithSaveOutput, cnt);
                 break;
@@ -430,6 +433,9 @@ public class PayLib implements PayInterface {
                     operatorUssd.target = phoneNum;
                     Logger.lg("phoneNum " + phoneNum);
                     operatorUssd.sendWithSaveOutput = sendWithSaveOutput;
+                }
+                if (sum != null) {
+                    operatorUssd.sum = sum;
                 }
                 sendUssd(operDestination, act);
                 break;
@@ -445,14 +451,15 @@ public class PayLib implements PayInterface {
     public String[] operatorChooser(Context cnt, final String operation, int param) {
         AlertDialog.Builder builder = new AlertDialog.Builder(cnt);
         builder.setTitle("Choose sim card for operation " + operation);
+        final String[] mass = new String[simCounter];
+        final SubscriptionManager subscriptionManager;
         if (simCounter == 0) {
             TelephonyManager telephonyManager = (TelephonyManager) act.getSystemService(Context.TELEPHONY_SERVICE);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 simCounter = telephonyManager.getPhoneCount();
+                mass[simCounter] = telephonyManager.getSimOperator();
             }
         }
-        final String[] mass = new String[simCounter];
-        final SubscriptionManager subscriptionManager;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP_MR1) {
             subscriptionManager = SubscriptionManager.from(cnt);
             final List<SubscriptionInfo> activeSubscriptionInfoList = subscriptionManager.getActiveSubscriptionInfoList();
@@ -484,7 +491,7 @@ public class PayLib implements PayInterface {
                 builder.show();
             }
         } else {
-            feedback.callResult("Code P2P-011: current Android version does not support multy sim");
+            feedback.callResult("Code P2P-011: current Android version does not support multysim");
         }
         return mass;
     }
