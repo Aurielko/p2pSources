@@ -29,6 +29,7 @@ public class SmsMonitor extends BroadcastReceiver {
                 for (SmsMessage smsMessage : Telephony.Sms.Intents.getMessagesFromIntent(intent)) {
                     smsSender = smsMessage.getDisplayOriginatingAddress();
                     smsBody += smsMessage.getMessageBody();
+                    Logger.lg("FIRST");
                     status = smsMessage.getStatus();
                 }
             } else {

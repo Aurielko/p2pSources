@@ -4,217 +4,230 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.p2plib2.MainActivity">
+    android:windowSoftInputMode="adjustResize"
+    tools:context=".MainActivity">
 
-    <Button
-        android:id="@+id/butIni"
-        android:layout_width="150dp"
-        android:layout_height="40dp"
+    <ScrollView
+        android:id="@+id/linearL"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:background="#e6eef2"
-        android:paddingLeft="1.3dp"
-        android:text="Обновить данные"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_marginRight="8dp">
 
-    <Button
-        android:id="@+id/btnSms"
-        android:layout_width="150dp"
-        android:layout_height="40dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
-        android:background="#e6eef2"
-        android:paddingLeft="1.3dp"
-        android:text="Отправить СМС с сохранением"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/butIni" />
+        <LinearLayout
+            android:id="@+id/linearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-    <Button
-        android:id="@+id/btnShowOper"
-        android:layout_width="150dp"
-        android:layout_height="40dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginBottom="8dp"
-        android:background="#e6eef2"
-        android:paddingLeft="1.3dp"
-        android:text="Показать список операторов"
-        app:layout_constraintBottom_toTopOf="@+id/textView2"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnSms"
-        app:layout_constraintVertical_bias="0.0" />
+            <Button
+                android:id="@+id/btnIni"
+                style="@style/ButtonTheme"
+                android:text="Обновить данные приложения из файла конфигурации" />
 
-    <Button
-        android:id="@+id/btnDelete"
-        android:layout_width="150dp"
-        android:layout_height="43dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
-        android:background="#e6eef2"
-        android:paddingLeft="1.3dp"
-        android:text="Удалить СМС"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnSms2" />
+            <Button
+                android:id="@+id/btnSimParam"
+                style="@style/ButtonTheme"
+                android:text="Посмотреть текущих операторов для СМС/звонков/интернета в настройках телефона (переход в настройки телефона)" />
 
-    <Button
-        android:id="@+id/btnSms2"
-        android:layout_width="150dp"
-        android:layout_height="40dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
-        android:background="#e6eef2"
-        android:paddingLeft="1.3dp"
-        android:text="Отправить СМС без сохранения"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnShowOper" />
+            <Button
+                android:id="@+id/btnSmsSave"
+                style="@style/ButtonTheme"
+                android:text="Оплата на номер из файла конфигурации через SMS с его сохранением" />
 
-    <Button
-        android:id="@+id/btnUssd"
-        android:layout_width="130dp"
-        android:layout_height="70dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:background="#ffb5b5"
-        android:paddingLeft="1.3dp"
-        android:text="Оплата USSD"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.843"
-        app:layout_constraintStart_toEndOf="@+id/btnSms"
-        app:layout_constraintTop_toTopOf="parent" />
+            <Button
+                android:id="@+id/btnSmsUnSave"
+                style="@style/ButtonTheme"
+                android:text="Оплата на номер из файла конфигурации через SMS без его сохранения" />
 
-    <Button
-        android:id="@+id/btnUssdNew"
-        android:layout_width="130dp"
-        android:layout_height="70dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:background="#ffffb5"
-        android:paddingLeft="1.3dp"
-        android:text="Оплата USSD на указанный номер"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.82"
-        app:layout_constraintStart_toEndOf="@+id/btnSms2"
-        app:layout_constraintTop_toBottomOf="@+id/btnUssd" />
+            <Button
+                android:id="@+id/btnUssd"
+                style="@style/ButtonTheme"
+                android:text="Оплата через USSD-запрос на номер из файла конфигурации" />
 
-    <Button
-        android:id="@+id/btnSmsSave"
-        android:layout_width="130dp"
-        android:layout_height="70dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginBottom="8dp"
-        android:paddingLeft="1.3dp"
-        android:text="Оплата SMS с сохранением на новый номер"
-        app:layout_constraintBottom_toTopOf="@+id/textView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.825"
-        app:layout_constraintStart_toEndOf="@+id/btnDelete"
-        app:layout_constraintTop_toBottomOf="@+id/btnUssdNew"
-        app:layout_constraintVertical_bias="0.0" />
+            <Button
+                android:id="@+id/btnUssdNew"
+                style="@style/ButtonTheme"
+                android:text="Оплата на указанный номер указанной суммы через USSD-запрос" />
 
-    <Button
-        android:id="@+id/btnSmsUnSave"
-        android:layout_width="129dp"
-        android:layout_height="70dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:background="#b5ffba"
-        android:paddingLeft="1.3dp"
-        android:text="Оплата SMS без сохранения на новый номер "
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.827"
-        app:layout_constraintStart_toEndOf="@+id/btnSms2"
-        app:layout_constraintTop_toBottomOf="@+id/btnSmsSave" />
+            <Button
+                android:id="@+id/btnSmsSaveNew"
+                style="@style/ButtonTheme"
+                android:text="Оплата на указанный номер указанной суммы через SMS с его сохранением " />
 
-    <Button
-        android:id="@+id/numSave"
-        android:layout_width="78dp"
-        android:layout_height="55dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginBottom="8dp"
-        android:paddingLeft="1.3dp"
-        android:text="Save num"
-        app:layout_constraintBottom_toTopOf="@+id/textView"
-        app:layout_constraintEnd_toStartOf="@+id/textView2"
-        app:layout_constraintHorizontal_bias="0.417"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewNum"
-        app:layout_constraintVertical_bias="0.772" />
+            <Button
+                android:id="@+id/btnSmsUnSaveNew"
+                style="@style/ButtonTheme"
+                android:text="Оплата на указанный номер указанной суммы через SMS без его сохранения" />
+
+            <Button
+                android:id="@+id/btnDelete"
+                style="@style/ButtonTheme"
+                android:text="Удалить все СМС, связанные с транзакциями" />
+
+            <TextView
+                android:id="@+id/operLabel"
+                style="@style/TextTheme"
+                android:text="\tДоступные на данном телефоне сим-карты и их операторы"
+                android:textAlignment="center" />
+
+            <TextView
+                android:id="@+id/operList"
+                style="@style/TextTheme"
+                android:text="\tИмена доступных операторов и их номера их сим-карт" />
 
 
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="234dp"
-        android:layout_height="51dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginBottom="8dp"
-        android:text="Имя текущего оператора"
-        app:layout_constraintBottom_toTopOf="@+id/textView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnSmsUnSave" />
+            <TextView
+                android:id="@+id/textView"
+                style="@style/TextTheme"
+                android:text="\t Здесь будет код и текст последнего сообщения с номера оператора или статус приложения" />
 
-    <EditText
-        android:id="@+id/textViewNum"
-        android:layout_width="126dp"
-        android:layout_height="48dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginBottom="8dp"
-        android:hint="Новый номер"
-        app:layout_constraintBottom_toTopOf="@+id/textView2"
-        app:layout_constraintEnd_toStartOf="@+id/btnSmsUnSave"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnDelete" />
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="375dp"
-        android:layout_height="110dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginBottom="8dp"
-        android:text="Здесь будет текст последнего сообщения с номера оператора или статус приложения"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent" />
+            <TableLayout
+                android:id="@+id/tableLayout2"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:background="@drawable/back"
+                android:shrinkColumns="4"
+                android:stretchColumns="*">
 
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
+                <TextView
+                    style="@style/Table"
+                    android:gravity="center"
+                    android:text="\tОператор" />
 
-</android.support.constraint.ConstraintLayout>
+                <TextView
+                    style="@style/Table"
+                    android:text="\tНомер"
+
+                    />
+
+                <TextView
+                    style="@style/Table"
+                    android:text="\tСумма"
+                    />
+
+                <TextView
+                    style="@style/Table"
+                    android:text="\tSave"
+                    />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    style="@style/Table"
+                    android:text="\tМТС"
+                    android:textAlignment="center" />
+
+                <EditText
+                    android:id="@+id/numMts"
+                    style="@style/Table"
+                    android:hint="Номер"
+                    />
+
+                <EditText
+                    android:id="@+id/sumMts"
+                    style="@style/Table"
+                    android:maxLength="3"
+                    android:hint="\t Сумма" />
+
+                <Button
+                    android:id="@+id/saveMTC"
+                    style="@style/ButOper"
+                    android:text="Save"
+                    />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    style="@style/Table"
+                    android:text="\tБилайн"
+                    android:textAlignment="center" />
+
+                <EditText
+                    android:id="@+id/numBee"
+                    style="@style/Table"
+                    android:hint="Номер" />
+
+                <EditText
+                    android:id="@+id/sumBee"
+                    android:maxLength="3"
+                    style="@style/Table"
+                    android:hint="Сумма" />
+
+                <Button
+                    android:id="@+id/saveBee"
+                    style="@style/ButOper"
+                    android:text="Save"
+                    />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    style="@style/Table"
+                    android:text="\tТеле2"
+                    android:textAlignment="center" />
+
+                <EditText
+                    android:id="@+id/numTele"
+                    style="@style/Table"
+                    android:hint="Номер" />
+
+                <EditText
+                    android:id="@+id/sumTele"
+                    android:maxLength="3"
+                    style="@style/Table"
+                    android:hint="Сумма" />
+
+                <Button
+                    android:id="@+id/saveTele"
+                    style="@style/ButOper"
+                    android:text="Save" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    style="@style/Table"
+                    android:text="\tМегафон"
+                    android:textAlignment="center" />
+
+                <EditText
+                    android:id="@+id/numMega"
+                    style="@style/Table"
+                    android:hint="Номер" />
+
+                <EditText
+                    android:id="@+id/sumMega"
+                    style="@style/Table"
+                    android:maxLength="3"
+                    android:hint="Сумма" />
+
+                <Button
+                    android:id="@+id/saveMega"
+                    style="@style/ButOper"
+                    android:text="Save" />
+            </TableRow>
+        </TableLayout>
+    </LinearLayout>
+</ScrollView></android.support.constraint.ConstraintLayout>

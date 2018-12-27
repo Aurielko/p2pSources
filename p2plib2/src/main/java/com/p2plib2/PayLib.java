@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -51,6 +52,7 @@ public class PayLib implements PayInterface {
     public static Activity act;
     public static Boolean flagok = false;
     public static Operation currentOperation;
+    public static HashSet<String> curMesage = new HashSet();
 
     public static final String PREFERENCES = "operSetting";
 
@@ -142,13 +144,13 @@ public class PayLib implements PayInterface {
                             || CommonFunctions.formatOperMame(numeroTelephone).contains(operatorSMS.name))
                             && currentMsg.substring(currentMsg.indexOf("[]") + 2).contains(body)) {
 //                        Logger.lg("Code P2P-010: error SMS sending " + status + " from " + numeroTelephone);
-                        feedback.callResult("Code P2P-010: error SMS sending " + status + " from " + numeroTelephone);
+                        feedback.callResult("Code P2P-010: ошибка отправки смс " + status + " на номер " + numeroTelephone);
                     }
                 } else if (!status.equals("-1") && status != null && !currentMsg.equals("")) {
                     if ((currentMsg.substring(0, currentMsg.indexOf("[]")).contains(numeroTelephone)
                             || CommonFunctions.formatOperMame(numeroTelephone).contains(operatorSMS.name))
                             && currentMsg.substring(currentMsg.indexOf("[]") + 2).contains(body)) {
-                        feedback.callResult("Code P2P-012: success SMS sending " + status + " from " + numeroTelephone);
+                        feedback.callResult("Code P2P-012: отправка СМС завершена успешно " + status + " на номер " + numeroTelephone);
                     }
                 }
             }
@@ -253,7 +255,7 @@ public class PayLib implements PayInterface {
                 }
             }
         } else {
-            feedback.callResult("Code P2P-011: current Android version does not support multy sim");
+            feedback.callResult("Code P2P-011: текущая вверсия системы не поддерживает dual sim");
         }
         return result;
     }
@@ -273,7 +275,7 @@ public class PayLib implements PayInterface {
                 }
             }
         } else {
-            feedback.callResult("Code P2P-011: current Android version does not support multy sim");
+            feedback.callResult("Code P2P-011: текущая вверсия системы не поддерживает dual sim");
         }
         return result;
     }
@@ -292,7 +294,7 @@ public class PayLib implements PayInterface {
                 }
             }
         } else {
-            feedback.callResult("Code P2P-011: current Android version does not support multy sim");
+            feedback.callResult("Code P2P-011: текущая вверсия системы не поддерживает dual sim");
         }
         return result;
     }
@@ -311,7 +313,7 @@ public class PayLib implements PayInterface {
                 }
             }
         } else {
-            feedback.callResult("Code P2P-011: current Android version does not support multy sim");
+            feedback.callResult("Code P2P-011: текущая вверсия системы не поддерживает dual sim");
         }
         return result;
     }
@@ -360,10 +362,10 @@ public class PayLib implements PayInterface {
                         Logger.lg("Operator sms " + info.smsNum + " " + info.target + " " + info.sum + " " + info.ussdNum + " " + mgr.getSubscriptionId());
                     }
                 } else {
-                    feedback.callResult("Code: P2P-002. Run operatorChooser with parameter \"SMS\" for choosing simCard for sms requests");
+                    feedback.callResult("Code: P2P-002. Вызовите функцию  operatorChooser с параметром \"SMS\" для выбора сим-карты для отправки смс");
                 }
             } else {
-                feedback.callResult("Code P2P-011: current Android version does not support multy sim");
+                feedback.callResult("Code P2P-011: текущая вверсия системы не поддерживает dual sim");
             }
             /**For ussd operator**/
             if (operatorInfo.containsKey(operatorUssd.name)) {
@@ -373,7 +375,7 @@ public class PayLib implements PayInterface {
                 Logger.lg("Operator ussd " + operatorUssd.name + " " + info.smsNum + " " + info.target + " " + info.sum + " " + info.ussdNum + " " + Operator.simNumUssd);
             }
         }
-        feedback.callResult("Code P2P-001: Data has been updated." + "\n" + result + "\n");
+        feedback.callResult("Code P2P-001: Данные обновлены" + "\n" + result + "\n");
     }
 
     /**
@@ -492,7 +494,7 @@ public class PayLib implements PayInterface {
                 builder.show();
             }
         } else {
-            feedback.callResult("Code P2P-011: current Android version does not support multy sim");
+            feedback.callResult("Code P2P-011: текущая вверсия системы не поддерживает dual sim");
         }
         return mass;
     }
@@ -539,6 +541,20 @@ public class PayLib implements PayInterface {
         Logger.lg("SMS in inbox: " + c.getCount());
         int flag = 0;
         int flag2 = 0;
+        int flag2Max = 0;
+        Boolean thisFil = false;
+        if (filters.isEmpty()) {
+            for (String str : curMesage) {
+                filters.put(str, "body");
+            }
+            thisFil = true;
+        }
+        Logger.lg("filters.toString() " + filters.toString());
+        if (currentOperation.equals(Operation.SMS)) {
+            flag2Max = 2;
+        } else if (currentOperation.equals(Operation.USSD)) {
+            flag2Max = 1;
+        }
         if (c != null && c.moveToFirst()) {
             do {
                 long id = c.getLong(0);
@@ -556,31 +572,33 @@ public class PayLib implements PayInterface {
                         }
                         Logger.lg("Delete result " + iko);
                     }
-//                Logger.lg(currentMsg + " " + address + " " +
-//                        " " + currentMsg.substring(currentMsg.indexOf("[]") + 2) +
-//                        body + " " + currentMsg.substring(0, currentMsg.indexOf("[]")).contains(address) + " " + body.contains(currentMsg.substring(currentMsg.indexOf("[]") + 2)));
-                    boolean flagFilters = true;
-                    if (!filters.isEmpty()) {
+
+                    if (flag2 < flag2Max) {
                         for (Map.Entry<String, String> filter : filters.entrySet()) {
-                            int index = c.getColumnIndex(filter.getKey());
-                            if (index != -1) {
-                                if (!c.getString(index).contains(filter.getValue())) {
-                                    flagFilters = false;
+                            if (thisFil) {
+                                if (filter.getKey().substring(0, filter.getKey().indexOf("[]")).contains(address) && body.contains(filter.getKey().substring(filter.getKey().indexOf("[]") + 2)))
+                                    flag2 = cnt.getContentResolver().delete(
+                                            Uri.parse("content://sms"), "_id=? and thread_id=?", new String[]{String.valueOf(id), String.valueOf(threadId)});
+                                Logger.lg("delete " + flag2);
+                                if (flag2 != -1) {
+                                    flag2++;
+
+                                }
+                            } else {
+                                if (filter.getKey().contains(address) && body.contains(filter.getKey()))
+                                    flag2 = cnt.getContentResolver().delete(
+                                            Uri.parse("content://sms"), "_id=? and thread_id=?", new String[]{String.valueOf(id), String.valueOf(threadId)});
+                                Logger.lg("delete " + flag2);
+                                if (flag2 != -1) {
+                                    flag2++;
                                 }
                             }
                         }
                     }
-
-                    if (flagFilters && currentMsg.substring(0, currentMsg.indexOf("[]")).contains(address) && body.contains(currentMsg.substring(currentMsg.indexOf("[]") + 2))
-                            && flag2 == 0) {
-                        flag2 = cnt.getContentResolver().delete(
-                                Uri.parse("content://sms"), "_id=? and thread_id=?", new String[]{String.valueOf(id), String.valueOf(threadId)});
-                        Logger.lg("deltete " + flag2);
-                    }
                 }
             } while (c.moveToNext());
         }
-        feedback.callResult("Code P2P-005: delete " + flag + " sms in inbox and " + flag2 + " in outbox");
+        feedback.callResult("Code P2P-005: удалено " + flag + " входящих смс и " + flag2 + " исходящих");
     }
 
     public enum Operation {

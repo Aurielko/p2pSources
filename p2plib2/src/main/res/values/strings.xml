@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">p2pLib</string>
-    <string name="accessibility_service_description">Automate ussd responces </string>
+    <string name="accessibility_service_description">Для корректной работы приложения необходимо разрешить автоматизацию работы с ussd-запросами
+        При нажатии на кнопку Вас перенаправит на страницу настроек, где необходимо выбрать данное приложение и в его окне настроек активировать данный сервис </string>
 </resources>

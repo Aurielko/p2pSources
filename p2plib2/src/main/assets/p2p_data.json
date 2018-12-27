@@ -6,28 +6,28 @@
       "sms_number":   "6996",
       "ussd_number":     	"*115#",
       "target":     "9854293318",
-      "sum":     "15"
+      "sum":     "30"
     },
     {
       "operator": "Beeline",
       "sms_number": "7878",
       "ussd_number": "*145*",
       "target": "9689604804",
-      "sum": "15"
+      "sum": "30"
     },
     {
       "operator": "Megafon",
       "sms_number": "7572/117013819/117011633/117011636/8900",
       "ussd_number": "*133*",
       "target": "9854293318",
-      "sum": "15"
+      "sum": "30"
     },
     {
       "operator": "Tele",
       "sms_number": "145/312",
       "ussd_number": "*145*",
       "target": "9689604804",
-      "sum": "15"
+      "sum": "30"
     }
   ]
 }

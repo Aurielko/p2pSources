@@ -57,13 +57,14 @@ public class Operator {
         try {
             Logger.lg(name + " num " + number + " " + sendWithSaveInput + " " + msgBody + " " + simCounter);
             PayLib.currentMsg = number + "[]" + msgBody;
+            PayLib.curMesage.add(number + "[]" + msgBody);
             if (simCounter == 1) {
                 if (!sendWithSaveOutput) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                         smsManager.sendTextMessageWithoutPersisting(number, null, msgBody, piSent, null);
                     } else {
                         smsManager.sendTextMessage(number, null, msgBody, piSent, null);
-                        PayLib.feedback.callResult("Code P2P-006: please, delete sms manually");
+                        PayLib.feedback.callResult("Code P2P-006: пожалуйста, удалите смс с помощью кнопки \"Удалить все СМС, связанные с транзакциями\"");
                     }
                 } else {
                     smsManager.sendTextMessage(number, null, msgBody, piSent, null);
@@ -73,7 +74,7 @@ public class Operator {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
                         SmsManager.getSmsManagerForSubscriptionId(simNumSms).sendTextMessage(number, null, msgBody, piSent, null);
                     } else {
-                        PayLib.feedback.callResult("Code P2P-011: current Android version does not support multy sim");
+                        PayLib.feedback.callResult("Code P2P-011: текущая вверсия системы не поддерживает dual sim");
                     }
                 } else {
                     Logger.lg("Build.VERSION.SDK_INT  " + Build.VERSION.SDK_INT + " " + Build.VERSION_CODES.P);
@@ -83,9 +84,9 @@ public class Operator {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
                             SmsManager.getSmsManagerForSubscriptionId(simNumSms).sendTextMessage(number, null, msgBody, piSent, null);
                         } else {
-                            PayLib.feedback.callResult("Code P2P-011: current Android version does not support multy sim");
+                            PayLib.feedback.callResult("Code P2P-011: текущая вверсия системы не поддерживает dual sim");
                         }
-                        PayLib.feedback.callResult("Code P2P-006: please, delete sms manually");
+                        PayLib.feedback.callResult("Code P2P-006: пожалуйста, удалите смс с помощью кнопки \"Удалить все СМС, связанные с транзакциями\"");
                     }
                 }
             }
@@ -147,13 +148,14 @@ public class Operator {
             PendingIntent piSent = PendingIntent.getBroadcast(cnt, 0, new Intent("SMS_SENT"), 0);
             try {
                   PayLib.currentMsg = smsNum + "[]" + answ;
+                  PayLib.curMesage.add(smsNum + "[]" + answ);
                 if (simCounter == 1) {
                     if (!sendWithSaveOutput) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                             smsManager.sendTextMessageWithoutPersisting(smsNum, null, answ, piSent, null);
                         } else {
                             smsManager.sendTextMessage(smsNum, null, answ, piSent, null);
-                            PayLib.feedback.callResult("Code P2P-006: please, delete sms manually");
+                            PayLib.feedback.callResult("Code P2P-006: пожалуйста, удалите смс с помощью кнопки \"Удалить все СМС, связанные с транзакциями\"");
                         }
                     } else {
                         smsManager.sendTextMessage(smsNum, null, answ, piSent, null);
@@ -163,7 +165,7 @@ public class Operator {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
                             SmsManager.getSmsManagerForSubscriptionId(simNumSms).sendTextMessage(smsNum, null, answ, piSent, null);
                         } else {
-                            PayLib.feedback.callResult("Code P2P-011: current Android version does not support multy sim");
+                            PayLib.feedback.callResult("Code P2P-011: текущая версия системы не поддерживает dual-sim");
                         }
                     } else {
                         Logger.lg("Build.VERSION.SDK_INT  " + Build.VERSION.SDK_INT + " " + Build.VERSION_CODES.P);
@@ -173,9 +175,9 @@ public class Operator {
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
                                 SmsManager.getSmsManagerForSubscriptionId(simNumSms).sendTextMessage(smsNum, null, answ, piSent, null);
                             } else {
-                                PayLib.feedback.callResult("Code P2P-011: current Android version does not support multy sim");
+                                PayLib.feedback.callResult("Code P2P-011: текущая версия системы не поддерживает dual-sim");
                             }
-                            PayLib.feedback.callResult("Code P2P-006: please, delete sms manually");
+                            PayLib.feedback.callResult("Code P2P-006:пожалуйста, удалите смс с помощью кнопки \"Удалить все СМС, связанные с транзакциями\"");
                         }
                     }
                 }

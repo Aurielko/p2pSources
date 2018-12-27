@@ -1576,6 +1576,10 @@
         "source": "C:\\Users\\dkolosovskiy\\.gradle\\caches\\transforms-1\\files-1.1\\appcompat-v7-28.0.0.aar\\1875b4aec80a8c3112b2dc6e3365d2cd\\res\\drawable-xhdpi-v4\\abc_ic_menu_cut_mtrl_alpha.png"
     },
     {
+        "merged": "C:\\Users\\dkolosovskiy\\AndroidStudioProjects\\p2pLib\\app\\build\\intermediates\\res\\merged\\debug\\drawable_back.xml.flat",
+        "source": "C:\\Users\\dkolosovskiy\\AndroidStudioProjects\\p2pLib\\app\\src\\main\\res\\drawable\\back.xml"
+    },
+    {
         "merged": "C:\\Users\\dkolosovskiy\\AndroidStudioProjects\\p2pLib\\app\\build\\intermediates\\res\\merged\\debug\\color-v23_abc_tint_switch_track.xml.flat",
         "source": "C:\\Users\\dkolosovskiy\\.gradle\\caches\\transforms-1\\files-1.1\\appcompat-v7-28.0.0.aar\\1875b4aec80a8c3112b2dc6e3365d2cd\\res\\color-v23\\abc_tint_switch_track.xml"
     },
