@@ -193,9 +193,11 @@ public class Operator {
 
 
 
-    public void sendUssd(final String destOper, Activity act) {
+
+    public void sendUssd(final String desOper, Activity act) {
         Logger.lg("Flagok " + flagok);
         if (flagok = true) {
+            final String destOper = desOper.toUpperCase();
             final USSDController ussdController = USSDController.getInstance(act);
             ussdController.cleanCallbackMessage();
             mapUssd.put("KEY_LOGIN", new HashSet<>(Arrays.asList("подождите", "загрузка")));
@@ -304,7 +306,7 @@ public class Operator {
                                 }
 
                             }
-                            if (destOper == "Beeline") {
+                            if (destOper == "BEELINE") {
                                 if (message.contains("Номер телефона")) {
                                     Logger.lg(message);
                                     ussdController.send(target, new USSDController.CallbackMessage() {
@@ -338,7 +340,7 @@ public class Operator {
                                     });
                                 }
                             }
-                            if (destOper == "Megafon") {
+                            if (destOper == "MEGAFON") {
                                 if (message.contains("Номер телефона")) {
                                     Logger.lg(message);
                                     ussdController.send(target, new USSDController.CallbackMessage() {
@@ -372,7 +374,7 @@ public class Operator {
                                     });
                                 }
                             }
-                            if (destOper == "Tele2") {
+                            if (destOper == "TELE") {
                                 if (message.toLowerCase().contains("tele2")) {
                                     Logger.lg(message);
                                     ussdController.send("1", new USSDController.CallbackMessage() {
