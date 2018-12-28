@@ -39,7 +39,7 @@ import static com.p2plib2.ussd.USSDController.verifyAccesibilityAccess;
 public class PayLib implements PayInterface {
     private String version = "1.0.0";
     private String defaultSmsApp;
-    private String pathOfFile = "web";
+    private String pathOfFile = " сервер ";
     private SharedPreferences operatorSettings;
     public static Operator operatorSMS;
     public static Operator operatorUssd;
@@ -178,7 +178,7 @@ public class PayLib implements PayInterface {
             final FilesLoader load = new FilesLoader();
             //https://drive.google.com/open?id=1cP7AGOYNJNkjo0hrJxSCgyGi5TpSna-v
             String input = load.downloadJson("https://drive.google.com/a/adviator.com/uc?authuser=0&id=1cP7AGOYNJNkjo0hrJxSCgyGi5TpSna-v&export=download");
-            pathOfFile = "web";
+            pathOfFile = " сервер ";
             if (input == null) {
                 byte[] buffer = null;
                 InputStream is;
@@ -191,7 +191,7 @@ public class PayLib implements PayInterface {
                     e.printStackTrace();
                 }
                 input = new String(buffer);
-                pathOfFile = "local file";
+                pathOfFile = " локальный файл";
             }
             SharedPreferences.Editor editor = operatorSettings.edit();
             editor.putString(PREFERENCES, input);
@@ -375,7 +375,7 @@ public class PayLib implements PayInterface {
                 Logger.lg("Operator ussd " + operatorUssd.name + " " + info.smsNum + " " + info.target + " " + info.sum + " " + info.ussdNum + " " + Operator.simNumUssd);
             }
         }
-        feedback.callResult("Code P2P-001: Данные обновлены" + "\n" + result + "\n");
+        feedback.callResult("Code P2P-001: Данные обновлены " + pathOfFile  + "\n" + result + "\n");
     }
 
     /**
