@@ -5,17 +5,11 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.Settings;
-import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
-import android.telephony.SmsManager;
-import android.telephony.TelephonyManager;
 import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,13 +19,8 @@ import android.widget.Scroller;
 import android.widget.TextView;
 
 import com.p2plib.R;
-import com.p2plib2.common.CommonFunctions;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -157,7 +146,6 @@ public class MainActivity extends AppCompatActivity {
                 } else if (newSum == "") {
                     sums.put("MTS", null);
                 }
-                Logger.lg("DSD " + sums.toString() + " " + nums.toString());
                 handler.sendMessage(msg);
             }
         });
@@ -260,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
         btnUssd.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 flagogek = false;
-                main.updateData(act, cnt, smsResult);
+                //    main.updateData(act, cnt, smsResult);
                 curOper = "ussd";
                 AlertDialog alertD = builderOperator.create();
                 alertD.show();
@@ -269,7 +257,7 @@ public class MainActivity extends AppCompatActivity {
         btnUssdNew.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 flagogek = true;
-                main.updateData(act, cnt, smsResult);
+                //  main.updateData(act, cnt, smsResult);
                 curOper = "ussd";
                 AlertDialog alertD = builderOperator.create();
                 alertD.show();
@@ -278,14 +266,14 @@ public class MainActivity extends AppCompatActivity {
         /**SMS*/
         btnSmsSave.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                main.updateData(act, cnt, smsResult);
+                // main.updateData(act, cnt, smsResult);
                 main.operation("sms", true, act, cnt, operDest, null, null);
                 operationFlag = true;
             }
         });
         btnSmsUnSave.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                main.updateData(act, cnt, smsResult);
+                //   main.updateData(act, cnt, smsResult);
                 main.operation("sms", false, act, cnt, operDest, null, null);
                 operationFlag = true;
             }
@@ -293,7 +281,7 @@ public class MainActivity extends AppCompatActivity {
 
         btnSMSNewSave.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                main.updateData(act, cnt, smsResult);
+                //  main.updateData(act, cnt, smsResult);
                 curOper = "sms";
                 curSave = true;
                 AlertDialog alertD = builderOperator.create();
@@ -302,7 +290,7 @@ public class MainActivity extends AppCompatActivity {
         });
         btnSMSNewUnSave.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                main.updateData(act, cnt, smsResult);
+                // main.updateData(act, cnt, smsResult);
                 curOper = "sms";
                 curSave = false;
                 AlertDialog alertD = builderOperator.create();
@@ -327,7 +315,7 @@ public class MainActivity extends AppCompatActivity {
         btnIni.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 btnDiactivate();
-                main.updateData(act, cnt, smsResult);
+                //  main.updateData(act, cnt, smsResult);
                 String mass[] = main.operatorChooser(MainActivity.cnt, null, 0);
                 String result = null;
                 for (int k = 0; k < mass.length; k++) {
