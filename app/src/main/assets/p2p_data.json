@@ -4,7 +4,7 @@
     {
       "operator":     "MTS",
       "sms_number":   "6996",
-      "ussd_number":     	"*115#",
+      "ussd_number":   "*115#",
       "target":     "9854293318",
       "sum":     "15"
     },

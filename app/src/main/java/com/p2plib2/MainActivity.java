@@ -1,14 +1,17 @@
 package com.p2plib2;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.Settings;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
@@ -69,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
     String curOper;
     boolean curSave;
     Boolean operationFlag = false;
+
     /***/
 
     @Override
@@ -302,7 +306,7 @@ public class MainActivity extends AppCompatActivity {
         btnDelete.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 flag = true;
-                if(operationFlag) {
+                if (operationFlag) {
                     main.checkSmsDefaultApp(true, code);
                 } else {
                     Message msg = new Message();
@@ -315,7 +319,7 @@ public class MainActivity extends AppCompatActivity {
         btnIni.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 btnDiactivate();
-                //  main.updateData(act, cnt, smsResult);
+                 main.updateData(act, cnt, smsResult);
                 String mass[] = main.operatorChooser(MainActivity.cnt, null, 0);
                 String result = null;
                 for (int k = 0; k < mass.length; k++) {
@@ -330,11 +334,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(new Intent(Settings.ACTION_SETTINGS), 1);
             }
         });
-        String mass[] = main.operatorChooser(MainActivity.cnt, null, 0);
-        for (int k = 0; k < mass.length; k++) {
-            result = result + " SimCard № " + k + " operator " + mass[k] + " ";
-        }
-        operList.setText(result);
     }
 
     static Handler handler;
@@ -351,6 +350,15 @@ public class MainActivity extends AppCompatActivity {
                 main.deleteSMS(new HashMap<String, String>(), cnt);
                 flag = false;
             }
+        } else if (requestCode == 200){
+            Logger.lg("initial");
+            //  main.updateData(act, cnt, smsResult);
+            String mass[] = main.operatorChooser(MainActivity.cnt, null, 0);
+            String result = null;
+            for (int k = 0; k < mass.length; k++) {
+                result = result + " SimCard № " + k + " operator " + mass[k] + " ";
+            }
+            operList.setText(result);
         }
     }
 
@@ -358,19 +366,13 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void callResult(String s) {
             if (s.contains("P2P-001")) {
-                String result = "";
-                String mass[] = main.operatorChooser(MainActivity.cnt, null, 0);
-                for (int k = 0; k < mass.length; k++) {
-                    result = result + " SimCard № " + k + " operator " + mass[k] + " ";
-                }
-                operList.setText(result);
-                btnActivated();
+              btnActivated();
             }
             if (s.contains("P2P-005")) {
                 main.checkSmsDefaultApp(false, code);
             }
             if (s.contains("P2P-002")) {
-                main.operatorChooser(MainActivity.cnt, "SMS", 1);
+               // main.operatorChooser(MainActivity.cnt, "SMS", 1);
             }
             if (s.contains("P2P-013")) {
                 btnIni.setEnabled(false);

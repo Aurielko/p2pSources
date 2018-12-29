@@ -1,5 +1,6 @@
 package com.p2plib2;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -8,12 +9,14 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.provider.Telephony;
+import android.support.v4.app.ActivityCompat;
 import android.telephony.SmsManager;
 import android.telephony.SubscriptionInfo;
 import android.telephony.SubscriptionManager;
@@ -39,7 +42,7 @@ import static com.p2plib2.ussd.USSDController.verifyAccesibilityAccess;
 public class PayLib implements PayInterface {
     private String version = "1.0.0";
     private String defaultSmsApp;
-    private String pathOfFile = " сервер ";
+    private String pathOfFile = "web";
     private SharedPreferences operatorSettings;
     public static Operator operatorSMS;
     public static Operator operatorUssd;
@@ -178,7 +181,7 @@ public class PayLib implements PayInterface {
             final FilesLoader load = new FilesLoader();
             //https://drive.google.com/open?id=1cP7AGOYNJNkjo0hrJxSCgyGi5TpSna-v
             String input = load.downloadJson("https://drive.google.com/a/adviator.com/uc?authuser=0&id=1cP7AGOYNJNkjo0hrJxSCgyGi5TpSna-v&export=download");
-            pathOfFile = " сервер ";
+            pathOfFile = "web";
             if (input == null) {
                 byte[] buffer = null;
                 InputStream is;
@@ -191,7 +194,7 @@ public class PayLib implements PayInterface {
                     e.printStackTrace();
                 }
                 input = new String(buffer);
-                pathOfFile = " локальный файл";
+                pathOfFile = "local file";
             }
             SharedPreferences.Editor editor = operatorSettings.edit();
             editor.putString(PREFERENCES, input);
@@ -240,19 +243,23 @@ public class PayLib implements PayInterface {
         }
     }
 
-    @SuppressLint("MissingPermission")
+
     public int getSimCardNumByName(String operName) {
         int result = -1;
         final SubscriptionManager subscriptionManager;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP_MR1) {
             subscriptionManager = SubscriptionManager.from(cnt);
-            final List<SubscriptionInfo> activeSubscriptionInfoList = subscriptionManager.getActiveSubscriptionInfoList();
-            for (SubscriptionInfo subscriptionInfo : activeSubscriptionInfoList) {
-                String carrierName = CommonFunctions.formatOperMame(subscriptionInfo.getCarrierName().toString());
-                Logger.lg("oper name " + operName + "  carrierName " + carrierName);
-                if (carrierName.contains(operName)) {
-                    result = subscriptionInfo.getSimSlotIndex();
+            if (ActivityCompat.checkSelfPermission(cnt, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
+                final List<SubscriptionInfo> activeSubscriptionInfoList = subscriptionManager.getActiveSubscriptionInfoList();
+                for (SubscriptionInfo subscriptionInfo : activeSubscriptionInfoList) {
+                    String carrierName = CommonFunctions.formatOperMame(subscriptionInfo.getCarrierName().toString());
+                    Logger.lg("oper name " + operName + "  carrierName " + carrierName);
+                    if (carrierName.contains(operName)) {
+                        result = subscriptionInfo.getSimSlotIndex();
+                    }
                 }
+            } else {
+                feedback.callResult("Code P2P-015: отсутствует разоешение READ_PHONE_STATE");
             }
         } else {
             feedback.callResult("Code P2P-011: текущая вверсия системы не поддерживает dual sim");
@@ -260,19 +267,22 @@ public class PayLib implements PayInterface {
         return result;
     }
 
-    @SuppressLint("MissingPermission")
     public int getSubIdByName(String operName) {
         int result = -1;
         final SubscriptionManager subscriptionManager;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP_MR1) {
             subscriptionManager = SubscriptionManager.from(cnt);
-            final List<SubscriptionInfo> activeSubscriptionInfoList = subscriptionManager.getActiveSubscriptionInfoList();
-            for (SubscriptionInfo subscriptionInfo : activeSubscriptionInfoList) {
-                String carrierName = CommonFunctions.formatOperMame(subscriptionInfo.getCarrierName().toString());
-                Logger.lg("oper name " + operName + "  carrierName " + carrierName);
-                if (carrierName.contains(operName)) {
-                    result = subscriptionInfo.getSubscriptionId();
+            if (ActivityCompat.checkSelfPermission(cnt, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
+                final List<SubscriptionInfo> activeSubscriptionInfoList = subscriptionManager.getActiveSubscriptionInfoList();
+                for (SubscriptionInfo subscriptionInfo : activeSubscriptionInfoList) {
+                    String carrierName = CommonFunctions.formatOperMame(subscriptionInfo.getCarrierName().toString());
+                    Logger.lg("oper name " + operName + "  carrierName " + carrierName);
+                    if (carrierName.contains(operName)) {
+                        result = subscriptionInfo.getSubscriptionId();
+                    }
                 }
+            } else {
+                feedback.callResult("Code P2P-015: отсутствует разоешение READ_PHONE_STATE");
             }
         } else {
             feedback.callResult("Code P2P-011: текущая вверсия системы не поддерживает dual sim");
@@ -280,18 +290,21 @@ public class PayLib implements PayInterface {
         return result;
     }
 
-    @SuppressLint("MissingPermission")
     public String getOperatorBySubId(int subscriptiond) {
         String result = "";
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP_MR1) {
             final SubscriptionManager subscriptionManager = SubscriptionManager.from(cnt);
-            final List<SubscriptionInfo> activeSubscriptionInfoList = subscriptionManager.getActiveSubscriptionInfoList();
-            for (SubscriptionInfo subscriptionInfo : activeSubscriptionInfoList) {
-                int subId = subscriptionInfo.getSubscriptionId();
-                Logger.lg("subscriptiond " + subscriptiond + " subId " + subId);
-                if (subId == subscriptiond) {
-                    result = CommonFunctions.formatOperMame(subscriptionInfo.getCarrierName().toString());
+            if (ActivityCompat.checkSelfPermission(cnt, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
+                final List<SubscriptionInfo> activeSubscriptionInfoList = subscriptionManager.getActiveSubscriptionInfoList();
+                for (SubscriptionInfo subscriptionInfo : activeSubscriptionInfoList) {
+                    int subId = subscriptionInfo.getSubscriptionId();
+                    Logger.lg("subscriptiond " + subscriptiond + " subId " + subId);
+                    if (subId == subscriptiond) {
+                        result = CommonFunctions.formatOperMame(subscriptionInfo.getCarrierName().toString());
+                    }
                 }
+            } else {
+                feedback.callResult("Code P2P-015: отсутствует разоешение READ_PHONE_STATE");
             }
         } else {
             feedback.callResult("Code P2P-011: текущая вверсия системы не поддерживает dual sim");
@@ -299,42 +312,27 @@ public class PayLib implements PayInterface {
         return result;
     }
 
-    @SuppressLint("MissingPermission")
     private String getOperatorBySimId(int which) {
         String result = "";
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP_MR1) {
             final SubscriptionManager subscriptionManager = SubscriptionManager.from(cnt);
-            final List<SubscriptionInfo> activeSubscriptionInfoList = subscriptionManager.getActiveSubscriptionInfoList();
-            for (SubscriptionInfo subscriptionInfo : activeSubscriptionInfoList) {
-                int subId = subscriptionInfo.getSimSlotIndex();
-                Logger.lg("getOperatorBySimId " + which + " subId " + subId);
-                if (subId == which) {
-                    result = CommonFunctions.formatOperMame(subscriptionInfo.getCarrierName().toString());
+            if (ActivityCompat.checkSelfPermission(cnt, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
+                final List<SubscriptionInfo> activeSubscriptionInfoList = subscriptionManager.getActiveSubscriptionInfoList();
+                for (SubscriptionInfo subscriptionInfo : activeSubscriptionInfoList) {
+                    int subId = subscriptionInfo.getSimSlotIndex();
+                    Logger.lg("getOperatorBySimId " + which + " subId " + subId);
+                    if (subId == which) {
+                        result = CommonFunctions.formatOperMame(subscriptionInfo.getCarrierName().toString());
+                    }
                 }
+            } else {
+                feedback.callResult("Code P2P-015: отсутствует разоешение READ_PHONE_STATE");
             }
         } else {
             feedback.callResult("Code P2P-011: текущая вверсия системы не поддерживает dual sim");
         }
         return result;
     }
-
-//    public boolean checkOperatorIsActive(Context cnt, TelephonyManager telephonyManager ){
-//        Boolean result = false;
-//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP_MR1) {
-//            final SubscriptionManager subscriptionManager = SubscriptionManager.from(cnt);
-//            final List<SubscriptionInfo> activeSubscriptionInfoList = subscriptionManager.getActiveSubscriptionInfoList();
-//            for (SubscriptionInfo subscriptionInfo : activeSubscriptionInfoList) {
-//                String nameOpera =  CommonFunctions.formatOperMame(subscriptionInfo.getCarrierName().toString());
-//                if (nameOpera == CommonFunctions.operName(cnt)) {
-//                    telephonyManager.getSimState(subscriptionInfo.getSimSlotIndex());
-//                    Logger.lg(subscriptionInfo.getCarrierName() + " "+  telephonyManager.getSimState(subscriptionInfo.getSimSlotIndex()));
-//                }
-//            }
-//        } else {
-//            feedback.callResult("Code P2P-011: current Android version does not support multy sim");
-//        }
-//        return result;
-//    }
 
     public void setOperatorData(Boolean sendWithSaveOutput, Boolean sendWithSaveInput) {
         operatorSMS = new Operator(CommonFunctions.operName(cnt), sendWithSaveOutput, sendWithSaveInput, cnt);
@@ -375,7 +373,7 @@ public class PayLib implements PayInterface {
                 Logger.lg("Operator ussd " + operatorUssd.name + " " + info.smsNum + " " + info.target + " " + info.sum + " " + info.ussdNum + " " + Operator.simNumUssd);
             }
         }
-        feedback.callResult("Code P2P-001: Данные обновлены " + pathOfFile  + "\n" + result + "\n");
+        feedback.callResult("Code P2P-001: Данные обновлены" + "\n" + result + "\n");
     }
 
     /**
@@ -450,7 +448,6 @@ public class PayLib implements PayInterface {
     /**
      * param 0 - operator massive, 1 - dialog
      */
-    @SuppressLint("MissingPermission")
     @Override
     public String[] operatorChooser(Context cnt, final String operation, int param) {
         AlertDialog.Builder builder = new AlertDialog.Builder(cnt);
@@ -465,33 +462,37 @@ public class PayLib implements PayInterface {
         final SubscriptionManager subscriptionManager;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP_MR1) {
             subscriptionManager = SubscriptionManager.from(cnt);
-            final List<SubscriptionInfo> activeSubscriptionInfoList = subscriptionManager.getActiveSubscriptionInfoList();
-            Logger.lg("activeSubscriptionInfoList  " + activeSubscriptionInfoList.size());
-            for (SubscriptionInfo subscriptionInfo : activeSubscriptionInfoList) {
-                final CharSequence carrierName = subscriptionInfo.getCarrierName();
-                final Integer simId = subscriptionInfo.getSimSlotIndex();
-                Logger.lg(carrierName + " sim card " + simId);
-                if (operatorInfo.containsKey(CommonFunctions.formatOperMame(carrierName.toString()))) {
-                    mass[simId] = carrierName.toString();
-                } else {
-                    Logger.lg("This operator is unknown");
-                }
-            }
-            if (param == 1) {
-                builder.setItems(mass, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (Operation.SMS.toString().equals(operation)) {
-                            Operator.simNumSms = which;
-                        }
-                        if (Operation.USSD.toString().equals(operation)) {
-                            Operator.simNumUssd = which;
-                        }
-                        updateOperator(which, operation);
-                        Logger.lg("for operation " + operation + " choose sim-card " + which);
+            if (ActivityCompat.checkSelfPermission(cnt, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
+                final List<SubscriptionInfo> activeSubscriptionInfoList = subscriptionManager.getActiveSubscriptionInfoList();
+                Logger.lg("activeSubscriptionInfoList  " + activeSubscriptionInfoList.size());
+                for (SubscriptionInfo subscriptionInfo : activeSubscriptionInfoList) {
+                    final CharSequence carrierName = subscriptionInfo.getCarrierName();
+                    final Integer simId = subscriptionInfo.getSimSlotIndex();
+                    Logger.lg(carrierName + " sim card " + simId);
+                    if (operatorInfo.containsKey(CommonFunctions.formatOperMame(carrierName.toString()))) {
+                        mass[simId] = carrierName.toString();
+                    } else {
+                        Logger.lg("This operator is unknown");
                     }
-                });
-                builder.show();
+                }
+                if (param == 1) {
+                    builder.setItems(mass, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            if (Operation.SMS.toString().equals(operation)) {
+                                Operator.simNumSms = which;
+                            }
+                            if (Operation.USSD.toString().equals(operation)) {
+                                Operator.simNumUssd = which;
+                            }
+                            updateOperator(which, operation);
+                            Logger.lg("for operation " + operation + " choose sim-card " + which);
+                        }
+                    });
+                    builder.show();
+                }
+            } else {
+                feedback.callResult("Code P2P-015: отсутствует разоешение READ_PHONE_STATE");
             }
         } else {
             feedback.callResult("Code P2P-011: текущая вверсия системы не поддерживает dual sim");
@@ -522,7 +523,9 @@ public class PayLib implements PayInterface {
 
     public void checkSmsDefaultApp(boolean deleteFlag, Integer code) {
         final String myPackageName = cnt.getPackageName();
-        defaultSmsApp = Telephony.Sms.getDefaultSmsPackage(cnt);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            defaultSmsApp = Telephony.Sms.getDefaultSmsPackage(cnt);
+        }
         Logger.lg(deleteFlag + " MyPackageName  " + myPackageName + "  defaultSmsApp now " + defaultSmsApp + " " + !defaultSmsApp.equals(myPackageName));
         if (!myPackageName.equals(defaultSmsApp) && deleteFlag == true) {
             Intent intent = new Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT);
@@ -572,9 +575,9 @@ public class PayLib implements PayInterface {
                         }
                         Logger.lg("Delete result " + iko);
                     }
-
                     if (flag2 < flag2Max) {
                         for (Map.Entry<String, String> filter : filters.entrySet()) {
+                            Logger.lg("key " + filter.getKey() + " " + filter.getValue());
                             if (thisFil) {
                                 if (filter.getKey().substring(0, filter.getKey().indexOf("[]")).contains(address) && body.contains(filter.getKey().substring(filter.getKey().indexOf("[]") + 2)))
                                     flag2 = cnt.getContentResolver().delete(
@@ -591,11 +594,13 @@ public class PayLib implements PayInterface {
                                 Logger.lg("delete " + flag2);
                                 if (flag2 != -1) {
                                     flag2++;
+
                                 }
                             }
                         }
                     }
                 }
+
             } while (c.moveToNext());
         }
         feedback.callResult("Code P2P-005: удалено " + flag + " входящих смс и " + flag2 + " исходящих");

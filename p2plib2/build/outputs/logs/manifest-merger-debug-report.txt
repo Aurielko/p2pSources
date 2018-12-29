@@ -1,26 +1,66 @@
 -- Merging decision tree log ---
 manifest
-ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml:1:1-3:12
-INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml:1:1-3:12
-INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml:1:1-3:12
-INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml:1:1-3:12
-INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml:1:1-3:12
-INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml:1:1-3:12
-INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml:1:1-3:12
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml:1:1-14:12
+INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml:1:1-14:12
+INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml:1:1-14:12
+INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml:1:1-14:12
+INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml:1:1-14:12
+INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml:1:1-14:12
+INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml:1:1-14:12
 	package
 		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml:2:5-34
 		INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml
 		INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml
 	android:versionName
 		INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml
-		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml:1:1-3:12
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml:1:1-14:12
 		INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml
 	android:versionCode
 		INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml
-		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml:1:1-3:12
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml:1:1-14:12
 		INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml
 	xmlns:android
 		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml:1:11-69
+uses-permission#android.permission.CALL_PHONE
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml:4:5-68
+	android:name
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml:4:22-66
+uses-permission#android.permission.MODIFY_PHONE_STATE
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml:5:5-77
+	android:name
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml:5:22-74
+uses-permission#android.permission.READ_SMS
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml:6:5-67
+	android:name
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml:6:22-64
+uses-permission#android.permission.SEND_SMS
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml:7:5-67
+	android:name
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml:7:22-64
+uses-permission#android.permission.READ_PHONE_STATE
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml:8:5-75
+	android:name
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml:8:22-72
+uses-permission#android.permission.RECEIVE_SMS
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml:9:5-69
+	android:name
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml:9:22-67
+uses-permission#android.permission.WRITE_SMS
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml:10:5-67
+	android:name
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml:10:22-65
+uses-permission#android.permission.SYSTEM_ALERT_WINDOW
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml:11:5-78
+	android:name
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml:11:22-75
+uses-permission#android.permission.CHANGE_NETWORK_STATE
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml:12:5-78
+	android:name
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml:12:22-76
+uses-permission#android.permission.INTERNET
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml:13:5-66
+	android:name
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml:13:22-64
 uses-sdk
 INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\p2plib2\src\main\AndroidManifest.xml
