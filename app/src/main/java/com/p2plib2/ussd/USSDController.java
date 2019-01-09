@@ -7,15 +7,12 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
 import android.net.Uri;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.view.accessibility.AccessibilityManager;
 
-
 import com.p2plib2.Logger;
-import com.p2plib2.operators.Operator;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,8 +20,8 @@ import java.util.HashSet;
 import static com.p2plib2.Constants.button;
 import static com.p2plib2.Constants.pBody;
 import static com.p2plib2.Constants.title;
+import static com.p2plib2.PayLib.feedback;
 import static com.p2plib2.PayLib.flagok;
-import static com.p2plib2.operators.Operator.simNumSms;
 import static com.p2plib2.operators.Operator.simNumUssd;
 
 
@@ -34,21 +31,14 @@ import static com.p2plib2.operators.Operator.simNumUssd;
  * @since 1.0.a
  */
 public class USSDController implements USSDInterface {
-
+    static boolean flag = false;
     protected static USSDController instance;
-
     protected Activity context;
-
     protected HashMap<String, HashSet<String>> map;
-
     protected CallbackInvoke callbackInvoke;
-
     protected CallbackMessage callbackMessage;
-
     protected static final String KEY_LOGIN = "KEY_LOGIN";
-
     protected static final String KEY_ERROR = "KEY_ERROR";
-
     private USSDInterface ussdInterface;
 
     /**
@@ -124,7 +114,7 @@ public class USSDController implements USSDInterface {
         ussdInterface.sendData(text);
     }
 
-    static boolean flag = false;
+
 
     public static boolean verifyAccesibilityAccess(Activity act) {
         boolean isEnabled = USSDController.isAccessiblityServicesEnable(act);
@@ -155,7 +145,7 @@ public class USSDController implements USSDInterface {
     }
 
 
-    protected static boolean isAccessiblityServicesEnable(Context context) {
+    public static boolean isAccessiblityServicesEnable(Context context) {
         AccessibilityManager am = (AccessibilityManager) context
                 .getSystemService(Context.ACCESSIBILITY_SERVICE);
         if (am != null) {
@@ -175,18 +165,20 @@ public class USSDController implements USSDInterface {
                     context.getApplicationContext().getContentResolver(),
                     Settings.Secure.ACCESSIBILITY_ENABLED);
         } catch (Settings.SettingNotFoundException e) {
-            //
+           feedback.callResult("Code P2P-008: SettingNotFoundException for Accessibility Service");
         }
         if (accessibilityEnabled == 1) {
             String settingValue = Settings.Secure.getString(
                     context.getApplicationContext().getContentResolver(),
                     Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
-            Logger.lg("settingValue  " + settingValue);
             if (settingValue != null) {
                 TextUtils.SimpleStringSplitter splitter = new TextUtils.SimpleStringSplitter(':');
                 splitter.setString(settingValue);
                 while (splitter.hasNext()) {
                     String accessabilityService = splitter.next();
+                    Logger.lg(accessabilityService  + "  "
+                    + accessabilityService.equalsIgnoreCase(service)
+                    + " service " + service);
                     if (accessabilityService.equalsIgnoreCase(service)) {
                         return true;
                     }

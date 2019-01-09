@@ -42,7 +42,6 @@ public class CommonFunctions {
         if (ActivityCompat.checkSelfPermission(cnt, Manifest.permission.MODIFY_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
             tmp.add(Manifest.permission.MODIFY_PHONE_STATE);
         }
-
         if (!tmp.isEmpty()) {
             ActivityCompat.requestPermissions(act, (tmp).toArray(new String[0]), 200);
         }

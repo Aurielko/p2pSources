@@ -22,8 +22,6 @@ import static com.p2plib2.PayLib.flagok;
  */
 public class AccessService extends AccessibilityService {
 
-    private static String TAG = AccessService.class.getSimpleName();
-
     private static AccessibilityEvent event;
 
     /**

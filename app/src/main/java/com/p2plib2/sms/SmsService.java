@@ -17,7 +17,6 @@ public class SmsService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Logger.lg("On start sms");
         processSms(intent);
         return START_STICKY;
     }
@@ -25,8 +24,7 @@ public class SmsService extends Service {
     private void processSms(Intent intent) {
         String smsBody = intent.getExtras().getString("sms_body");
         String smsSender = intent.getExtras().getString("smsSender");
-        String operName = PayLib.getOperName();
-        Logger.lg(" smsBody  " + smsBody );
+        Logger.lg("SmsBody  " + smsBody );
         PayLib.sendAnswer(smsBody, smsSender);
     }
 }
