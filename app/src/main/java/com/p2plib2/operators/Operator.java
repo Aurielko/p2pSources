@@ -130,18 +130,20 @@ public class Operator {
 
     public void sendAnswer(String smsBody, String smsSender) {
         String sms_body = smsBody.toLowerCase();
-        Logger.lg("SendAnswer " + sms_body);
-        if (sms_body.contains("отправьте") || sms_body.contains("ответьте") || sms_body.contains("подтвердите")) {
+        Logger.lg("SendAnswer " + sms_body + " smsSender " + smsSender);
+        if (sms_body.contains("отправь") || sms_body.contains("ответь") || sms_body.contains("подтверд")) {
             SmsManager smsManager = SmsManager.getDefault();
             String answ = "";
-            if (sms_body.toLowerCase().contains("подтвердите")) {
-                answ = sms_body.substring(sms_body.indexOf("кодом ") + 6, sms_body.indexOf(" в ответном") + 1);
+            if (sms_body.toLowerCase().contains("подтвер")) {
+                if (sms_body.contains("кодом ") && sms_body.contains(" в ответном")) {
+                    answ = sms_body.substring(sms_body.indexOf("кодом ") + 6, sms_body.indexOf(" в ответном") + 1);
+                }
             } else {
                 answ = "1";
             }
-            if (sms_body.contains("ответьте") || sms_body.contains("на номер")) {
+            if (sms_body.contains("ответ") && sms_body.contains("на номер")) {
                 smsNum = sms_body.substring(sms_body.indexOf("на номер") + 8).replaceAll("[^0-9]", "");
-            } else if (sms_body.contains("ответном")) {
+            } else if (sms_body.contains("ответном") || sms_body.contains("ответное") || sms_body.contains("в ответ")) {
                 smsNum = smsSender;
             }
             Logger.lg("Answer  " + answ + " smsNum " + smsNum);
@@ -194,7 +196,7 @@ public class Operator {
     }
 
 
-    private Boolean equalsOperators(String name, OperatorNames constantName){
+    private Boolean equalsOperators(String name, OperatorNames constantName) {
 //        Logger.lg(name + " " + constantName + " " + (name.equals(constantName.toString())));
         return name.equals(constantName.toString());
     }
