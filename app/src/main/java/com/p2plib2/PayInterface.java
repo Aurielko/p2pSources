@@ -3,6 +3,7 @@ package com.p2plib2;
 import android.app.Activity;
 import android.content.Context;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public interface PayInterface {
@@ -12,6 +13,6 @@ public interface PayInterface {
     void setFilter(HashMap<String, String> filters);
 
     void updateData(Activity act, Context cnt, CallSmsResult res);
-    String[] operatorChooser(Context cnt, String operation, int param);
+    HashMap<Integer, String> operatorChooser(Context cnt, String operation, int param);
     void deleteSMS(HashMap<String, String> filters, Context cnt);
 }

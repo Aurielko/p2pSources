@@ -22,8 +22,11 @@ import android.widget.Scroller;
 import android.widget.TextView;
 
 import com.p2plib.R;
+import com.p2plib2.ussd.USSDController;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     private Button btnIni;
@@ -129,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
         /**Operator destination chooser and Ussd receiver**/
         final AlertDialog.Builder builderOperator = new AlertDialog.Builder(cnt);
         builderOperator.setTitle("Choose operator for destination ussd");
-        LayoutInflater li = LayoutInflater.from(cnt);
+        // LayoutInflater li = LayoutInflater.from(cnt);
         mtcSave.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 String newNum = mtcNum.getText().toString();
@@ -141,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     msg.obj = "Не корректный формат номера. Пожалуйста, введите десятизначный номер (например 9876543210)";
                 }
-                Logger.lg("sum " + newSum);
+                com.p2plib2.Logger.lg("sum " + newSum);
                 if (newSum.matches(regex)) {
                     sums.put("MTS", newSum);
                     msg.obj = msg.obj + " новая сумма " + newSum;
@@ -216,10 +219,9 @@ public class MainActivity extends AppCompatActivity {
         builderOperator.setItems(operators, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-
                 operDest = operators[which];
                 if (curOper == "ussd") {
-                    Logger.lg("Choose " + operDest + " ");
+                    com.p2plib2.Logger.lg("Choose " + operDest + " ");
                     String num = null;
                     String sum = null;
                     if (flagogek == true) {
@@ -253,8 +255,13 @@ public class MainActivity extends AppCompatActivity {
                 flagogek = false;
                 main.updateData(act, cnt, smsResult);
                 curOper = "ussd";
-                AlertDialog alertD = builderOperator.create();
-                alertD.show();
+                if (USSDController.isAccessiblityServicesEnable(act)) {
+                    AlertDialog alertD = builderOperator.create();
+                    alertD.show();
+                } else {
+                    Message msg = new Message();
+                    msg.obj = "Code P2P-015: Пожалуйста, разрешите приложению доступ в разделе \'Специальные возможности\' (для вызова окна перехода можно нажать кнопу <Обновить данные...>)";
+                }
             }
         });
         btnUssdNew.setOnClickListener(new View.OnClickListener() {
@@ -262,21 +269,28 @@ public class MainActivity extends AppCompatActivity {
                 flagogek = true;
                 main.updateData(act, cnt, smsResult);
                 curOper = "ussd";
-                AlertDialog alertD = builderOperator.create();
-                alertD.show();
+                if (USSDController.isAccessiblityServicesEnable(act)) {
+                    AlertDialog alertD = builderOperator.create();
+                    alertD.show();
+                } else {
+                    Message msg = new Message();
+                    msg.obj = "Code P2P-015: Пожалуйста, разрешите приложению доступ в разделе \'Специальные возможности\' (для вызова окна перехода можно нажать кнопу <Обновить данные...>)";
+                }
             }
         });
         /**SMS*/
         btnSmsSave.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 main.updateData(act, cnt, smsResult);
+
                 main.operation("sms", true, act, cnt, operDest, null, null);
                 operationFlag = true;
             }
         });
         btnSmsUnSave.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                main.updateData(act, cnt, smsResult);
+                //   main.updateData(act, cnt, smsResult);
+                com.p2plib2.Logger.lg("unsave sms");
                 main.operation("sms", false, act, cnt, operDest, null, null);
                 operationFlag = true;
             }
@@ -287,8 +301,13 @@ public class MainActivity extends AppCompatActivity {
                 main.updateData(act, cnt, smsResult);
                 curOper = "sms";
                 curSave = true;
-                AlertDialog alertD = builderOperator.create();
-                alertD.show();
+                if (USSDController.isAccessiblityServicesEnable(act)) {
+                    AlertDialog alertD = builderOperator.create();
+                    alertD.show();
+                } else {
+                    Message msg = new Message();
+                    msg.obj = "Code P2P-015: Пожалуйста, разрешите приложению доступ в разделе \'Специальные возможности\' (для вызова окна перехода можно нажать кнопу <Обновить данные...>)";
+                }
             }
         });
         btnSMSNewUnSave.setOnClickListener(new View.OnClickListener() {
@@ -296,8 +315,13 @@ public class MainActivity extends AppCompatActivity {
                 main.updateData(act, cnt, smsResult);
                 curOper = "sms";
                 curSave = false;
-                AlertDialog alertD = builderOperator.create();
-                alertD.show();
+                if (USSDController.isAccessiblityServicesEnable(act)) {
+                    AlertDialog alertD = builderOperator.create();
+                    alertD.show();
+                } else {
+                    Message msg = new Message();
+                    msg.obj = "Code P2P-015: Пожалуйста, разрешите приложению доступ в разделе \'Специальные возможности\' (для вызова окна перехода можно нажать кнопу <Обновить данные...>)";
+                }
             }
         });
 
@@ -320,10 +344,12 @@ public class MainActivity extends AppCompatActivity {
                 btnDiactivate();
                 main.updateData(act, cnt, smsResult);
                 if (ActivityCompat.checkSelfPermission(cnt, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
-                    String mass[] = main.operatorChooser(MainActivity.cnt, null, 0);
+                    HashMap<Integer, String> mass = main.operatorChooser(MainActivity.cnt, null, 0);
+                    com.p2plib2.Logger.lg("mass ");
                     String result = null;
-                    for (int k = 0; k < mass.length; k++) {
-                        result = result + " SimCard № " + k + " operator " + mass[k] + " ";
+                    com.p2plib2.Logger.lg("mass[] " + mass.size());
+                    for (Map.Entry<Integer, String> sims: mass.entrySet()) {
+                        result = result + " SimCard № " + sims.getKey() + " operator " + sims.getValue() + " ";
                     }
                     operList.setText(result);
                 }
@@ -344,10 +370,10 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Logger.lg("RequestCode " + requestCode);
+        com.p2plib2.Logger.lg("RequestCode " + requestCode);
         if (requestCode == 777) {
             boolean isDefault = resultCode == Activity.RESULT_OK;
-            Logger.lg("IsDefault " + isDefault + " " + flag);
+            com.p2plib2.Logger.lg("IsDefault " + isDefault + " " + flag);
             if (isDefault && flag) {
                 main.deleteSMS(new HashMap<String, String>(), cnt);
                 flag = false;
@@ -358,7 +384,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
-        Logger.lg(requestCode + " " + permissions + " " + grantResults);
+        com.p2plib2.Logger.lg(requestCode + " " + permissions + " " + grantResults);
     }
 
     public class CallSmsResult implements com.p2plib2.CallSmsResult {
@@ -367,13 +393,15 @@ public class MainActivity extends AppCompatActivity {
             if (s.contains("P2P-001")) {
                 String result = "";
                 if (ActivityCompat.checkSelfPermission(cnt, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
-                    String mass[] = main.operatorChooser(MainActivity.cnt, null, 0);
-                    for (int k = 0; k < mass.length; k++) {
-                        result = result + " SimCard № " + k + " operator " + mass[k] + " ";
+                    HashMap<Integer, String> mass = main.operatorChooser(MainActivity.cnt, null, 0);
+                    com.p2plib2.Logger.lg("dfsd " + mass.size());
+                    for (Map.Entry<Integer, String> sims: mass.entrySet()) {
+                        result = result + " SimCard № " + sims.getKey() + " operator " + sims.getValue() + " ";
                     }
                     operList.setText(result);
                 }
                 btnActivated();
+                Logger.lg("  where view ");
             }
             if (s.contains("P2P-005")) {
                 main.checkSmsDefaultApp(false, code);

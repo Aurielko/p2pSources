@@ -115,16 +115,16 @@ public class USSDController implements USSDInterface {
     }
 
 
-
     public static boolean verifyAccesibilityAccess(Activity act) {
         boolean isEnabled = USSDController.isAccessiblityServicesEnable(act);
         Logger.lg("isEnabled " + isEnabled);
-        if (!isEnabled && !flag) {
+        if (!isEnabled /*&& !flag*/) {
             openSettingsAccessibility(act);
-            flag = true;
+            // flag = true;
         }
-        return flag;
+        return isEnabled;
     }
+
 
 
     private static void openSettingsAccessibility(final Activity activity) {
