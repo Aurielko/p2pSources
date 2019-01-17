@@ -69,12 +69,39 @@ public class PayLib implements PayInterface {
         feedback.callResult("Code P2P-003: " + smsBody);
     }
 
+    public static Cursor curSMSOut;
+    public static void checkSmsAdditional() {
+        if (curSMSOut!=null) {
+            String message_id = curSMSOut.getString(curSMSOut.getColumnIndex("_id"));
+            String type = curSMSOut.getString(curSMSOut.getColumnIndex("type"));
+            String numeroTelephone = curSMSOut.getString(curSMSOut.getColumnIndex("address")).trim();
+            String status = curSMSOut.getString(curSMSOut.getColumnIndex("status")).trim();
+            String body = curSMSOut.getString(curSMSOut.getColumnIndex("body")).trim();
+            Logger.lg("flagok " + flagok);
+            Logger.lg("message_id  " + message_id + " type " + type + " numeroTelephone " + numeroTelephone + " status " + status + " currentMsg  " + currentMsg
+                  + " body " + body);
+            if (status.equals("-1")){
+                if(body.toLowerCase().contains("латеж выполнен")){
+                    feedback.callResult("Code P2P-012: отправка СМС завершена успешно " + status + " на номер " + numeroTelephone);
+                } else {
+                    feedback.callResult("Code P2P-010: ошибка отправки смс " + status + " на номер " + numeroTelephone);
+                }
+            } else {
+                feedback.callResult("Code P2P-012: отправка СМС завершена успешно " + status + " на номер " + numeroTelephone);
+            }
+            flagok = false;
+            curSMSOut = null;
+        }
+
+    }
+
     @Override
     public void updateData(Activity act, Context cnt, CallSmsResult feedback) {
         Logger.lg("Update");
         this.feedback = feedback;
         this.cnt = cnt;
         this.act = act;
+        curSMSOut = null;
         CommonFunctions.permissionCheck(cnt, act);
 //        USSDController.verifyAccesibilityAccess(act);
         verifyAccesibilityAccess(act);
@@ -136,30 +163,26 @@ public class PayLib implements PayInterface {
                 //0: _id//1: thread_id//2: address//3: person//4: date//5: protocol
                 //6: read//7: status//8: type//9: reply_path_present//10: subject
                 //11: body//12: service_center//13: locked
+                Logger.lg("flagok " + flagok);
                 Logger.lg("message_id  " + message_id + " type " + type + " numeroTelephone " + numeroTelephone + " status " + status + " currentMsg  " + currentMsg
                         + " date " + cur.getString(cur.getColumnIndex("date")) + " body " + body);
                 if ((status.equals("-1") || status == null) && !currentMsg.equals("")) {
                     if ((currentMsg.substring(0, currentMsg.indexOf("[]")).contains(numeroTelephone)
                             || CommonFunctions.formatOperMame(numeroTelephone).contains(operatorSMS.name))
                             && currentMsg.substring(currentMsg.indexOf("[]") + 2).contains(body)) {
-//                        Logger.lg("Code P2P-010: error SMS sending " + status + " from " + numeroTelephone);
                         feedback.callResult("Code P2P-010: ошибка отправки смс " + status + " на номер " + numeroTelephone);
+                        curSMSOut = cur;
                     }
                 } else if (!status.equals("-1") && status != null && !currentMsg.equals("")) {
-                    Logger.lg("msg " + status + " " + currentMsg);
                     if ((currentMsg.substring(0, currentMsg.indexOf("[]")).contains(numeroTelephone)
                             || CommonFunctions.formatOperMame(numeroTelephone).contains(operatorSMS.name))
                             && currentMsg.substring(currentMsg.indexOf("[]") + 2).contains(body)) {
                         feedback.callResult("Code P2P-012: отправка СМС завершена успешно " + status + " на номер " + numeroTelephone);
-                    } else if ((operatorSMS.smsNum.contains(currentMsg.substring(0, currentMsg.indexOf("[]")))
-                            || CommonFunctions.formatOperMame(numeroTelephone).contains(operatorSMS.name)
-                            || CommonFunctions.formatOperMame(numeroTelephone).contains(operatorUssd.name)
-                            || operatorUssd.smsNum.contains(currentMsg.substring(0, currentMsg.indexOf("[]"))))
-                            && currentMsg.substring(currentMsg.indexOf("[]") + 2).contains(body)) {
-                        feedback.callResult("Code P2P-012: отправка СМС завершена успешно " + status + " на номер " + numeroTelephone);
+                        curSMSOut = null;
                     }
                 }
             }
+            flagok = false;
         }
 
         @Override
@@ -383,13 +406,14 @@ public class PayLib implements PayInterface {
      * Reply answer code
      */
     public static void sendAnswer(String smsBody, String smsSender) {
-        if (currentOperation.equals(Operation.USSD)) {
-            operatorUssd.sendAnswer(smsBody, smsSender);
+        if(currentOperation!=null) {
+            if (currentOperation.equals(Operation.USSD)) {
+                operatorUssd.sendAnswer(smsBody, smsSender);
+            }
+            if (currentOperation.equals(Operation.SMS)) {
+                operatorSMS.sendAnswer(smsBody, smsSender);
+            }
         }
-        if (currentOperation.equals(Operation.SMS)) {
-            operatorSMS.sendAnswer(smsBody, smsSender);
-        }
-
     }
 
 
@@ -424,6 +448,7 @@ public class PayLib implements PayInterface {
     @Override
     public void operation(String operType, Boolean sendWithSaveOutput,
                           Activity act, Context cnt, String operDestination, String phoneNum, String sum) {
+        curMesage.clear();
         switch (operType) {
             case "sms":
                 if (ActivityCompat.checkSelfPermission(cnt, Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED) {
@@ -499,10 +524,10 @@ public class PayLib implements PayInterface {
                     }
                 }
                 if (param == 1 && mass.size() > 0) {
-                    final String m[] = new String[mass.size()];
-                    int s = 0;
+                   final  String m[] = new String[mass.size()];
+                    int s=0;
                     Logger.lg(mass.keySet() + " keys ");
-                    for (Map.Entry entry : mass.entrySet()) {
+                    for(Map.Entry entry: mass.entrySet()){
                         m[s] = "simcard № " + entry.getKey().toString() + " " + entry.getValue();
                         s++;
                     }
@@ -510,7 +535,7 @@ public class PayLib implements PayInterface {
                     builder.setItems(m, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            int num = Integer.parseInt(m[which].replaceAll("[^0-9]", ""));
+                           int num = Integer.parseInt(m[which].replaceAll("[^0-9]", ""));
                             if (Operation.SMS.toString().equals(operation)) {
                                 Operator.simNumSms = num;
                             }

