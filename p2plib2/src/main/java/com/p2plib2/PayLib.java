@@ -102,6 +102,7 @@ public class PayLib implements PayInterface {
         this.cnt = cnt;
         this.act = act;
         curSMSOut = null;
+        currentMsg = null;
         CommonFunctions.permissionCheck(cnt, act);
 //        USSDController.verifyAccesibilityAccess(act);
         verifyAccesibilityAccess(act);
@@ -449,6 +450,8 @@ public class PayLib implements PayInterface {
     public void operation(String operType, Boolean sendWithSaveOutput,
                           Activity act, Context cnt, String operDestination, String phoneNum, String sum) {
         curMesage.clear();
+        curSMSOut = null;
+        currentMsg = null;
         switch (operType) {
             case "sms":
                 if (ActivityCompat.checkSelfPermission(cnt, Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED) {
