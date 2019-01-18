@@ -14,7 +14,6 @@ import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -24,7 +23,6 @@ import android.widget.TextView;
 import com.p2plib.R;
 import com.p2plib2.ussd.USSDController;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -127,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
         final CallSmsResult smsResult = new CallSmsResult();
         com.p2plib2.common.CommonFunctions.permissionCheck(this, this);
         String result = "";
-        main.updateData(act, cnt, smsResult);
+        main.updateData(act, cnt, smsResult, true);
         /**For available sim cards**/
         /**Operator destination chooser and Ussd receiver**/
         final AlertDialog.Builder builderOperator = new AlertDialog.Builder(cnt);
@@ -253,7 +251,7 @@ public class MainActivity extends AppCompatActivity {
         btnUssd.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 flagogek = false;
-                main.updateData(act, cnt, smsResult);
+               main.updateData(act, cnt, smsResult, false);
                 curOper = "ussd";
                 if (USSDController.isAccessiblityServicesEnable(act)) {
                     AlertDialog alertD = builderOperator.create();
@@ -267,7 +265,7 @@ public class MainActivity extends AppCompatActivity {
         btnUssdNew.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 flagogek = true;
-                main.updateData(act, cnt, smsResult);
+                main.updateData(act, cnt, smsResult, false);
                 curOper = "ussd";
                 if (USSDController.isAccessiblityServicesEnable(act)) {
                     AlertDialog alertD = builderOperator.create();
@@ -281,15 +279,14 @@ public class MainActivity extends AppCompatActivity {
         /**SMS*/
         btnSmsSave.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                main.updateData(act, cnt, smsResult);
-
+                main.updateData(act, cnt, smsResult, false);
                 main.operation("sms", true, act, cnt, operDest, null, null);
                 operationFlag = true;
             }
         });
         btnSmsUnSave.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                //   main.updateData(act, cnt, smsResult);
+                  main.updateData(act, cnt, smsResult, false);
                 com.p2plib2.Logger.lg("unsave sms");
                 main.operation("sms", false, act, cnt, operDest, null, null);
                 operationFlag = true;
@@ -298,7 +295,7 @@ public class MainActivity extends AppCompatActivity {
 
         btnSMSNewSave.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                main.updateData(act, cnt, smsResult);
+                main.updateData(act, cnt, smsResult, false);
                 curOper = "sms";
                 curSave = true;
                 if (USSDController.isAccessiblityServicesEnable(act)) {
@@ -312,7 +309,7 @@ public class MainActivity extends AppCompatActivity {
         });
         btnSMSNewUnSave.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                main.updateData(act, cnt, smsResult);
+                main.updateData(act, cnt, smsResult, false);
                 curOper = "sms";
                 curSave = false;
                 if (USSDController.isAccessiblityServicesEnable(act)) {
@@ -342,7 +339,7 @@ public class MainActivity extends AppCompatActivity {
         btnIni.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 btnDiactivate();
-                main.updateData(act, cnt, smsResult);
+                main.updateData(act, cnt, smsResult, true);
                 if (ActivityCompat.checkSelfPermission(cnt, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
                     HashMap<Integer, String> mass = main.operatorChooser(MainActivity.cnt, null, 0);
                     com.p2plib2.Logger.lg("mass ");
@@ -396,7 +393,7 @@ public class MainActivity extends AppCompatActivity {
                     HashMap<Integer, String> mass = main.operatorChooser(MainActivity.cnt, null, 0);
                     com.p2plib2.Logger.lg("dfsd " + mass.size());
                     for (Map.Entry<Integer, String> sims: mass.entrySet()) {
-                        result = result + " SimCard № " + sims.getKey() + " operator " + sims.getValue() + " ";
+                            result = result + " SimCard № " + sims.getKey() + " operator " + sims.getValue() + " ";
                     }
                     operList.setText(result);
                 }

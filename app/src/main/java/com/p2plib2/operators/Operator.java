@@ -132,19 +132,17 @@ public class Operator {
 
     public void sendAnswer(String smsBody, String smsSender) {
         String sms_body = smsBody.toLowerCase();
-        Logger.lg("SendAnswer " + sms_body + " smsSender " + smsSender);
+        Logger.lg("SendAnswer " + sms_body + " smsSender " + smsSender + "  " + flagok);
         flagok=true;
         if (sms_body.contains("отправь") || sms_body.contains("ответь") || sms_body.contains("подтверд")) {
             SmsManager smsManager = SmsManager.getDefault();
             String answ = "";
+            // Подтвердите платёж кодом 6 в ответном SMS
             if (sms_body.toLowerCase().contains("подтвер")) {
                 if (sms_body.contains("кодом ") && sms_body.contains(" в ответном")) {
                     answ = sms_body.substring(sms_body.indexOf("кодом ") + 6, sms_body.indexOf(" в ответном") + 1);
                 } else {
                     answ = "1";
-                }
-                if(equalsOperators(operName, OperatorNames.MEGAFON)){
-                    answ = "0";
                 }
             } else {
                 answ = "1";
@@ -201,7 +199,6 @@ public class Operator {
             Logger.lg("Error! " + sms_body);
             PayLib.getSMSResult("Code : " + sms_body);
         }
-        flagok = false;
     }
 
 
@@ -473,9 +470,9 @@ public class Operator {
                     public void responseInvoke(String message) {
                         // first option list - select option 1
                     }
-
                     @Override
                     public void over(String message) {
+                        Logger.lg("message " + message);
                         PayLib.flagok = false;
                         PayLib.feedback.callResult("Code P2P-004: " + message);
                         // message has the response string data from USSD

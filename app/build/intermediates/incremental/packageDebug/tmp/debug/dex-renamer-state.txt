@@ -1,4 +1,4 @@
-#Thu Jan 17 18:44:30 MSK 2019
+#Fri Jan 18 16:33:39 MSK 2019
 base.0=C\:\\Users\\dkolosovskiy\\AndroidStudioProjects\\p2pLib\\app\\build\\intermediates\\transforms\\dexMerger\\debug\\0
 path.0=classes.dex
 renamed.0=classes.dex

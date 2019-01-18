@@ -470,9 +470,9 @@ public class Operator {
                     public void responseInvoke(String message) {
                         // first option list - select option 1
                     }
-
                     @Override
                     public void over(String message) {
+                        Logger.lg("message " + message);
                         PayLib.flagok = false;
                         PayLib.feedback.callResult("Code P2P-004: " + message);
                         // message has the response string data from USSD
