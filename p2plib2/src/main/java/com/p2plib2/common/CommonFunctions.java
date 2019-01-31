@@ -9,10 +9,17 @@ import android.telephony.TelephonyManager;
 
 import java.util.ArrayList;
 
+/**This class provides methods for normalizing operator name and checks permissions*
+ *
+ */
 public class CommonFunctions {
 
     static TelephonyManager telephonyManager;
 
+    /**The function for asking all required permissions.
+     * There are CALL_PHONE, READ_SMS, SEND_SMS, READ_PHONE_STATE, RECEIVE_SMS, BIND_ACCESSIBILITY_SERVICE, MODIFY_PHONE_STATE.
+     * Display permissions dialog with request code 200
+     * TODO: input - list of requirements, output - permission dialog for them*/
     public static void permissionCheck(Context cnt, Activity act) {
         ArrayList<String> tmp = new ArrayList<>();
         if (ActivityCompat.checkSelfPermission(cnt, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
@@ -33,12 +40,6 @@ public class CommonFunctions {
         if (ActivityCompat.checkSelfPermission(cnt, Manifest.permission.BIND_ACCESSIBILITY_SERVICE) != PackageManager.PERMISSION_GRANTED) {
             tmp.add(Manifest.permission.BIND_ACCESSIBILITY_SERVICE);
         }
-        if (ActivityCompat.checkSelfPermission(cnt, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            tmp.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        }
-        if (ActivityCompat.checkSelfPermission(cnt, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            tmp.add(Manifest.permission.READ_EXTERNAL_STORAGE);
-        }
         if (ActivityCompat.checkSelfPermission(cnt, Manifest.permission.MODIFY_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
             tmp.add(Manifest.permission.MODIFY_PHONE_STATE);
         }
@@ -47,12 +48,18 @@ public class CommonFunctions {
         }
     }
 
+    /**Returns default telephone operator in normal format*/
     public static String operName(Context cnt) {
         telephonyManager = (TelephonyManager) cnt.getSystemService(Context.TELEPHONY_SERVICE);
         String operName = telephonyManager.getNetworkOperatorName().toUpperCase();
         return formatOperMame(operName);
     }
 
+    /** @param oName - String param, which may contains operator name in different styles
+     * @return operator name in Uppercase without additional text, such as "Rus 1" and etc.
+     * Work with operator names, which contains "MTS", "BEELINE", "MEGAFON", "TELE"
+     *
+     * TODO: in input rules for normalizing operators and ability to add new operator or move this function in ORM*/
     public static String formatOperMame(String oName) {
         String operName = oName.toUpperCase();
         if(operName.contains("MTS")){

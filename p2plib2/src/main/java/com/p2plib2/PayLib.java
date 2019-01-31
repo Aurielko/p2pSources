@@ -371,6 +371,7 @@ public class PayLib implements PayInterface {
     }
 
     public void setOperatorData(Boolean sendWithSaveOutput, Boolean sendWithSaveInput) {
+        Logger.lg("ilik");
         operatorSMS = new Operator(CommonFunctions.operName(cnt), sendWithSaveOutput, sendWithSaveInput, cnt);
         operatorUssd = new Operator(CommonFunctions.operName(cnt), sendWithSaveOutput, sendWithSaveInput, cnt);
         TelephonyManager telephonyManager = (TelephonyManager) act.getSystemService(Context.TELEPHONY_SERVICE);

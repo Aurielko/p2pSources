@@ -24,14 +24,7 @@ import static com.p2plib2.PayLib.feedback;
 import static com.p2plib2.PayLib.flagok;
 import static com.p2plib2.operators.Operator.simNumUssd;
 
-
-/**
- * @author Romell Dominguez
- * @version 1.1.c 27/09/2018
- * @since 1.0.a
- */
 public class USSDController implements USSDInterface {
-    static boolean flag = false;
     protected static USSDController instance;
     protected Activity context;
     protected HashMap<String, HashSet<String>> map;
@@ -67,8 +60,8 @@ public class USSDController implements USSDInterface {
      */
     @SuppressLint("MissingPermission")
     public void callUSSDInvoke(String ussdPhoneNumber, HashMap<String, HashSet<String>> map, CallbackInvoke callbackInvoke) {
-        Logger.lg("controller " + flagok);
-        if (flagok) {
+        Logger.lg("controller " + flagok + " " + com.p2plib2.Simple.PayLib.flagok);
+        if (flagok || com.p2plib2.Simple.PayLib.flagok) {
             this.callbackInvoke = callbackInvoke;
             this.map = map;
             if (map == null || (map != null && (!map.containsKey(KEY_ERROR) || !map.containsKey(KEY_LOGIN)))) {
@@ -79,7 +72,7 @@ public class USSDController implements USSDInterface {
                 callbackInvoke.over("Bad ussd number");
                 return;
             }
-            Logger.lg("controller24 " + flagok);
+
             // if (verifyAccesibilityAccess(context)) {
             String uri = Uri.encode("#");
             if (uri != null) {
@@ -114,7 +107,9 @@ public class USSDController implements USSDInterface {
         ussdInterface.sendData(text);
     }
 
-
+    /**
+     * Check accessibility service activated
+     **/
     public static boolean verifyAccesibilityAccess(Activity act) {
         boolean isEnabled = USSDController.isAccessiblityServicesEnable(act);
         Logger.lg("isEnabled " + isEnabled);
@@ -125,8 +120,9 @@ public class USSDController implements USSDInterface {
         return isEnabled;
     }
 
-
-
+    /**
+     * Open dialog for move to menu of services for activation accessibility service p2p
+     **/
     private static void openSettingsAccessibility(final Activity activity) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
         alertDialogBuilder.setTitle(title);
@@ -165,7 +161,7 @@ public class USSDController implements USSDInterface {
                     context.getApplicationContext().getContentResolver(),
                     Settings.Secure.ACCESSIBILITY_ENABLED);
         } catch (Settings.SettingNotFoundException e) {
-           feedback.callResult("Code P2P-008: SettingNotFoundException for Accessibility Service");
+            feedback.callResult("Code P2P-008: SettingNotFoundException for Accessibility Service");
         }
         if (accessibilityEnabled == 1) {
             String settingValue = Settings.Secure.getString(
@@ -176,9 +172,9 @@ public class USSDController implements USSDInterface {
                 splitter.setString(settingValue);
                 while (splitter.hasNext()) {
                     String accessabilityService = splitter.next();
-                    Logger.lg(accessabilityService  + "  "
-                    + accessabilityService.equalsIgnoreCase(service)
-                    + " service " + service);
+                    Logger.lg(accessabilityService + "  "
+                            + accessabilityService.equalsIgnoreCase(service)
+                            + " service " + service);
                     if (accessabilityService.equalsIgnoreCase(service)) {
                         return true;
                     }

@@ -7,6 +7,7 @@ import android.os.IBinder;
 import com.p2plib2.Logger;
 import com.p2plib2.PayLib;
 
+/**For switch sms applications*/
 
 public class SmsService extends Service {
 

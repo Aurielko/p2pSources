@@ -23,10 +23,22 @@ import static com.p2plib2.PayLib.flagok;
 import static com.p2plib2.PayLib.operName;
 import static com.p2plib2.PayLib.simCounter;
 
+/**
+ * Class for operator work for specifying operation in devMode
+ */
 public class Operator {
     /**
-     * operatorSMS info
+     * Parameters:
+     * @param id - operator id
+     * @param name - operator name
+     * @param smsNum - From this number (or numbers) lib receives sms with payment report, payment verification code and etc.
+     * @param ussdNum - From this number (or numbers) lib calls ussd-request for payment
+     * @param target -  payment will be provided to this number
+     * @param sum - sum will be transferred
+     * @param simNumSms - sim number for sms processing
+     * @param simNumUssd - sim number for ussd processing
      */
+    public Long id;
     public String name;
     public String smsNum;
     public String ussdNum;
@@ -35,13 +47,18 @@ public class Operator {
     public static Integer simNumSms;
     public static Integer simNumUssd;
     /**
-     * Additional settings
-     */
+    *Additional settings
+    * @see Operator#Operator(String operName, Boolean sendWithSaveOutput, Boolean sendWithSaveInput, Context cnt)
+    */
     public Boolean sendWithSaveOutput;
     private Boolean sendWithSaveInput;
     private Context cnt;
     static HashMap mapUssd = new HashMap<>();
 
+    /**Operator constructor
+     * @param sendWithSaveOutput - true - save output sms; false - unsave/delete output sms
+     * @param sendWithSaveInput - true - save input sms; false - unsave/delete input sms
+     *      */
     public Operator(String operName, Boolean sendWithSaveOutput, Boolean sendWithSaveInput, Context cnt) {
         this.name = operName;
         this.cnt = cnt;
@@ -50,12 +67,18 @@ public class Operator {
     }
 
     /**
-     * Operators Name
+     * Enum: operators Name constants
      */
     public enum OperatorNames {
         BEELINE, MTS, TELE, MEGAFON
     }
 
+    /**This function provides sending SMS process for requesting sms payment.
+     * Using following methods
+     * @see Operator#createMsgBody()
+     * @see Operator#getOperNum()
+     * for construction output sms-request for specifying operator
+     * */
     public void sendSMS(Boolean sendWithSaveOutput, Context cnt) {
         String msgBody = createMsgBody();
         String number = getOperNum();
@@ -63,7 +86,11 @@ public class Operator {
         this.sendWithSaveOutput = sendWithSaveOutput;
         PendingIntent piSent = PendingIntent.getBroadcast(cnt, 0, new Intent("SMS_SENT"), 0);
         try {
-            Logger.lg(name + " num " + number + " " + sendWithSaveInput + " " + msgBody + " " + simCounter);
+           // Logger.lg(name + " num " + number + " " + sendWithSaveInput + " " + msgBody + " " + simCounter);
+            /**
+             * For monitoring current outside message sms and its status
+             *@param currentMsg and @curMesage
+             * */
             PayLib.currentMsg = number + "[]" + msgBody;
             PayLib.curMesage.add(number + "[]" + msgBody);
             if (ActivityCompat.checkSelfPermission(cnt, Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED) {
@@ -100,12 +127,14 @@ public class Operator {
                     }
                 }
             }
-            flagok=false;
+            /**After checking window with confirmation SMS sending turn off Access Service functionality*/
+            flagok = false;
         } catch (Exception e) {
             Logger.lg("Code P2P-008: " + e.getMessage());
         }
     }
 
+    /**@return - format telephone number for sms sending */
     private String getOperNum() {
         String operNum = "";
         if (equalsOperators(name, OperatorNames.MTS)) {
@@ -118,6 +147,7 @@ public class Operator {
         return operNum;
     }
 
+    /**@return msg for sms payment request for specifying operator */
     private String createMsgBody() {
         String msgBody = "";
         if (equalsOperators(name, OperatorNames.MTS)) {
@@ -130,10 +160,16 @@ public class Operator {
         return msgBody;
     }
 
+    /**Function for sending of sms answer for specifying operator
+     * Check message body for following cases:
+     *  - sms_body.contains("отправь") or sms_body.contains("ответь") or  sms_body.contains("подтверд") - the sms for code answer
+     *  - sms_body.contains("кодом ") and sms_body.contains(" в ответном") - format number for answer
+     *  Also, this method get code from sms-body for answer or send default answer for this operator
+     *  */
     public void sendAnswer(String smsBody, String smsSender) {
         String sms_body = smsBody.toLowerCase();
         Logger.lg("SendAnswer " + sms_body + " smsSender " + smsSender + "  " + flagok);
-        flagok=true;
+        flagok = true;
         if (sms_body.contains("отправь") || sms_body.contains("ответь") || sms_body.contains("подтверд")) {
             SmsManager smsManager = SmsManager.getDefault();
             String answ = "";
@@ -201,12 +237,17 @@ public class Operator {
         }
     }
 
-
+    /**Compare operator name with enums @see #OperatorNames*/
     private Boolean equalsOperators(String name, OperatorNames constantName) {
 //        Logger.lg(name + " " + constantName + " " + (name.equals(constantName.toString())));
         return name.equals(constantName.toString());
     }
 
+
+    /**Function for sending ussd-request and provides passing flow for ussd payment
+     * @@param desOper - destination operator. It is required for some operators, which flow in dependence on destination operator
+     * @see USSDController#callbackInvoke
+     * */
     public void sendUssd(final String desOper, Activity act) {
         Logger.lg("Flagok " + flagok);
         if (flagok = true) {
@@ -470,6 +511,7 @@ public class Operator {
                     public void responseInvoke(String message) {
                         // first option list - select option 1
                     }
+
                     @Override
                     public void over(String message) {
                         Logger.lg("message " + message);
@@ -507,6 +549,7 @@ public class Operator {
     }
 
 
+    /**Set operators data*/
     public void setData(String sms_number, String target, String sum, String ussd) {
         this.smsNum = sms_number;
         this.target = target;

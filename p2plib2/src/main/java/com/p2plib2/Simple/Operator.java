@@ -1,4 +1,4 @@
-package com.p2plib2.operators;
+package com.p2plib2.Simple;
 
 
 import android.Manifest;
@@ -10,29 +10,36 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.v4.app.ActivityCompat;
 import android.telephony.SmsManager;
-import android.util.Pair;
 
 import com.p2plib2.Logger;
-import com.p2plib2.PayLib;
-import com.p2plib2.entity.Chain;
-import com.p2plib2.entity.Event;
-import com.p2plib2.entity.EventPair;
+import com.p2plib2.Simple.PayLib;
 import com.p2plib2.ussd.USSDController;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 
-import static com.p2plib2.PayLib.flagok;
-import static com.p2plib2.PayLib.operName;
-import static com.p2plib2.PayLib.simCounter;
-import static com.p2plib2.entity.TestData.operatorsChains;
+import static com.p2plib2.Simple.PayLib.flagok;
+import static com.p2plib2.Simple.PayLib.simCounter;
+import static com.p2plib2.Simple.PayLib.currentMsg;
+import static com.p2plib2.Simple.PayLib.curMesage;
+
+/**
+ * Class for operator work for specifying operation in testMode
+ */
 
 public class Operator {
     /**
-     * operatorSMS info
+     * @param id - operator id
+     * @param name - operator name
+     * @param smsNum - From this number (or numbers) lib receives sms with payment report, payment verification code and etc.
+     * @param ussdNum - From this number (or numbers) lib calls ussd-request for payment
+     * @param target -  payment will be provided to this number
+     * @param sum - sum will be transferred
+     * @param simNumSms - sim number for sms processing
+     * @param simNumUssd - sim number for ussd processing
      */
+    public Long id;
     public String name;
     public String smsNum;
     public String ussdNum;
@@ -42,26 +49,39 @@ public class Operator {
     public static Integer simNumUssd;
     /**
      * Additional settings
+     * @param  mapUssd -  flow fow ussd processing (incoming feature)
+     * @see Operator#Operator(String operName, Boolean sendWithSaveOutput, Boolean sendWithSaveInput, Context cnt, Long operationId)
      */
     public Boolean sendWithSaveOutput;
     private Boolean sendWithSaveInput;
     private Context cnt;
     static HashMap mapUssd = new HashMap<>();
+    public static Long operationId;
 
-    public Operator(String operName, Boolean sendWithSaveOutput, Boolean sendWithSaveInput, Context cnt) {
+    /**Operator constructor
+     * @param operationId - id for one separated payment process
+     * @param sendWithSaveOutput - true - save output sms; false - unsave/delete output sms
+     * @param sendWithSaveInput - true - save input sms; false - unsave/delete input sms
+     **/
+    public Operator(String operName, Boolean sendWithSaveOutput, Boolean sendWithSaveInput, Context cnt, Long operationId) {
         this.name = operName;
         this.cnt = cnt;
+        Logger.lg(operName + " " + operationId);
+        this.operationId = operationId;
         this.sendWithSaveOutput = sendWithSaveOutput;
         this.sendWithSaveInput = sendWithSaveInput;
     }
 
     /**
-     * Operators Name
+     * Enum: operators Name constants
      */
     public enum OperatorNames {
         BEELINE, MTS, TELE, MEGAFON
     }
 
+    /**This function provides sending SMS process for requesting sms payment.
+     * Using following methods @see #createMsgBody(), #getOperNum() for construction output sms-request for specifying operator
+     * */
     public void sendSMS(Boolean sendWithSaveOutput, Context cnt) {
         String msgBody = createMsgBody();
         String number = getOperNum();
@@ -70,8 +90,10 @@ public class Operator {
         PendingIntent piSent = PendingIntent.getBroadcast(cnt, 0, new Intent("SMS_SENT"), 0);
         try {
             Logger.lg(name + " num " + number + " " + sendWithSaveInput + " " + msgBody + " " + simCounter);
-            PayLib.currentMsg = number + "[]" + msgBody;
-            PayLib.curMesage.add(number + "[]" + msgBody);
+            /**For monitoring current outside message sms and its status
+             * @param currentMsg and curMesage*/
+            currentMsg = number + "[]" + msgBody;
+            curMesage.add(number + "[]" + msgBody);
             if (ActivityCompat.checkSelfPermission(cnt, Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED) {
                 if (simCounter == 1) {
                     if (!sendWithSaveOutput) {
@@ -79,7 +101,7 @@ public class Operator {
                             smsManager.sendTextMessageWithoutPersisting(number, null, msgBody, piSent, null);
                         } else {
                             smsManager.sendTextMessage(number, null, msgBody, piSent, null);
-                            PayLib.feedback.callResult("Code P2P-006: пожалуйста, удалите смс с помощью кнопки \"Удалить все СМС, связанные с транзакциями\"");
+                            PayLib.codeFeedback(" Code P2P-006: пожалуйста, удалите смс с помощью кнопки \"Удалить все СМС, связанные с транзакциями\"", operationId);
                         }
                     } else {
                         smsManager.sendTextMessage(number, null, msgBody, piSent, null);
@@ -87,9 +109,10 @@ public class Operator {
                 } else {
                     if (sendWithSaveOutput) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                            Logger.lg(" fgr " + currentMsg + "  "  + curMesage);
                             SmsManager.getSmsManagerForSubscriptionId(simNumSms).sendTextMessage(number, null, msgBody, piSent, null);
                         } else {
-                            PayLib.feedback.callResult("Code P2P-011: текущая вверсия системы не поддерживает dual sim");
+                            PayLib.codeFeedback(" Code P2P-011: текущая вверсия системы не поддерживает dual sim", operationId);
                         }
                     } else {
                         Logger.lg("Build.VERSION.SDK_INT  " + Build.VERSION.SDK_INT + " " + Build.VERSION_CODES.P);
@@ -99,9 +122,9 @@ public class Operator {
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
                                 SmsManager.getSmsManagerForSubscriptionId(simNumSms).sendTextMessage(number, null, msgBody, piSent, null);
                             } else {
-                                PayLib.feedback.callResult("Code P2P-011: текущая вверсия системы не поддерживает dual sim");
+                                PayLib.codeFeedback(" Code P2P-011: текущая вверсия системы не поддерживает dual sim", operationId);
                             }
-                            PayLib.feedback.callResult("Code P2P-006: пожалуйста, удалите смс с помощью кнопки \"Удалить все СМС, связанные с транзакциями\"");
+                            PayLib.codeFeedback(" Code P2P-006: пожалуйста, удалите смс с помощью кнопки \"Удалить все СМС, связанные с транзакциями\"", operationId);
                         }
                     }
                 }
@@ -112,6 +135,7 @@ public class Operator {
         }
     }
 
+    /**@return - format telephone number for sms sending */
     private String getOperNum() {
         String operNum = "";
         if (equalsOperators(name, OperatorNames.MTS)) {
@@ -124,6 +148,7 @@ public class Operator {
         return operNum;
     }
 
+    /**@return msg for sms payment request for specifying operator */
     private String createMsgBody() {
         String msgBody = "";
         if (equalsOperators(name, OperatorNames.MTS)) {
@@ -136,6 +161,12 @@ public class Operator {
         return msgBody;
     }
 
+    /**Function for sending of sms answer for specifying operator
+     * Check message body for following cases:
+     *  - sms_body.contains("отправь") or sms_body.contains("ответь") or  sms_body.contains("подтверд") - the sms for code answer
+     *  - sms_body.contains("кодом ") and sms_body.contains(" в ответном") - format number for answer
+     *  Also, this method get code from sms-body for answer or send default answer for this operator
+     *  */
     public void sendAnswer(String smsBody, String smsSender) {
         String sms_body = smsBody.toLowerCase();
         Logger.lg("SendAnswer " + sms_body + " smsSender " + smsSender + "  " + flagok);
@@ -171,7 +202,7 @@ public class Operator {
                             }
                         } else {
                             smsManager.sendTextMessage(smsNum, null, answ, piSent, null);
-                            PayLib.feedback.callResult("Code P2P-006: пожалуйста, удалите смс с помощью кнопки \"Удалить все СМС, связанные с транзакциями\"");
+                            PayLib.codeFeedback(" Code P2P-006: пожалуйста, удалите смс с помощью кнопки \"Удалить все СМС, связанные с транзакциями\"", operationId);
                         }
                     } else {
                         smsManager.sendTextMessage(smsNum, null, answ, piSent, null);
@@ -181,7 +212,7 @@ public class Operator {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
                             SmsManager.getSmsManagerForSubscriptionId(simNumSms).sendTextMessage(smsNum, null, answ, piSent, null);
                         } else {
-                            PayLib.feedback.callResult("Code P2P-011: текущая версия системы не поддерживает dual-sim");
+                            PayLib.codeFeedback(" Code P2P-011: текущая версия системы не поддерживает dual-sim", operationId);
                         }
                     } else {
                         Logger.lg("Build.VERSION.SDK_INT  " + Build.VERSION.SDK_INT + " " + Build.VERSION_CODES.P);
@@ -191,9 +222,9 @@ public class Operator {
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
                                 SmsManager.getSmsManagerForSubscriptionId(simNumSms).sendTextMessage(smsNum, null, answ, piSent, null);
                             } else {
-                                PayLib.feedback.callResult("Code P2P-011: текущая версия системы не поддерживает dual-sim");
+                                PayLib.codeFeedback(" Code P2P-011: текущая версия системы не поддерживает dual-sim", operationId);
                             }
-                            PayLib.feedback.callResult("Code P2P-006:пожалуйста, удалите смс с помощью кнопки \"Удалить все СМС, связанные с транзакциями\"");
+                            PayLib.codeFeedback(" Code P2P-006:пожалуйста, удалите смс с помощью кнопки \"Удалить все СМС, связанные с транзакциями\"", operationId);
                         }
                     }
                 }
@@ -207,13 +238,16 @@ public class Operator {
         }
     }
 
-
+    /**Compare operator name with enums @see #OperatorNames*/
     private Boolean equalsOperators(String name, OperatorNames constantName) {
-//        Logger.lg(name + " " + constantName + " " + (name.equals(constantName.toString())));
+        Logger.lg(name + " " + constantName + " " + (name.equals(constantName.toString())));
         return name.equals(constantName.toString());
     }
 
-
+    /**Function for sending ussd-request and provides passing flow for ussd payment
+     * @@param desOper - destination operator. It is required for some operators, which flow in dependence on destination operator
+     * @see USSDController#callbackInvoke
+     * */
     public void sendUssd(final String desOper, Activity act) {
         Logger.lg("Flagok " + flagok);
         if (flagok = true) {
@@ -224,7 +258,8 @@ public class Operator {
             mapUssd.put("KEY_ERROR", new HashSet<>(Arrays.asList("problema", "problem", "ошибка", "null")));
             //*145*9031234567*150#
             String str = "";
-            Logger.lg("Send ussd " + name + " dor destination " + destOper + " target " + target);
+            Logger.lg("Send ussd " + name + " dor destination " + destOper + " target " + target
+                    + "  " + equalsOperators(name, OperatorNames.MEGAFON));
             if (equalsOperators(name, OperatorNames.MTS)) {
                 ussdController.callUSSDInvoke(ussdNum, mapUssd, new USSDController.CallbackInvoke() {
                     @Override
@@ -439,65 +474,37 @@ public class Operator {
                     @Override
                     public void over(String message) {
                         PayLib.flagok = false;
-                        PayLib.feedback.callResult("Code P2P-004: " + message);
+                        PayLib.codeFeedback(" Code P2P-004: " + message, operationId);
                         // message has the response string data from USSD
                         // response no have input text, NOT SEND ANY DATA
                     }
                 });
             }
             if (equalsOperators(name, OperatorNames.BEELINE)) {
-                Chain chain = operatorsChains.get(2);
                 str = ussdNum + target + "*" + sum + "#";
-                for (Map.Entry<Integer, EventPair> chainElement : chain.pairs.entrySet()) {
-                    System.out.println("chainElement " + chainElement.getKey());
-                    final EventPair pair = chainElement.getValue();
-                    String request = pair.request.body.getText();
-                    ussdController.callUSSDInvoke(request, mapUssd, new USSDController.CallbackInvoke() {
-                        @Override
-                        public void responseInvoke(String message) {
-                            // first option list - select option 1
-                            String responce = pair.responce.body.getText(message);
-                            String answ = message.substring(message.indexOf("введите ") + 8, message.indexOf("."));
-                            Logger.lg(message);
-                            ussdController.send(answ, new USSDController.CallbackMessage() {
-                                @Override
-                                public void responseMessage(String message) {
-                                }
-                            });
-                        }
+                Logger.lg("bee " + str);
+                ussdController.callUSSDInvoke(str, mapUssd, new USSDController.CallbackInvoke() {
+                    @Override
+                    public void responseInvoke(String message) {
+                        // first option list - select option 1
+                        String answ = message.substring(message.indexOf("введите ") + 8, message.indexOf("."));
+                        Logger.lg(message);
+                        ussdController.send(answ, new USSDController.CallbackMessage() {
+                            @Override
+                            public void responseMessage(String message) {
+                            }
+                        });
+                    }
 
-                        @Override
-                        public void over(String message) {
-                            PayLib.flagok = false;
-                            PayLib.feedback.callResult("Code P2P-004: " + message);
-                            // message has the response string data from USSD
-                            // response no have input text, NOT SEND ANY DATA
-                        }
-                    });
-                }
+                    @Override
+                    public void over(String message) {
+                        PayLib.flagok = false;
+                        PayLib.codeFeedback(" Code P2P-004: " + message, operationId);
+                        // message has the response string data from USSD
+                        // response no have input text, NOT SEND ANY DATA
+                    }
+                });
             }
-//                ussdController.callUSSDInvoke(str, mapUssd, new USSDController.CallbackInvoke() {
-//                    @Override
-//                    public void responseInvoke(String message) {
-//                        // first option list - select option 1
-//                        String answ = message.substring(message.indexOf("введите ") + 8, message.indexOf("."));
-//                        Logger.lg(message);
-//                        ussdController.send(answ, new USSDController.CallbackMessage() {
-//                            @Override
-//                            public void responseMessage(String message) {
-//                            }
-//                        });
-//                    }
-
-//                    @Override
-//                    public void over(String message) {
-//                        PayLib.flagok = false;
-//                        PayLib.feedback.callResult("Code P2P-004: " + message);
-//                        // message has the response string data from USSD
-//                        // response no have input text, NOT SEND ANY DATA
-//                    }
-//                });
-//            }
             if (equalsOperators(name, OperatorNames.MEGAFON)) {
                 str = ussdNum + sum + "*" + target + "#";
                 Logger.lg("Megafon ussd " + str);
@@ -511,14 +518,13 @@ public class Operator {
                     public void over(String message) {
                         Logger.lg("message " + message);
                         PayLib.flagok = false;
-                        PayLib.feedback.callResult("Code P2P-004: " + message);
+                        PayLib.codeFeedback(" Code P2P-004: " + message, operationId);
                         // message has the response string data from USSD
                         // response no have input text, NOT SEND ANY DATA
                     }
                 });
             }
             if (equalsOperators(name, OperatorNames.TELE)) {
-                HashMap<Integer, Pair<Event, Event>> mapTest = new HashMap();
                 str = ussdNum + target + "*" + sum + "#";
                 ussdController.callUSSDInvoke(str, mapUssd, new USSDController.CallbackInvoke() {
                     @Override
@@ -535,7 +541,7 @@ public class Operator {
                     @Override
                     public void over(String message) {
                         PayLib.flagok = false;
-                        PayLib.feedback.callResult("Code P2P-004: " + message);
+                        PayLib.codeFeedback(" Code P2P-004: " + message, operationId);
                         // message has the response string data from USSD
                         // response no have input text, NOT SEND ANY DATA
                     }
@@ -544,7 +550,7 @@ public class Operator {
         }
     }
 
-
+    /**Set operators data*/
     public void setData(String sms_number, String target, String sum, String ussd) {
         this.smsNum = sms_number;
         this.target = target;
