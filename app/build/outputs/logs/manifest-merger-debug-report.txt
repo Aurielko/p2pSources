@@ -141,18 +141,18 @@ ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\Andro
 		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:37:13-71
 	android:name
 		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:36:19-61
-intent-filter#action:name:android.provider.Telephony.WAP_PUSH_DELIVER+data:mimeType:application/vnd.wap.mms-message
+intent-filter#action:name:android.provider.Telephony.WAP_PUSH_DELIVER+data:mimeType:application/vnd.wap.mms-messageEntity
 ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:38:13-41:29
 action#android.provider.Telephony.WAP_PUSH_DELIVER
 ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:39:17-86
 	android:name
 		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:39:25-83
 data
-ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:40:17-76
+ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:40:17-82
 	android:scheme
 		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:63:23-43
 	android:mimeType
-		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:40:23-73
+		ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:40:23-79
 service#com.p2plib2.ussd.AccessService
 ADDED from C:\Users\dkolosovskiy\AndroidStudioProjects\p2pLib\app\src\main\AndroidManifest.xml:43:9-52:19
 	android:permission

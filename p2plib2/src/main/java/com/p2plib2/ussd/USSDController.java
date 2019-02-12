@@ -21,8 +21,7 @@ import static com.p2plib2.Constants.button;
 import static com.p2plib2.Constants.pBody;
 import static com.p2plib2.Constants.title;
 import static com.p2plib2.PayLib.feedback;
-import static com.p2plib2.PayLib.flagok;
-import static com.p2plib2.operators.Operator.simNumUssd;
+import static com.p2plib2.PayLib.serviceActivation;
 
 public class USSDController implements USSDInterface {
     protected static USSDController instance;
@@ -35,8 +34,6 @@ public class USSDController implements USSDInterface {
     private USSDInterface ussdInterface;
 
     /**
-     * The Sinfleton building method
-     *
      * @param activity An activity that could call
      * @return An instance of USSDController
      */
@@ -53,39 +50,30 @@ public class USSDController implements USSDInterface {
 
     /**
      * Invoke a dial-up calling a ussd number
-     *
-     * @param ussdPhoneNumber ussd number
-     * @param map             Map of Login and problem messages
-     * @param callbackInvoke  a callback object from return answer
+     * @param ussdPhoneNumber -  ussd number
+     * @param map  - Map of Login and problem messages
+     * @param callbackInvoke - a callback object from return answer
      */
     @SuppressLint("MissingPermission")
-    public void callUSSDInvoke(String ussdPhoneNumber, HashMap<String, HashSet<String>> map, CallbackInvoke callbackInvoke) {
-        Logger.lg("controller " + flagok + " " + com.p2plib2.Simple.PayLib.flagok);
-        if (flagok || com.p2plib2.Simple.PayLib.flagok) {
+    public void callUSSDInvoke(String ussdPhoneNumber, HashMap<String, HashSet<String>> map, Integer simNumber, CallbackInvoke callbackInvoke) {
+        Logger.lg("controller " + serviceActivation);
+        if (serviceActivation) {
             this.callbackInvoke = callbackInvoke;
             this.map = map;
-            if (map == null || (map != null && (!map.containsKey(KEY_ERROR) || !map.containsKey(KEY_LOGIN)))) {
-                callbackInvoke.over("Bad Mapping structure");
+            if (map == null || (map != null && (!map.containsKey(KEY_ERROR) || !map.containsKey(KEY_LOGIN))) || ussdPhoneNumber.isEmpty()) {
+                callbackInvoke.over("Bad Mapping structure or bad ussd number");
                 return;
             }
-            if (ussdPhoneNumber.isEmpty()) {
-                callbackInvoke.over("Bad ussd number");
-                return;
-            }
-
-            // if (verifyAccesibilityAccess(context)) {
             String uri = Uri.encode("#");
             if (uri != null) {
-                ussdPhoneNumber = ussdPhoneNumber.replace("#", uri);
+                ussdPhoneNumber = ussdPhoneNumber.replace("#", Uri.encode("#"));
             }
-            Logger.lg("controller5 " + ussdPhoneNumber);
             Uri uriPhone = Uri.parse("tel:" + ussdPhoneNumber);
-            Logger.lg(ussdPhoneNumber + " ussdPhoneNumber ");
             if (uriPhone != null) {
                 Intent intent = new Intent(Intent.ACTION_CALL, uriPhone);
-                Logger.lg("Operator.simNumSms" + simNumUssd);
-                if (simNumUssd != null) {
-                    intent.putExtra("com.android.phone.extra.slot", simNumUssd);
+                Logger.lg("OperatorNames sim " + simNumber);
+                if (simNumber != null) {
+                    intent.putExtra("com.android.phone.extra.slot", simNumber);
                 }
                 context.startActivity(intent);
             }
@@ -109,6 +97,7 @@ public class USSDController implements USSDInterface {
 
     /**
      * Check accessibility service activated
+     * @return true if Accessiblity services enable; false if not
      **/
     public static boolean verifyAccesibilityAccess(Activity act) {
         boolean isEnabled = USSDController.isAccessiblityServicesEnable(act);

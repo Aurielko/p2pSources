@@ -23,9 +23,19 @@ import android.telephony.TelephonyManager;
 
 import com.p2plib2.common.CommonFunctions;
 import com.p2plib2.common.FilesLoader;
+import com.p2plib2.common.MapData;
+import com.p2plib2.entity.MessageEntity;
 import com.p2plib2.operators.Operator;
-import com.p2plib2.ussd.USSDController;
+import com.p2plib2.sms.SmsMonitor;
 import com.google.gson.Gson;
+
+import static com.p2plib2.Constants.dataAddress;
+import static com.p2plib2.PayLib.Operation.ALL;
+import static com.p2plib2.PayLib.Operation.SMS;
+import static com.p2plib2.PayLib.Operation.USSD;
+import static com.p2plib2.PayLib.dataSource.LOCAL;
+import static com.p2plib2.PayLib.dataSource.WEB;
+import static com.p2plib2.common.MapData.OperatorNames;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,79 +48,86 @@ import java.util.Map;
 import static com.p2plib2.ussd.USSDController.verifyAccesibilityAccess;
 
 
-public class PayLib implements PayInterface {
-    /*Constants*/
+public class PayLib {
+    /**
+     * @param version - lib`s version
+     * @param dataSource - operators date from web or from local data file
+     * @param PREFERENCES - for operators data to another activity
+     * @param operatorSettings - for operators data to another activity
+     * @param operatorInfo - map for operators data
+     * @param filters - map for text filters, where key - contents of filter, value - field type
+     * @param simCounter - quantity for sim-cards
+     * @param feedback - for feedback to Main application (outside)
+     * @param serviceActivation - for turn on/off Accessibility service, true  is on
+     * @param currentOperation
+     * @param currentMessages - set of current active output sms for monitoring
+     * @param simNum - chosen sim-card for current operation
+     * @param operatorName - chosen operator for current operation
+     */
     private String version = "1.0.1";
-    private String pathOfFile = "web";
     public static final String PREFERENCES = "operSetting";
 
     private String defaultSmsApp;
     private SharedPreferences operatorSettings;
-    public static Operator operatorSMS;
-    public static Operator operatorUssd;
     private HashMap<String, OperatorInfo> operatorInfo = new HashMap<>();
     private HashMap<String, String> filters = new HashMap<>();
     public static int simCounter = 0;
     public static CallSmsResult feedback;
-    public static String operName = "";
+    // public static String operName = "";
     public static Context cnt;
     public static Activity act;
-    public static Boolean flagok = false;
+    public static Boolean serviceActivation = false;
     public static Operation currentOperation;
-    public static HashSet<String> curMesage = new HashSet();
+    public static HashSet<MessageEntity> currentMessages = new HashSet();
     String result;
+    public static Cursor curSMSOut;
+    public static String currentMsg = "";
+    String dataSourceStr = LOCAL.toString();
+    private static HashMap<Operation, Operator> operatorsAgents = new HashMap();
 
-    public static String getOperName() {
-        return operName;
-    }
-
+    /**
+     * Feddback to application, which creates this feedback entity
+     */
     public static void getSMSResult(String smsBody) {
         Logger.lg("SmsBody from lib: " + smsBody);
         feedback.callResult("Code P2P-003: " + smsBody);
     }
 
-    public static Cursor curSMSOut;
-
-    public static void checkSmsAdditional() {
-        if (curSMSOut != null) {
-            String message_id = curSMSOut.getString(curSMSOut.getColumnIndex("_id"));
-            String type = curSMSOut.getString(curSMSOut.getColumnIndex("type"));
-            String numeroTelephone = curSMSOut.getString(curSMSOut.getColumnIndex("address")).trim();
-            String status = curSMSOut.getString(curSMSOut.getColumnIndex("status")).trim();
-            String body = curSMSOut.getString(curSMSOut.getColumnIndex("body")).trim();
-            Logger.lg("flagok " + flagok);
-            Logger.lg("message_id  " + message_id + " type " + type + " numeroTelephone " + numeroTelephone + " status " + status + " currentMsg  " + currentMsg
-                    + " body " + body);
-            if (status.equals("-1")) {
-                if (body.toLowerCase().contains("латеж выполнен")) {
-                    feedback.callResult("Code P2P-012: отправка СМС завершена успешно " + status + " на номер " + numeroTelephone);
-                } else {
-                    feedback.callResult("Code P2P-010: ошибка отправки смс " + status + " на номер " + numeroTelephone);
-                }
-            } else {
-                feedback.callResult("Code P2P-012: отправка СМС завершена успешно " + status + " на номер " + numeroTelephone);
-            }
-            flagok = false;
-            curSMSOut = null;
-        }
-
+    public enum dataSource {
+        WEB, LOCAL
     }
 
-    @Override
+    public PayLib(Activity act, Context cnt, CallSmsResult feedback, Boolean flag) {
+        updateData(act, cnt, feedback, flag);
+    }
+
+    public static Operator getOperatorsAgent(Operation operation) {
+        Logger.lg(operation + " " + operatorsAgents.values() + "  " + operatorsAgents.keySet());
+        if (operatorsAgents.containsKey(operation)) {
+            return operatorsAgents.get(operation);
+        } else if (operatorsAgents.containsKey(ALL)) {
+            return operatorsAgents.get(ALL);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Update data or initialization
+     *
+     * @param flag if true - this is initialization; false - update
+     */
     public void updateData(Activity act, Context cnt, CallSmsResult feedback, Boolean flag) {
-        Logger.lg("Update");
         this.feedback = feedback;
         this.cnt = cnt;
         this.act = act;
         curSMSOut = null;
         currentMsg = null;
-        operName = CommonFunctions.operName(cnt);
+        CommonFunctions.permissionCheck(cnt, act);
+        verifyAccesibilityAccess(act);
+        MapData.ini();
         if (flag == true) {
-            CommonFunctions.permissionCheck(cnt, act);
-//        USSDController.verifyAccesibilityAccess(act);
-            verifyAccesibilityAccess(act);
             operatorSettings = cnt.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE);
-            /*Create necessary objects*/
             if (isSimAvailable(cnt)) {
                 new DownloadApkTask().execute();
                 MyContentObserver contentObserver = new MyContentObserver();
@@ -122,11 +139,13 @@ public class PayLib implements PayInterface {
         }
     }
 
+    /**
+     * @return availability of sim-card, status == TelephonyManager.SIM_STATE_READY
+     */
     public boolean isSimAvailable(Context cnt) {
         boolean isAvailable = false;
         TelephonyManager telMgr = (TelephonyManager) cnt.getSystemService(Context.TELEPHONY_SERVICE);
         int simState = telMgr.getSimState();
-        Logger.lg(simState + " simState ");
         switch (simState) {
             case TelephonyManager.SIM_STATE_ABSENT: //SimState = “No Sim Found!”;
                 break;
@@ -145,9 +164,9 @@ public class PayLib implements PayInterface {
         return isAvailable;
     }
 
-
-    public static String currentMsg = "";
-
+    /**
+     * For observing of output sms
+     */
     private class MyContentObserver extends ContentObserver {
         public MyContentObserver() {
             super(null);
@@ -156,43 +175,35 @@ public class PayLib implements PayInterface {
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
-            Uri uriSMSURI = Uri.parse("content://sms/");
-            Cursor cur = cnt.getContentResolver().query(uriSMSURI, null, null, null, null);
+            Cursor cur = cnt.getContentResolver().query(Uri.parse("content://sms/"), null, null, null, null);
             if (cur.moveToNext()) {
                 String message_id = cur.getString(cur.getColumnIndex("_id"));
                 String type = cur.getString(cur.getColumnIndex("type"));
-                String numeroTelephone = cur.getString(cur.getColumnIndex("address")).trim();
+                String address = cur.getString(cur.getColumnIndex("address")).trim();
                 String status = cur.getString(cur.getColumnIndex("status")).trim();
                 String body = cur.getString(cur.getColumnIndex("body")).trim();
                 //0: _id//1: thread_id//2: address//3: person//4: date//5: protocol
                 //6: read//7: status//8: type//9: reply_path_present//10: subject
                 //11: body//12: service_center//13: locked
-                Logger.lg("flagok " + flagok);
-                Logger.lg("message_id  " + message_id + " type " + type + " numeroTelephone " + numeroTelephone + " status " + status + " currentMsg  " + currentMsg
+                Logger.lg("MessageEntity id " + message_id + " type " + type + " number " + address + " status " + status + " currentMsg  " + currentMsg
                         + " date " + cur.getString(cur.getColumnIndex("date")) + " body " + body);
                 if (currentMsg != null) {
+                    if ((currentMsg.substring(0, currentMsg.indexOf("[]")).contains(address)
+                            /* || CommonFunctions.formatOperName(address).contains(operatorSMS.operatorName)*/)
+                            && currentMsg.substring(currentMsg.indexOf("[]") + 2).contains(body)) {
+                        feedback.callResult("Process id " + currentMsg.substring(currentMsg.indexOf("operationId") + 11) + " Code P2P-010: ошибка отправки смс " + status + " на номер " + address);
+                    }
                     if ((status.equals("-1") || status == null) && !currentMsg.equals("")) {
-                        if ((currentMsg.substring(0, currentMsg.indexOf("[]")).contains(numeroTelephone)
-                                || CommonFunctions.formatOperMame(numeroTelephone).contains(operatorSMS.name))
-                                && currentMsg.substring(currentMsg.indexOf("[]") + 2).contains(body)) {
-                            feedback.callResult("Code P2P-010: ошибка отправки смс " + status + " на номер " + numeroTelephone);
-                            curSMSOut = cur;
-                        }
+                        curSMSOut = cur;
                     } else if (!status.equals("-1") && status != null && !currentMsg.equals("")) {
-                        if ((currentMsg.substring(0, currentMsg.indexOf("[]")).contains(numeroTelephone)
-                                || CommonFunctions.formatOperMame(numeroTelephone).contains(operatorSMS.name))
-                                && currentMsg.substring(currentMsg.indexOf("[]") + 2).contains(body)) {
-                            feedback.callResult("Code P2P-012: отправка СМС завершена успешно " + status + " на номер " + numeroTelephone);
-                            curSMSOut = null;
-                        }
+                        curSMSOut = null;
                     }
                 } else {
-                    Logger.lg("Error: currentMsg "  + currentMsg);
-                    //feedback.callResult("Code P2P-012: отправка СМС завершена успешно " + status + " на номер " + numeroTelephone);
+                    Logger.lg("Error: currentMsg " + currentMsg);
                     curSMSOut = null;
                 }
             }
-            flagok = false;
+            serviceActivation = false;
         }
 
         @Override
@@ -201,7 +212,10 @@ public class PayLib implements PayInterface {
         }
     }
 
-    /***/
+    /**
+     * For download operators data by web, or, if internet access is denied, from local data file
+     */
+
     private class DownloadApkTask extends AsyncTask<Void, Void, Void> {
 
         @Override
@@ -215,14 +229,12 @@ public class PayLib implements PayInterface {
         @Override
         protected Void doInBackground(Void... params) {
             final FilesLoader load = new FilesLoader();
-            // https://drive.google.com/open?id=1cP7AGOYNJNkjo0hrJxSCgyGi5TpSna-v
-            String input = load.downloadJson("https://drive.google.com/a/adviator.com/uc?authuser=0&id=1cP7AGOYNJNkjo0hrJxSCgyGi5TpSna-v&export=download");
-            pathOfFile = "web";
+            String input = load.downloadJson(dataAddress);
+            dataSourceStr = WEB.toString();
             if (input == null) {
                 byte[] buffer = null;
-                InputStream is;
                 try {
-                    is = cnt.getAssets().open("p2p_data.json");
+                    InputStream is = cnt.getAssets().open("p2p_data.json");
                     buffer = new byte[is.available()];
                     is.read(buffer);
                     is.close();
@@ -230,7 +242,7 @@ public class PayLib implements PayInterface {
                     e.printStackTrace();
                 }
                 input = new String(buffer);
-                pathOfFile = "local file";
+                dataSourceStr = LOCAL.toString();
             }
             SharedPreferences.Editor editor = operatorSettings.edit();
             editor.putString(PREFERENCES, input);
@@ -238,6 +250,7 @@ public class PayLib implements PayInterface {
             Gson g = new Gson();
             result = input;
             OperatorList operator = g.fromJson(input, OperatorList.class);
+            //TODO normal parsing
             for (Object user : operator.operators) {
                 Logger.lg("op " + user.toString() + " " + operator.getClass().toString());
                 String[] separated = user.toString().replace("{", "").replace("}", "").trim().split(",");
@@ -255,7 +268,7 @@ public class PayLib implements PayInterface {
 
         @Override
         protected void onPostExecute(Void result) {
-            setOperatorData(true, true);
+            feedback.callResult("Code P2P-001: Данные обновлены с помощью " + dataSourceStr + "\n" + operatorInfo.toString() + "\n");
         }
     }
 
@@ -279,408 +292,490 @@ public class PayLib implements PayInterface {
         }
     }
 
-
+    /***@return - returns number of sim card for specific operator @operName
+     **/
     public int getSimCardNumByName(String operName) {
         int result = -1;
-        final SubscriptionManager subscriptionManager;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP_MR1) {
-            subscriptionManager = SubscriptionManager.from(cnt);
-            if (ActivityCompat.checkSelfPermission(cnt, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
-                final List<SubscriptionInfo> activeSubscriptionInfoList = subscriptionManager.getActiveSubscriptionInfoList();
-                for (SubscriptionInfo subscriptionInfo : activeSubscriptionInfoList) {
-                    String carrierName = CommonFunctions.formatOperMame(subscriptionInfo.getCarrierName().toString());
-                    Logger.lg("oper name " + operName + "  carrierName " + carrierName);
-                    if (carrierName.contains(operName)) {
-                        result = subscriptionInfo.getSimSlotIndex();
-                    }
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP_MR1
+                && ActivityCompat.checkSelfPermission(cnt, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
+            for (SubscriptionInfo subscriptionInfo : SubscriptionManager.from(cnt).getActiveSubscriptionInfoList()) {
+                if (CommonFunctions.formatOperName(subscriptionInfo.getCarrierName().toString()).contains(operName)) {
+                    result = subscriptionInfo.getSimSlotIndex();
                 }
-            } else {
-                feedback.callResult("Code P2P-015: отсутствует разоешение READ_PHONE_STATE");
             }
         } else {
-            feedback.callResult("Code P2P-011: текущая вверсия системы не поддерживает dual sim");
+            feedback.callResult("Code P2P-011: текущая версия системы не поддерживает dual sim или не дано  разрешение READ_PHONE_STATE");
         }
         return result;
     }
 
+    /***@return - returns number of subscription id for specific operator @operName
+     **/
     public int getSubIdByName(String operName) {
         int result = -1;
-        final SubscriptionManager subscriptionManager;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP_MR1) {
-            subscriptionManager = SubscriptionManager.from(cnt);
-            if (ActivityCompat.checkSelfPermission(cnt, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
-                final List<SubscriptionInfo> activeSubscriptionInfoList = subscriptionManager.getActiveSubscriptionInfoList();
-                for (SubscriptionInfo subscriptionInfo : activeSubscriptionInfoList) {
-                    String carrierName = CommonFunctions.formatOperMame(subscriptionInfo.getCarrierName().toString());
-                    Logger.lg("oper name " + operName + "  carrierName " + carrierName);
-                    if (carrierName.contains(operName)) {
-                        result = subscriptionInfo.getSubscriptionId();
-                    }
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP_MR1
+                && ActivityCompat.checkSelfPermission(cnt, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
+            for (SubscriptionInfo subscriptionInfo : SubscriptionManager.from(cnt).getActiveSubscriptionInfoList()) {
+                if (CommonFunctions.formatOperName(subscriptionInfo.getCarrierName().toString()).contains(operName)) {
+                    result = subscriptionInfo.getSubscriptionId();
                 }
-            } else {
-                feedback.callResult("Code P2P-015: отсутствует разоешение READ_PHONE_STATE");
             }
         } else {
-            feedback.callResult("Code P2P-011: текущая вверсия системы не поддерживает dual sim");
+            feedback.callResult("Code P2P-011: текущая вверсия системы не поддерживает dual sim или отсутствует разрешение READ_PHONE_STATE");
         }
         return result;
     }
 
+    /***@return - returns   operator @operName for specific subscription id
+     **/
     public String getOperatorBySubId(int subscriptiond) {
         String result = "";
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP_MR1) {
-            final SubscriptionManager subscriptionManager = SubscriptionManager.from(cnt);
-            if (ActivityCompat.checkSelfPermission(cnt, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
-                final List<SubscriptionInfo> activeSubscriptionInfoList = subscriptionManager.getActiveSubscriptionInfoList();
-                for (SubscriptionInfo subscriptionInfo : activeSubscriptionInfoList) {
-                    int subId = subscriptionInfo.getSubscriptionId();
-                    Logger.lg("subscriptiond " + subscriptiond + " subId " + subId);
-                    if (subId == subscriptiond) {
-                        result = CommonFunctions.formatOperMame(subscriptionInfo.getCarrierName().toString());
-                    }
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP_MR1
+                && ActivityCompat.checkSelfPermission(cnt, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
+//            final List<SubscriptionInfo> activeSubscriptionInfoList = SubscriptionManager.from(cnt).getActiveSubscriptionInfoList();
+            for (SubscriptionInfo subscriptionInfo : SubscriptionManager.from(cnt).getActiveSubscriptionInfoList()) {
+                if (subscriptionInfo.getSubscriptionId() == subscriptiond) {
+                    result = CommonFunctions.formatOperName(subscriptionInfo.getCarrierName().toString());
                 }
-            } else {
-                feedback.callResult("Code P2P-015: отсутствует разоешение READ_PHONE_STATE");
             }
         } else {
-            feedback.callResult("Code P2P-011: текущая вверсия системы не поддерживает dual sim");
+            feedback.callResult("Code P2P-011: текущая вверсия системы не поддерживает dual sim или  отсутствует разрешение READ_PHONE_STATE");
         }
         return result;
-    }
-
-    private String getOperatorBySimId(int which) {
-        String result = "";
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP_MR1) {
-            final SubscriptionManager subscriptionManager = SubscriptionManager.from(cnt);
-            if (ActivityCompat.checkSelfPermission(cnt, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
-                final List<SubscriptionInfo> activeSubscriptionInfoList = subscriptionManager.getActiveSubscriptionInfoList();
-                for (SubscriptionInfo subscriptionInfo : activeSubscriptionInfoList) {
-                    int subId = subscriptionInfo.getSimSlotIndex();
-                    Logger.lg("getOperatorBySimId " + which + " subId " + subId);
-                    if (subId == which) {
-                        result = CommonFunctions.formatOperMame(subscriptionInfo.getCarrierName().toString());
-                    }
-                }
-            } else {
-                feedback.callResult("Code P2P-015: отсутствует разоешение READ_PHONE_STATE");
-            }
-        } else {
-            feedback.callResult("Code P2P-011: текущая вверсия системы не поддерживает dual sim");
-        }
-        return result;
-    }
-
-    public void setOperatorData(Boolean sendWithSaveOutput, Boolean sendWithSaveInput) {
-        Logger.lg("ilik");
-        operatorSMS = new Operator(CommonFunctions.operName(cnt), sendWithSaveOutput, sendWithSaveInput, cnt);
-        operatorUssd = new Operator(CommonFunctions.operName(cnt), sendWithSaveOutput, sendWithSaveInput, cnt);
-        TelephonyManager telephonyManager = (TelephonyManager) act.getSystemService(Context.TELEPHONY_SERVICE);
-        SmsManager mgr = SmsManager.getDefault();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            simCounter = telephonyManager.getPhoneCount();
-        } else {
-            simCounter = 1;
-        }
-        if (simCounter == 1) {
-            OperatorInfo info = operatorInfo.get(getOperName());
-            operatorSMS.setData(info.smsNum, info.target, info.sum, info.ussdNum);
-            operatorUssd = operatorSMS;
-        } else {
-            /***For sms operator*/
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-                if (mgr.getSubscriptionId() >= 0) {
-                    operatorSMS.name = getOperatorBySubId(mgr.getSubscriptionId());
-                    if (operatorInfo.containsKey(operatorSMS.name)) {
-                        OperatorInfo info = operatorInfo.get(operatorSMS.name);
-                        operatorSMS.setData(info.smsNum, info.target, info.sum, info.ussdNum);
-                        Operator.simNumSms = mgr.getSubscriptionId();
-                        Logger.lg("Operator sms " + info.smsNum + " " + info.target + " " + info.sum + " " + info.ussdNum + " " + mgr.getSubscriptionId());
-                    }
-                } else {
-                    feedback.callResult("Code: P2P-002. Вызовите функцию  operatorChooser с параметром \"SMS\" для выбора сим-карты для отправки смс");
-                }
-            } else {
-                feedback.callResult("Code P2P-011: текущая вверсия системы не поддерживает dual sim");
-            }
-            /**For ussd operator**/
-            if (operatorInfo.containsKey(operatorUssd.name)) {
-                OperatorInfo info = operatorInfo.get(operatorUssd.name);
-                operatorUssd.setData(info.smsNum, info.target, info.sum, info.ussdNum);
-                Operator.simNumUssd = getSimCardNumByName(operatorUssd.name);
-                Logger.lg("Operator ussd " + operatorUssd.name + " " + info.smsNum + " " + info.target + " " + info.sum + " " + info.ussdNum + " " + Operator.simNumUssd);
-            }
-        }
-        feedback.callResult("Code P2P-001: Данные обновлены с помощью " + pathOfFile + "\n" + result + "\n");
     }
 
     /**
-     * Reply answer code
+     * @return - returns operator @operName for specific sim number
+     **/
+    private String getOperatorBySimId(int which) {
+        String result = "";
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP_MR1
+                && ActivityCompat.checkSelfPermission(cnt, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
+            for (SubscriptionInfo subscriptionInfo : SubscriptionManager.from(cnt).getActiveSubscriptionInfoList()) {
+                if (subscriptionInfo.getSimSlotIndex() == which) {
+                    result = CommonFunctions.formatOperName(subscriptionInfo.getCarrierName().toString());
+                    Logger.lg("Sim  " + which + "  " + subscriptionInfo.getSimSlotIndex() + " " + subscriptionInfo.getCarrierName()
+                            + " " + result);
+                }
+            }
+        } else {
+            feedback.callResult("Code P2P-011: текущая вверсия системы не поддерживает dual sim или отсутствует разрешение READ_PHONE_STATE");
+        }
+        Logger.lg("Sim  " + which + " Result  " + result);
+        return result;
+    }
+
+    private void clear() {
+        currentMessages.clear();
+        curSMSOut = null;
+        currentMsg = null;
+        currentOperation = null;
+    }
+
+    /**
+     * Operation for test mode with chosen num and sum
+     */
+    public void operation(Long operationId, String operType, Activity act, Context cnt, String operDestination, String target, String sum, Integer simNum) {
+        clear();
+        Logger.lg("operType " + operType + " operdestination " + operDestination + " target " + target + " " + simNum);
+        if (checkPermissionForOperation(operType, cnt)) {
+            if (simNum != null) {
+                if (operType.toUpperCase().equals(Operation.SMS.toString())) {
+                    Operator operator = new Operator(getOperatorBySimId(simNum), true, true,
+                            cnt, operationId, Operation.SMS);
+                    setOperatorData(operator, simNum);
+                    Logger.lg("create sms agent " + simNum + " " + operator.operatorName + " " + getOperatorBySimId(simNum));
+                    operatorsAgents.put(Operation.SMS, operator);
+                    operator.setParameters(target, sum, simNum);
+                    currentOperation = SMS;
+                    operator.sendSMS(cnt);
+                } else if (operType.toUpperCase().equals(USSD.toString())) {
+                    Operator operator = new Operator(getOperatorBySimId(simNum), true, true,
+                            cnt, operationId, USSD);
+                    setOperatorData(operator, simNum);
+                    currentOperation = USSD;
+                    operatorsAgents.put(USSD, operator);
+                    operator.setParameters(target, sum, simNum);
+                    serviceActivation = true;
+                    operator.sendUssd(operDestination, act);
+                }
+            } else if (simNum == null) {
+                /**for dev mode*/
+                operationDefault(operType, act, cnt, operDestination, target, sum);
+            }
+        } else {
+            feedback.callResult("Code P2P-015: отсутствует разрешение SEND_SMS или CALL_PHONE 0");
+        }
+    }
+
+    private void operationDefault(String operType, Activity act, Context cnt, String operDestination, String target, String sum) {
+        if (operType.toUpperCase().equals(Operation.SMS.toString())) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                Logger.lg("carrierName " + SmsManager.getDefaultSmsSubscriptionId() + " " + CommonFunctions.formatOperName(getOperatorBySubId(SmsManager.getDefaultSmsSubscriptionId())));
+                Operator operator = new Operator(getOperatorBySubId(SmsManager.getDefaultSmsSubscriptionId()), true, true,
+                        cnt, null, Operation.SMS);
+                setOperatorData(operator);
+                operatorsAgents.put(Operation.SMS, operator);
+                currentOperation = SMS;
+                operator.sendSMS(cnt);
+            } else {
+                feedback.callResult("Code P2P-015: данная версия не поддерживает функцию автоматического чтения операторов");
+            }
+        } else if (operType.toUpperCase().equals(USSD.toString())) {
+            TelephonyManager tManager = (TelephonyManager) act.getBaseContext()
+                    .getSystemService(Context.TELEPHONY_SERVICE);
+            String carrierName = CommonFunctions.formatOperName(tManager.getNetworkOperatorName());
+            Logger.lg("carrierName " + carrierName);
+            Operator operator = new Operator(carrierName, true, true,
+                    cnt, null, USSD);
+            setOperatorData(operator);
+            currentOperation = USSD;
+            operatorsAgents.put(USSD, operator);
+            serviceActivation = true;
+            operator.sendUssd(operDestination, act);
+        }
+    }
+
+    /**
+     * Operation for test mode with chosen num and sum
+     */
+    public void operation(String operType, Context cnt, String target, String sum, Boolean saveFlag) {
+        clear();
+        if (checkPermissionForOperation(operType, cnt)
+                && operType.toUpperCase().equals(SMS.toString())
+                && getOperatorsAgent(SMS) != null) {
+            Operator operator = getOperatorsAgent(SMS);
+            operator.setParameters(target, sum, null);
+            operator.setFlagSave(saveFlag, saveFlag);
+            operatorsAgents.put(SMS, operator);
+            currentOperation = SMS;
+            operator.setParameters(target, sum, null);
+            operator.sendSMS(cnt);
+        } else {
+            feedback.callResult("Code P2P-015: отсутствует разрешение SEND_SMS или CALL_PHONE 1");
+        }
+    }
+
+    /**
+     * Operation proceeding
+     *
+     * @param operType        - operation type - sms or ussd
+     * @param operDestination - operator for destination, required for some operators
+     */
+    public void operation(String operType, Activity act, Context cnt, String operDestination, Boolean sendWithSaveOutput, Boolean sendWithSaveInput) {
+        clear();
+        if (checkPermissionForOperation(operType, cnt)) {
+            Logger.lg("operatorsAgents.keySet() " + operatorsAgents.keySet());
+            if (operType.toUpperCase().equals(SMS.toString())) {
+                Operator operator = null;
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP_MR1) {
+                    operator = new Operator(getOperatorBySubId(SmsManager.getDefaultSmsSubscriptionId()), true, true,
+                            cnt, null, Operation.SMS);
+
+                    operator.setFlagSave(sendWithSaveOutput, sendWithSaveInput);
+                    operatorsAgents.put(SMS, operator);
+                    setOperatorData(operator);
+                    operator.sendSMS(cnt);
+                } else {
+                    feedback.callResult("Code P2P-015: данная версия Android не поддерживает автоматическую настройку отправки СМС");
+                }
+            } else if (operType.toUpperCase().equals(USSD.toString())) {
+                TelephonyManager tManager = (TelephonyManager) act.getBaseContext()
+                        .getSystemService(Context.TELEPHONY_SERVICE);
+                String carrierName = CommonFunctions.formatOperName(tManager.getNetworkOperatorName());
+                Operator operator = new Operator(carrierName, true, true,
+                        cnt, null, USSD);
+                operator.setFlagSave(sendWithSaveOutput, sendWithSaveInput);
+                operatorsAgents.put(USSD, operator);
+                setOperatorData(operator);
+                serviceActivation = true;
+                operator.sendUssd(operDestination, act);
+            }
+        } else {
+            feedback.callResult("Code P2P-015: отсутствует разрешение SEND_SMS или CALL_PHONE 2");
+        }
+    }
+
+    /**
+     * Reply answer code for
+     *
+     * @param smsBody   - body of incoming sms
+     * @param smsSender - sms sender number or operator operatorName
      */
     public static void sendAnswer(String smsBody, String smsSender) {
+        Logger.lg("DEBYF " + smsBody + " " + smsSender + " " + currentOperation + " " + operatorsAgents.keySet());
         if (currentOperation != null) {
-            if (currentOperation.equals(Operation.USSD)) {
-                operatorUssd.sendAnswer(smsBody, smsSender);
+            if (currentOperation.equals(USSD)) {
+                operatorsAgents.get(USSD).sendAnswer(smsBody, smsSender);
             }
             if (currentOperation.equals(Operation.SMS)) {
-                operatorSMS.sendAnswer(smsBody, smsSender);
+                operatorsAgents.get(Operation.SMS).sendAnswer(smsBody, smsSender);
             }
         }
     }
 
+//    /**Send sms for
+//     * @param sendWithSaveOutput - save or not outgoing sms, true - save
+//     */
+//    public void sendSms(Boolean sendWithSaveOutput, Context cnt) {
+//        serviceActivation = true;
+//        currentOperation = Operation.SMS;
+//        operatorSMS.sendSMS(cnt);
+//    }
+//
+//    /**
+//     * Send ussd for
+//     *
+//     * @param operDestination - destination operator
+//     */
+//    public void sendUssd(String operDestination, Activity act) {
+//        currentOperation = Operation.USSD;
+//        serviceActivation = true;
+//        operatorUssd.sendUssd(operDestination, act);
+//    }
 
-    public void sendSms(Boolean sendWithSaveOutput, Context cnt) {
-        flagok = true;
-        currentOperation = Operation.SMS;
-        operatorSMS.sendWithSaveOutput = sendWithSaveOutput;
-        operatorSMS.sendSMS(sendWithSaveOutput, cnt);
-    }
-
-
-    public void sendUssd(String operDestination, Activity act) {
-        currentOperation = Operation.USSD;
-        flagok = true;
-        operatorUssd.sendUssd(operDestination, act);
-    }
-
-
-    @Override
-    public String getVersion() {
+    public String getLibVersion() {
         return version;
     }
 
+    /**
+     * Set filters for
+     *
+     * @see PayLib#deleteSMS(HashMap, Context)
+     **/
     public void setFilter(HashMap<String, String> filters) {
         this.filters.putAll(filters);
     }
 
     /**
-     * sendWithSaveOutput - for sms
-     * operDestination - for ussd
+     * Check defaults sms application. Display dialog for chose sms default app
      */
-    @Override
-    public void operation(String operType, Boolean sendWithSaveOutput,
-                          Activity act, Context cnt, String operDestination, String phoneNum, String sum) {
-        curMesage.clear();
-        curSMSOut = null;
-        currentMsg = null;
-        switch (operType) {
-            case "sms":
-                if (ActivityCompat.checkSelfPermission(cnt, Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED) {
-                    if (phoneNum != null) {
-                        operatorSMS.target = phoneNum;
-                    }
-                    if (sum != null) {
-                        operatorSMS.sum = sum;
-                    }
-                    sendSms(sendWithSaveOutput, cnt);
-                } else {
-                    feedback.callResult("Code P2P-015: отсутствует разрешение SEND_SMS");
-                }
-                break;
-            case "ussd":
-                String permission = "Code P2P-015: отсутствует разрешение ";
-                Boolean flagPermission = true;
-                if (!USSDController.isAccessiblityServicesEnable(cnt)) {
-                    permission = permission + "  Accessibility Services ";
-                    flagPermission = false;
-                }
-                if (ActivityCompat.checkSelfPermission(cnt, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-                    permission = permission + " CALL_PHONE";
-                    flagPermission = false;
-                }
-                if (flagPermission) {
-                    if (phoneNum != null) {
-                        operatorUssd.target = phoneNum;
-                        Logger.lg("phoneNum " + phoneNum);
-                        operatorUssd.sendWithSaveOutput = sendWithSaveOutput;
-                    }
-                    if (sum != null) {
-                        operatorUssd.sum = sum;
-                    }
-                    sendUssd(operDestination, act);
-                } else {
-                    feedback.callResult(permission);
-                }
-                break;
-        }
-    }
-
-
-    /**
-     * param 0 - operator massive, 1 - dialog
-     */
-    @Override
-    public HashMap<Integer, String> operatorChooser(Context cnt, final String operation, int param) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(cnt);
-        builder.setTitle("Choose sim card for operation " + operation);
-        if (simCounter == 0) {
-            TelephonyManager telephonyManager = (TelephonyManager) act.getSystemService(Context.TELEPHONY_SERVICE);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                simCounter = telephonyManager.getPhoneCount();
-            }
-        }
-        final HashMap<Integer, String> mass = new HashMap<Integer, String>();
-        final SubscriptionManager subscriptionManager;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP_MR1) {
-            subscriptionManager = SubscriptionManager.from(cnt);
-            if (ActivityCompat.checkSelfPermission(cnt, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
-                final List<SubscriptionInfo> activeSubscriptionInfoList = subscriptionManager.getActiveSubscriptionInfoList();
-                Logger.lg("activeSubscriptionInfoList  " + activeSubscriptionInfoList.size());
-                for (SubscriptionInfo subscriptionInfo : activeSubscriptionInfoList) {
-                    final CharSequence carrierName = subscriptionInfo.getCarrierName();
-                    final Integer simId = subscriptionInfo.getSimSlotIndex();
-                    Logger.lg(carrierName + " sim card " + simId);
-                    if (operatorInfo.containsKey(CommonFunctions.formatOperMame(carrierName.toString()))) {
-                        mass.put(simId, carrierName.toString());
-                        Logger.lg(mass.get(simId) + " l ");
-                    } else {
-                        Logger.lg("This operator is unknown");
-                    }
-                }
-                if (param == 1 && mass.size() > 0) {
-                    final String m[] = new String[mass.size()];
-                    int s = 0;
-                    Logger.lg(mass.keySet() + " keys ");
-                    for (Map.Entry entry : mass.entrySet()) {
-                        m[s] = "simcard № " + entry.getKey().toString() + " " + entry.getValue();
-                        s++;
-                    }
-                    Logger.lg(mass.size() + " len " + m[0] + " " + mass.get(0));
-                    builder.setItems(m, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            int num = Integer.parseInt(m[which].replaceAll("[^0-9]", ""));
-                            if (Operation.SMS.toString().equals(operation)) {
-                                Operator.simNumSms = num;
-                            }
-                            if (Operation.USSD.toString().equals(operation)) {
-                                Operator.simNumUssd = num;
-                            }
-                            updateOperator(num, operation);
-                            Logger.lg("for operation " + operation + " choose sim-card " + num);
-                        }
-                    });
-                    builder.show();
-
-                }
-            } else {
-                feedback.callResult("Code P2P-015: отсутствует разрешение READ_PHONE_STATE");
-            }
-        } else {
-            feedback.callResult("Code P2P-011: текущая вверсия системы не поддерживает dual sim");
-        }
-        for (int i = 0; i < mass.size() - 1; i++) {
-            Logger.lg("mass mass " + mass.get(i));
-        }
-        return mass;
-    }
-
-    private void updateOperator(int which, String operation) {
-        String name = getOperatorBySimId(which);
-        Logger.lg("Choose sim " + which + " for operation " + operation + " operName " + name);
-        OperatorInfo info = null;
-        if (operatorInfo.containsKey(name)) {
-            info = operatorInfo.get(name);
-        }
-        if (Operation.SMS.toString().equals(operation)) {
-            operatorSMS.name = name;
-            Logger.lg("name  " + info.operator + " " + info.smsNum + " " + info.target + " " + info.sum + " " + info.ussdNum);
-            operatorSMS.setData(info.smsNum, info.target, info.sum, info.ussdNum);
-            Operator.simNumSms = getSubIdByName(operatorSMS.name);
-        }
-        if (Operation.USSD.toString().equals(operation)) {
-            operatorUssd.name = name;
-            operatorUssd.setData(info.smsNum, info.target, info.sum, info.ussdNum);
-            Operator.simNumUssd = getSimCardNumByName(operatorUssd.name);
-        }
-    }
-
-
     public void checkSmsDefaultApp(boolean deleteFlag, Integer code) {
         final String myPackageName = cnt.getPackageName();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             defaultSmsApp = Telephony.Sms.getDefaultSmsPackage(cnt);
         }
-        Logger.lg(deleteFlag + " MyPackageName  " + myPackageName + "  defaultSmsApp now " + defaultSmsApp + " " + !defaultSmsApp.equals(myPackageName));
-        if (!myPackageName.equals(defaultSmsApp) && deleteFlag == true) {
-            Intent intent = new Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT);
-            act.startActivityForResult(intent, code);
-        } else {
-            Intent intent2 = new Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT);
-            act.startActivityForResult(intent2, code);
-        }
+        Logger.lg(deleteFlag + " MyPackageName  " + myPackageName + "  defaultSmsApp now "
+                + defaultSmsApp + " " + !defaultSmsApp.equals(myPackageName));
+        act.startActivityForResult(new Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT), code);
     }
 
-    @Override
-    public void deleteSMS(HashMap<String, String> filters, Context cnt) {
-        Uri uriSms = Uri.parse("content://sms");
-        Cursor c = cnt.getContentResolver().query(
-                uriSms, null, null, null, null);
-        Logger.lg("SMS in inbox: " + c.getCount());
-        int flag = 0;
-        int flag2 = 0;
-        int flag2Max = 0;
-        Boolean thisFil = false;
-        if (filters.isEmpty()) {
-            for (String str : curMesage) {
-                filters.put(str, "body");
+
+    public Boolean checkPermissionForOperation(String operation, Context cnt) {
+        Boolean result = false;
+        if (operation.equals(Operation.SMS.toString()) && ActivityCompat.checkSelfPermission(cnt, Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED) {
+            result = true;
+        } else if (operation.equals(USSD.toString())
+                && ActivityCompat.checkSelfPermission(cnt, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(cnt, Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED) {
+            result = true;
+        }
+        return result;
+    }
+
+
+    /**
+     * @param param 0 - operator massive, 1 - dialog
+     * @return HashMap key - sim number; value - operator operatorName     *
+     */
+    public HashMap<Integer, String> operatorChooser(Context cnt, final String operation, int param) {
+        if (simCounter == 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            simCounter = ((TelephonyManager) act.getSystemService(Context.TELEPHONY_SERVICE)).getPhoneCount();
+        }
+        HashMap<Integer, String> mass = new HashMap<Integer, String>();
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP_MR1
+                && ActivityCompat.checkSelfPermission(cnt, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
+            SubscriptionManager subscriptionManager = SubscriptionManager.from(cnt);
+            List<SubscriptionInfo> activeSubscriptionInfoList = subscriptionManager.getActiveSubscriptionInfoList();
+            Logger.lg("Active Subscription Info List size: " + activeSubscriptionInfoList.size());
+            for (SubscriptionInfo subscriptionInfo : activeSubscriptionInfoList) {
+                CharSequence carrierName = subscriptionInfo.getCarrierName();
+                Integer simId = subscriptionInfo.getSimSlotIndex();
+                Logger.lg(carrierName + " with sim-card  number " + simId);
+                if (operatorInfo.containsKey(CommonFunctions.formatOperName(carrierName.toString()))) {
+                    mass.put(simId, carrierName.toString());
+                } else {
+                    Logger.lg("This operator is unknown. It cannot be found id operators data");
+                }
             }
-            thisFil = true;
-        }
-        Logger.lg("filters.toString() " + filters.toString());
-        if (currentOperation.equals(Operation.SMS)) {
-            flag2Max = 2;
-        } else if (currentOperation.equals(Operation.USSD)) {
-            flag2Max = 1;
-        }
-        if (c != null && c.moveToFirst()) {
-            do {
-                long id = c.getLong(0);
-                long threadId = c.getLong(1);
-                String address = c.getString(2);
-                String body = c.getString(c.getColumnIndex("body"));
-                String date = c.getString(3);
-                Logger.lg("Message  " + body + " id " + id + " date " + date + " " + address);
-                if (address != null) {
-                    if ((operatorSMS.smsNum.contains(address) || address.toUpperCase().equals(operatorSMS.name)) && flag < 2) {
-                        int iko = cnt.getContentResolver().delete(
-                                Uri.parse("content://sms"), "_id=? and thread_id=?", new String[]{String.valueOf(id), String.valueOf(threadId)});
-                        if (iko != 0) {
-                            flag++;
+            if (mass.size() > 0) {
+                String m[] = new String[mass.size()];
+                int s = 0;
+                Logger.lg(mass.keySet() + " keys ");
+                for (Map.Entry entry : mass.entrySet()) {
+                    m[s] = "Simcard № " + entry.getKey().toString() + " " + entry.getValue();
+                    s++;
+                }
+                if (param == 1) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(cnt);
+                    builder.setTitle(Constants.textForSimChoser + operation);
+                    Logger.lg(mass.size() + " len " + m[0] + " " + mass.get(0));
+                    builder.setItems(m, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            int simNumber = Integer.parseInt(m[which].replaceAll("[^0-9]", ""));
+                            Operator operator = null;
+                            if (Operation.SMS.toString().equals(operation) && operatorsAgents.containsKey(Operation.SMS)) {
+                                operator = operatorsAgents.get(Operation.SMS);
+                            }
+                            if (USSD.toString().equals(operation) && operatorsAgents.containsKey(USSD)) {
+                                operator = operatorsAgents.get(USSD);
+                            }
+                            if (operator != null && operatorInfo.containsKey(operator.operatorName)) {
+                                OperatorInfo info = operatorInfo.get(operator.operatorName);
+                                operator.updateData(info.smsNum, info.ussdNum);
+                                operator.setParameters(info.target, info.sum, simNumber);
+                                Logger.lg("for operation " + operation + " choose sim-card " + simNumber + " with operator " + operator.operatorName);
+                            }
                         }
-                        Logger.lg("Delete result " + iko);
-                    }
-                    if (flag2 < flag2Max) {
-                        for (Map.Entry<String, String> filter : filters.entrySet()) {
-                            Logger.lg("key " + filter.getKey() + " " + filter.getValue());
-                            if (thisFil) {
-                                if (filter.getKey().substring(0, filter.getKey().indexOf("[]")).contains(address) && body.contains(filter.getKey().substring(filter.getKey().indexOf("[]") + 2)))
-                                    flag2 = cnt.getContentResolver().delete(
-                                            Uri.parse("content://sms"), "_id=? and thread_id=?", new String[]{String.valueOf(id), String.valueOf(threadId)});
-                                Logger.lg("delete " + flag2);
-                                if (flag2 != -1) {
-                                    flag2++;
+                    });
+                    builder.show();
+                }
+            }
+        } else {
+            feedback.callResult("Code P2P-011: текущая вверсия системы не поддерживает dual sim или отсутствует разрешение READ_PHONE_STATE");
+        }
+        return mass;
+    }
 
-                                }
-                            } else {
-                                if (filter.getKey().contains(address) && body.contains(filter.getKey()))
-                                    flag2 = cnt.getContentResolver().delete(
-                                            Uri.parse("content://sms"), "_id=? and thread_id=?", new String[]{String.valueOf(id), String.valueOf(threadId)});
-                                Logger.lg("delete " + flag2);
-                                if (flag2 != -1) {
-                                    flag2++;
+    /**
+     * @param filters - for filter required smsm from all
+     */
+    public void deleteSMS(HashMap<String, String> filters, Context cnt) {
+        Operator operator = operatorsAgents.containsKey(SMS) ? operatorsAgents.get(SMS) : (operatorsAgents.containsKey(ALL) ? operatorsAgents.get(ALL) : null);
+        if (operator != null) {
+            Cursor c = cnt.getContentResolver().query(Uri.parse("content://sms"), null, null, null, null);
+            int flag = 0;
+            int flag2 = 0;
+            int flag2Max = currentOperation.equals(Operation.SMS) ? 2 : 1;
+            Boolean filtersExists = false;
+            if (filters.isEmpty()) {
+                for (MessageEntity str : currentMessages) {
+                    filters.put(str.toString(), "body");
+                }
+                filtersExists = true;
+            }
+            Logger.lg("filters.toString() " + filters.toString());
+            if (c != null && c.moveToFirst()) {
+                do {
+                    long id = c.getLong(0);
+                    long threadId = c.getLong(1);
+                    String address = c.getString(2);
+                    String body = c.getString(c.getColumnIndex("body"));
+                    String date = c.getString(3);
+                    Logger.lg("MessageEntity  " + body + " id " + id + " date " + date + " " + address);
+                    if (address != null) {
+                        if ((operator.smsNum.contains(address) || address.toUpperCase().equals(operator.operatorName)) && flag < 2) {
+                            int delResultLocal = cnt.getContentResolver().delete(
+                                    Uri.parse("content://sms"), "_id=? and thread_id=?", new String[]{String.valueOf(id), String.valueOf(threadId)});
+                            if (delResultLocal != 0) {
+                                flag++;
+                            }
+                            Logger.lg("Delete result " + delResultLocal);
+                        }
+                        if (flag2 < flag2Max) {
+                            for (Map.Entry<String, String> filter : filters.entrySet()) {
+                                if (filtersExists) {
+                                    if (filter.getKey().substring(0, filter.getKey().indexOf("[]")).contains(address) && body.contains(filter.getKey().substring(filter.getKey().indexOf("[]") + 2)))
+                                        flag2 = cnt.getContentResolver().delete(
+                                                Uri.parse("content://sms"), "_id=? and thread_id=?", new String[]{String.valueOf(id), String.valueOf(threadId)});
+                                    if (flag2 != -1) {
+                                        flag2++;
+                                    }
+                                } else {
+                                    if (filter.getKey().contains(address) && body.contains(filter.getKey()))
+                                        flag2 = cnt.getContentResolver().delete(
+                                                Uri.parse("content://sms"), "_id=? and thread_id=?", new String[]{String.valueOf(id), String.valueOf(threadId)});
+                                    if (flag2 != -1) {
+                                        flag2++;
 
+                                    }
                                 }
                             }
                         }
                     }
-                }
 
-            } while (c.moveToNext());
+                } while (c.moveToNext());
+            }
+            feedback.callResult("Code P2P-005: удалено " + flag + " входящих смс и " + flag2 + " исходящих");
         }
-        feedback.callResult("Code P2P-005: удалено " + flag + " входящих смс и " + flag2 + " исходящих");
+    }
+
+    /**
+     * Additional check send sms status
+     */
+    public static void checkSmsAdditional() {
+        if (curSMSOut != null) {
+            String message_id = curSMSOut.getString(curSMSOut.getColumnIndex("_id"));
+            String type = curSMSOut.getString(curSMSOut.getColumnIndex("type"));
+            String number = curSMSOut.getString(curSMSOut.getColumnIndex("address")).trim();
+            String status = curSMSOut.getString(curSMSOut.getColumnIndex("status")).trim();
+            String body = curSMSOut.getString(curSMSOut.getColumnIndex("body")).trim();
+            Logger.lg("MessageEntity Id  " + message_id + " type " + type + " number " + number + " status " + status
+                    + " currentMsg  " + currentMsg + " body " + body);
+            if (status.equals("-1")) {
+                if (SmsMonitor.checkContents(body.toLowerCase(), MapData.paymentGranted.get(OperatorNames.ALL))
+                        && !SmsMonitor.checkContents(body.toLowerCase(), MapData.paymentDenied.get(OperatorNames.ALL))) {
+                    feedback.callResult("Process id " + currentMsg.substring(currentMsg.indexOf("operationId") + 11)
+                            + " Code P2P-012: отправка СМС на номер " + number + " завершена успешно");
+                } else {
+                    feedback.callResult("Process id " + currentMsg.substring(currentMsg.indexOf("operationId") + 11)
+                            + " Code P2P-010: ошибка отправки СМС  на номер " + number + ". Status: " + status);
+                }
+            } else {
+                feedback.callResult("Process id " + currentMsg.substring(currentMsg.indexOf("operationId") + 11)
+                        + " Code P2P-012: отправка СМС на номер " + number + " завершена успешно");
+            }
+            serviceActivation = false;
+            curSMSOut = null;
+        }
+    }
+
+    public void setOperatorData(Operator operator, Integer simNum) {
+        if (operatorInfo.containsKey(operator.operatorName)) {
+            OperatorInfo info = operatorInfo.get(operator.operatorName);
+            operator.updateData(info.smsNum, info.ussdNum);
+            Logger.lg("For operation " + operator.getType() + " operator " + operator.operatorName + " " + info.smsNum + " " + info.target + " " + info.sum + " " + info.ussdNum + " ");
+        } else {
+            feedback.callResult(" not information data for operator " + operator.operatorName + " operation " + operator.getType());
+        }
+    }
+
+    public void setOperatorData(Operator operator) {
+        if (operatorInfo.containsKey(operator.operatorName)) {
+            OperatorInfo info = operatorInfo.get(operator.operatorName);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                TelephonyManager telephonyManager = (TelephonyManager) act.getSystemService(Context.TELEPHONY_SERVICE);
+                simCounter = telephonyManager.getPhoneCount();
+            } else {
+                simCounter = 1;
+            }
+            if (simCounter == 1) {
+                operator.setType(ALL);
+            } else {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                    SmsManager mgr = SmsManager.getDefault();
+                    if (mgr.getSubscriptionId() >= 0) {
+                        operator.operatorName = getOperatorBySubId(mgr.getSubscriptionId());
+                        if (operatorInfo.containsKey(operator.operatorName)) {
+                            info = operatorInfo.get(operator.operatorName);
+                        }
+                    } else {
+                        feedback.callResult("Code: P2P-002. Вызовите функцию  operatorChooser с параметром \"SMS\" для выбора сим-карты для отправки смс");
+                    }
+                } else {
+                    feedback.callResult("Code P2P-011: текущая вверсия системы не поддерживает dual sim");
+                }
+            }
+            operator.updateData(info.smsNum, info.ussdNum);
+            operator.setParameters(info.target, info.sum, getSimCardNumByName(operator.operatorName));
+            Logger.lg("For operation " + operator.getType() + " operator " + operator.operatorName + " " + info.smsNum + " " + info.target + " " + info.sum + " " + info.ussdNum + " ");
+        } else {
+            feedback.callResult(" not information data for operator " + operator.operatorName + " operation " + operator.getType());
+        }
     }
 
     public enum Operation {
-        SMS, USSD
+        SMS, USSD, ALL
     }
 }

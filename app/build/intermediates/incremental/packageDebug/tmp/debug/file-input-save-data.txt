@@ -1,5 +1,5 @@
 #Internal package file, do not edit.
-#Thu Jan 31 18:36:27 MSK 2019
+#Mon Feb 11 17:40:42 MSK 2019
 17.baseType=DIRECTORY
 4.path=lib/mips64/libtess.so
 8.set=NATIVE_RESOURCE

@@ -7,9 +7,11 @@ import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
 import android.telephony.TelephonyManager;
 
+import com.p2plib2.Logger;
+
 import java.util.ArrayList;
 
-/**This class provides methods for normalizing operator name and checks permissions*
+/**This class provides methods for normalizing operator operatorName and checks permissions*
  *
  */
 public class CommonFunctions {
@@ -48,19 +50,18 @@ public class CommonFunctions {
         }
     }
 
-    /**Returns default telephone operator in normal format*/
+    /**@return default telephone operator in normal format*/
     public static String operName(Context cnt) {
         telephonyManager = (TelephonyManager) cnt.getSystemService(Context.TELEPHONY_SERVICE);
         String operName = telephonyManager.getNetworkOperatorName().toUpperCase();
-        return formatOperMame(operName);
+        return formatOperName(operName);
     }
 
-    /** @param oName - String param, which may contains operator name in different styles
-     * @return operator name in Uppercase without additional text, such as "Rus 1" and etc.
+    /** @param oName - String param, which may contains operator operatorName in different styles
+     * @return operator operatorName in Uppercase without additional text, such as "Rus 1" and etc.
      * Work with operator names, which contains "MTS", "BEELINE", "MEGAFON", "TELE"
-     *
      * TODO: in input rules for normalizing operators and ability to add new operator or move this function in ORM*/
-    public static String formatOperMame(String oName) {
+    public static String formatOperName(String oName) {
         String operName = oName.toUpperCase();
         if(operName.contains("MTS")){
             operName = "MTS";
@@ -75,5 +76,13 @@ public class CommonFunctions {
             operName = "MEGAFON";
         }
         return operName;
+    }
+
+
+    /**Compare operator operatorName with enums @see #OperatorNames
+     * @return true if operator name_1 is equals to operator name_2*/
+    public static Boolean equalsOperators(String name, MapData.OperatorNames constantName) {
+        Logger.lg("name " + name + " constantName  " + constantName + " " + (name.equals(constantName.toString())));
+        return name.equals(constantName.toString());
     }
 }
